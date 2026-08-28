@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Zed — OUSD Dollar Account · Funds Flow (Bridge KYB)</title>
+<style>
+  :root {
+    --black: #000000;
+    --body: #4C4C4C;
+    --helper: #9A9A9A;
+    --subdued: rgba(0,0,0,0.45);
+    --border: #C8C3B9;
+    --bg-card: #F5F4F2;
+    --coral: #FE6232;
+    --teal: #003942;
+    --violet: #AF4CDA;
+    --neon: #FFFF00;
+    --sans: "Atlas Grotesk App", "Instrument Sans", -apple-system, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    --mono: "Geist Mono", "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #fff; color: var(--black); font-family: var(--sans); }
+  @page { size: 11in 8.5in; margin: 0.3in; }
+  .page { width: 100%; max-width: 1560px; margin: 0 auto; padding: 24px 8px; }
+  @media print {
+    .page { padding: 0; page-break-after: always; }
+    .page:last-child { page-break-after: auto; }
+  }
+
+  /* ---------- header ---------- */
+  .doc-header { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2px solid var(--black); padding-bottom: 10px; margin-bottom: 4px; }
+  .wordmark { font-weight: 800; font-size: 22px; letter-spacing: 1px; }
+  .wordmark .tick { color: var(--coral); }
+  .doc-title { font-size: 24px; font-weight: 300; letter-spacing: -0.5px; margin-top: 8px; }
+  .doc-sub { font-family: var(--mono); font-size: 10.5px; color: var(--subdued); letter-spacing: 0.4px; margin-top: 5px; }
+  .meta { font-family: var(--mono); font-size: 10px; color: var(--subdued); text-align: right; line-height: 1.55; }
+
+  .overview { font-size: 12.5px; color: var(--body); line-height: 1.5; margin: 9px 0 8px; }
+  .overview strong { color: var(--black); }
+
+  /* ---------- diagram ---------- */
+  svg { width: 100%; height: auto; display: block; }
+  .legend { display: flex; gap: 26px; align-items: center; font-family: var(--mono); font-size: 10px; color: var(--body); margin-top: 4px; flex-wrap: wrap; }
+  .legend .key { display: flex; gap: 8px; align-items: center; }
+  .swatch { width: 24px; height: 0; border-top: 3px solid; }
+  .swatch.dashed { border-top-style: dashed; }
+
+  /* ---------- section headers ---------- */
+  h2 { font-size: 18px; font-weight: 500; letter-spacing: -0.3px; margin: 0 0 10px; }
+  h3 { font-size: 13.5px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .flag { display: inline-block; width: 20px; height: 4px; }
+
+  /* ---------- step columns ---------- */
+  .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+  .card { background: var(--bg-card); border-radius: 12px; padding: 14px 16px; }
+  ol.steps { list-style: none; }
+  ol.steps li { display: flex; gap: 9px; font-size: 11.5px; color: var(--body); line-height: 1.45; margin-bottom: 8px; }
+  ol.steps li:last-child { margin-bottom: 0; }
+  .badge { flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%; color: #fff; font-family: var(--mono); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+  .badge.teal { background: var(--teal); }
+  .badge.coral { background: var(--coral); }
+  .badge.gray { background: var(--body); }
+  .badge.violet { background: var(--violet); }
+  ol.steps b { color: var(--black); font-weight: 600; }
+
+  /* ---------- tables ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  th { text-align: left; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.6px; text-transform: uppercase; color: var(--subdued); padding: 6px 10px 4px; border-bottom: 1.5px solid var(--black); }
+  td { padding: 5px 10px; border-bottom: 1px solid var(--border); color: var(--body); vertical-align: top; line-height: 1.4; }
+  td:first-child { color: var(--black); font-weight: 600; white-space: nowrap; }
+
+  /* ---------- controls ---------- */
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  ul.ctrl { list-style: none; }
+  ul.ctrl li { font-size: 11.5px; color: var(--body); line-height: 1.45; padding-left: 17px; position: relative; margin-bottom: 7px; }
+  ul.ctrl li::before { content: ""; position: absolute; left: 0; top: 6px; width: 7px; height: 7px; background: var(--neon); border: 1.5px solid var(--black); }
+  ul.ctrl b { color: var(--black); font-weight: 600; }
+
+  .limits { font-family: var(--mono); font-size: 10.5px; }
+  .limits td:first-child { font-family: var(--mono); font-weight: 500; }
+
+  .footnote { font-size: 11px; color: var(--helper); margin-top: 10px; line-height: 1.45; }
+  .doc-footer { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 9.5px; color: var(--subdued); display: flex; justify-content: space-between; letter-spacing: 0.3px; }
+</style>
+</head>
+<body>
+
+<!-- ================= PAGE 1 : DIAGRAM ================= -->
+<div class="page">
+  <div class="doc-header">
+    <div>
+      <div class="wordmark">ZED<span class="tick">.</span></div>
+      <div class="doc-title">OUSD Dollar Account — Funds Flow</div>
+      <div class="doc-sub">PREPARED FOR BRIDGE.XYZ · KYB ONBOARDING · CONFIDENTIAL</div>
+    </div>
+    <div class="meta">
+      Zed (zedcard.co) · Philippines<br>
+      Date: 2026-08-27<br>
+      Basis: Product spec PRD v4 (2026-08-16)<br>
+      Contact: steve@zedcard.co
+    </div>
+  </div>
+
+  <p class="overview">
+    <strong>Product:</strong> a dollar-denominated store-of-value account for Zed's existing, KYC'd Philippine credit cardholders.
+    Users fund in PHP from their own bank accounts; Zed converts to USD and acquires <strong>OUSD</strong> (issued by Open Standard, via Bridge)
+    into the user's <strong>self-custody Privy embedded wallet</strong>. Store of value only — no payments, no external crypto transfers.
+    <strong>Pilot scope:</strong> 50 invite-only users · pilot-wide TVL cap ≈ ₱15M (≈ $260k) · per-user balance cap ≈ $8,700.
+  </p>
+
+  <svg viewBox="0 0 1560 760" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif">
+    <defs>
+      <marker id="ah-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#003942"/>
+      </marker>
+      <marker id="ah-coral" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#FE6232"/>
+      </marker>
+      <marker id="ah-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#7a756c"/>
+      </marker>
+      <marker id="ah-violet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#AF4CDA"/>
+      </marker>
+    </defs>
+
+    <!-- swimlane backgrounds -->
+    <rect x="20"   y="56" width="330" height="590" rx="10" fill="#F5F4F2"/>
+    <rect x="370"  y="56" width="330" height="590" rx="10" fill="#FFFFFF" stroke="#C8C3B9"/>
+    <rect x="720"  y="56" width="370" height="590" rx="10" fill="#F5F4F2"/>
+    <rect x="1110" y="56" width="430" height="590" rx="10" fill="#FFFFFF" stroke="#C8C3B9"/>
+
+    <!-- lane titles -->
+    <text x="185"  y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">END USER — OWN FIAT ACCOUNTS</text>
+    <text x="535"  y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">ZED — PHP LEG (NETBANK, BSP-SUPERVISED)</text>
+    <text x="905"  y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">ZED — TREASURY (BRIDGE / FX VENUE)</text>
+    <text x="1325" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">ON-CHAIN / ISSUER</text>
+
+    <!-- ============ nodes ============ -->
+    <!-- U1: user's bank -->
+    <g>
+      <rect x="40" y="100" width="290" height="92" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
+      <text x="58" y="130" font-size="15" font-weight="600" fill="#000">User's PH bank / e-wallet</text>
+      <text x="58" y="152" font-size="12.5" fill="#4C4C4C">Source of funds — user-initiated</text>
+      <text x="58" y="170" font-size="12.5" fill="#4C4C4C">PHP transfer (QRPH / InstaPay)</text>
+    </g>
+    <!-- N1: dedicated VA -->
+    <g>
+      <rect x="390" y="100" width="290" height="92" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
+      <text x="408" y="130" font-size="15" font-weight="600" fill="#000">Dedicated virtual account</text>
+      <text x="408" y="152" font-size="12.5" fill="#4C4C4C">Per-user collection VA at Netbank,</text>
+      <text x="408" y="170" font-size="12.5" fill="#4C4C4C">used only for dollar-account funding</text>
+    </g>
+    <!-- B1: USD float at Bridge -->
+    <g>
+      <rect x="740" y="100" width="330" height="92" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
+      <text x="758" y="130" font-size="15" font-weight="600" fill="#000">Zed USD float — Bridge account</text>
+      <text x="758" y="152" font-size="12.5" fill="#4C4C4C">Pre-funded balance at Bridge; funds</text>
+      <text x="758" y="170" font-size="12.5" fill="#4C4C4C">OUSD acquisition for on-ramps</text>
+    </g>
+    <!-- P1: Privy wallet -->
+    <g>
+      <rect x="1130" y="100" width="390" height="100" rx="10" fill="#fff" stroke="#000" stroke-width="2.5"/>
+      <text x="1148" y="130" font-size="15" font-weight="600" fill="#000">User's self-custody wallet (Privy)</text>
+      <text x="1148" y="152" font-size="12.5" fill="#4C4C4C">OUSD held on Base (target chain) in a Privy</text>
+      <text x="1148" y="170" font-size="12.5" fill="#4C4C4C">embedded wallet — user-controlled; Zed app is</text>
+      <text x="1148" y="188" font-size="12.5" fill="#4C4C4C">the only interface (closed-loop, no external sends)</text>
+    </g>
+    <!-- N2: PHP float -->
+    <g>
+      <rect x="390" y="300" width="290" height="100" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
+      <text x="408" y="330" font-size="15" font-weight="600" fill="#000">Zed PHP float</text>
+      <text x="408" y="352" font-size="12.5" fill="#4C4C4C">Settlement account at Netbank —</text>
+      <text x="408" y="370" font-size="12.5" fill="#4C4C4C">collects on-ramps, funds payouts</text>
+    </g>
+    <!-- FX venue -->
+    <g>
+      <rect x="740" y="300" width="300" height="100" rx="10" fill="#fff" stroke="#000" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text x="758" y="330" font-size="15" font-weight="600" fill="#000">FX venue</text>
+      <text x="758" y="352" font-size="12.5" fill="#4C4C4C">Coins.ph (BSP-licensed VASP) or</text>
+      <text x="758" y="370" font-size="12.5" fill="#4C4C4C">partner bank — manual, dual-controlled</text>
+    </g>
+    <!-- OS: Open Standard -->
+    <g>
+      <rect x="1130" y="300" width="390" height="92" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
+      <text x="1148" y="330" font-size="15" font-weight="600" fill="#000">Open Standard — OUSD issuer</text>
+      <text x="1148" y="352" font-size="12.5" fill="#4C4C4C">Issues OUSD &amp; manages reserves; mint/redeem</text>
+      <text x="1148" y="370" font-size="12.5" fill="#4C4C4C">and distribution via Bridge (licensed US entity)</text>
+    </g>
+    <!-- B2: Bridge redemption -->
+    <g>
+      <rect x="740" y="500" width="330" height="92" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
+      <text x="758" y="530" font-size="15" font-weight="600" fill="#000">Bridge redemption (OUSD → USD)</text>
+      <text x="758" y="552" font-size="12.5" fill="#4C4C4C">User OUSD to Zed's redemption address,</text>
+      <text x="758" y="570" font-size="12.5" fill="#4C4C4C">redeemed via Bridge for USD</text>
+    </g>
+    <!-- N3: disburse -->
+    <g>
+      <rect x="390" y="500" width="290" height="92" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
+      <text x="408" y="530" font-size="15" font-weight="600" fill="#000">Netbank Disburse-to-Account</text>
+      <text x="408" y="552" font-size="12.5" fill="#4C4C4C">InstaPay (&lt; ₱50k, near-real-time)</text>
+      <text x="408" y="570" font-size="12.5" fill="#4C4C4C">or PESONet (larger amounts)</text>
+    </g>
+    <!-- U2: user's own bank (payout) -->
+    <g>
+      <rect x="40" y="500" width="290" height="92" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
+      <text x="58" y="530" font-size="15" font-weight="600" fill="#000">User's own PH bank account</text>
+      <text x="58" y="552" font-size="12.5" fill="#4C4C4C">Name-matched — payouts only to the</text>
+      <text x="58" y="570" font-size="12.5" fill="#4C4C4C">user's own account (no third parties)</text>
+    </g>
+
+    <!-- ============ arrows ============ -->
+    <!-- 1: U1 -> N1 -->
+    <line x1="330" y1="146" x2="388" y2="146" stroke="#003942" stroke-width="2.5" marker-end="url(#ah-teal)"/>
+    <!-- 2: N1 -> N2 -->
+    <line x1="535" y1="192" x2="535" y2="298" stroke="#003942" stroke-width="2.5" marker-end="url(#ah-teal)"/>
+    <!-- 3: B1 -> P1 -->
+    <line x1="1070" y1="140" x2="1128" y2="140" stroke="#003942" stroke-width="2.5" marker-end="url(#ah-teal)"/>
+    <!-- R: OS -> P1 (rewards) -->
+    <line x1="1450" y1="300" x2="1450" y2="203" stroke="#AF4CDA" stroke-width="2.5" marker-end="url(#ah-violet)"/>
+    <!-- 4: P1 -> B2 -->
+    <path d="M 1130 175 L 1105 175 L 1105 546 L 1073 546" fill="none" stroke="#FE6232" stroke-width="2.5" marker-end="url(#ah-coral)"/>
+    <!-- 5: B2 -> B1 (USD proceeds replenish float) -->
+    <line x1="1055" y1="500" x2="1055" y2="195" stroke="#FE6232" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah-coral)"/>
+    <!-- 6: N2 -> N3 -->
+    <line x1="535" y1="400" x2="535" y2="498" stroke="#FE6232" stroke-width="2.5" marker-end="url(#ah-coral)"/>
+    <!-- 7: N3 -> U2 -->
+    <line x1="390" y1="546" x2="333" y2="546" stroke="#FE6232" stroke-width="2.5" marker-end="url(#ah-coral)"/>
+    <!-- T1: N2 <-> FX -->
+    <line x1="683" y1="350" x2="737" y2="350" stroke="#7a756c" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah-gray)" marker-start="url(#ah-gray)"/>
+    <!-- T2: FX <-> B1 -->
+    <line x1="890" y1="297" x2="890" y2="195" stroke="#7a756c" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah-gray)" marker-start="url(#ah-gray)"/>
+
+    <!-- ============ badges ============ -->
+    <g font-size="12" font-weight="700" fill="#fff" text-anchor="middle">
+      <circle cx="359" cy="146" r="11" fill="#003942"/><text x="359" y="150.5">1</text>
+      <circle cx="535" cy="244" r="11" fill="#003942"/><text x="535" y="248.5">2</text>
+      <circle cx="1099" cy="140" r="11" fill="#003942"/><text x="1099" y="144.5">3</text>
+      <circle cx="1105" cy="360" r="11" fill="#FE6232"/><text x="1105" y="364.5">4</text>
+      <circle cx="1055" cy="330" r="11" fill="#FE6232"/><text x="1055" y="334.5">5</text>
+      <circle cx="535" cy="448" r="11" fill="#FE6232"/><text x="535" y="452.5">6</text>
+      <circle cx="360" cy="546" r="11" fill="#FE6232"/><text x="360" y="550.5">7</text>
+      <circle cx="710" cy="327" r="11" fill="#7a756c"/><text x="710" y="331.5">T</text>
+      <circle cx="1450" cy="252" r="11" fill="#AF4CDA"/><text x="1450" y="256.5">R</text>
+    </g>
+
+    <!-- small inline labels -->
+    <text x="908" y="238" font-size="11.5" fill="rgba(0,0,0,0.45)" font-family="Menlo, monospace">daily float</text>
+    <text x="908" y="253" font-size="11.5" fill="rgba(0,0,0,0.45)" font-family="Menlo, monospace">rebalance</text>
+    <text x="1466" y="257" font-size="11.5" fill="rgba(0,0,0,0.45)" font-family="Menlo, monospace">yield</text>
+
+    <!-- ============ US/EU band ============ -->
+    <g>
+      <rect x="40" y="662" width="1480" height="84" rx="10" fill="#fff" stroke="#C8C3B9" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <circle cx="72" cy="704" r="11" fill="#4C4C4C"/>
+      <text x="72" y="708.5" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">8</text>
+      <text x="96" y="694" font-size="14" font-weight="600" fill="#000">US / EU off-ramp — via Bridge's native fiat rails (gated per-user; enabled by support after PH flows are proven)</text>
+      <text x="96" y="716" font-size="12.5" fill="#4C4C4C">User OUSD is redeemed via Bridge exactly as in steps 4–5; Bridge pays out USD (ACH / wire) or EUR (SEPA) directly to the user's own, name-matched US/EU bank account. No PHP leg, no Zed float, no FX by Zed — Bridge rails end-to-end after redemption.</text>
+    </g>
+  </svg>
+
+  <div class="legend">
+    <span class="key"><span class="swatch" style="border-color:#003942"></span>On-ramp: PHP → OUSD (steps 1–3)</span>
+    <span class="key"><span class="swatch" style="border-color:#FE6232"></span>Off-ramp: OUSD → PHP (steps 4–7)</span>
+    <span class="key"><span class="swatch dashed" style="border-color:#7a756c"></span>Treasury float rebalancing (T)</span>
+    <span class="key"><span class="swatch" style="border-color:#AF4CDA"></span>Rewards (R)</span>
+  </div>
+</div>
+
+<!-- ================= PAGE 2 : FLOW DETAIL + CONTROLS ================= -->
+<div class="page">
+  <h2>Flow detail</h2>
+  <div class="cols">
+    <div class="card">
+      <h3><span class="flag" style="background:#003942"></span>On-ramp — PHP → OUSD</h3>
+      <ol class="steps">
+        <li><span class="badge teal">1</span><span><b>User sends PHP</b> from their own bank or e-wallet (QRPH scan or bank transfer) to their dedicated Netbank virtual collection account, used exclusively for dollar-account funding.</span></li>
+        <li><span class="badge teal">2</span><span><b>Deposit is auto-matched</b> to the user and order; PHP settles into Zed's PHP float. Unmatched or out-of-limit deposits alert ops within 15 minutes; default remedy is refund to source.</span></li>
+        <li><span class="badge teal">3</span><span><b>Zed locks the FX rate</b> quoted to the user, debits its pre-funded USD float at Bridge, and acquires OUSD via Bridge, delivered on-chain to the user's Privy self-custody wallet. Each on-ramp records PHP in, rate, spread, USD funded, OUSD out, and tx hash.</span></li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3><span class="flag" style="background:#FE6232"></span>Off-ramp — OUSD → PHP</h3>
+      <ol class="steps">
+        <li><span class="badge coral">4</span><span><b>User authorizes</b> (Privy signing) an OUSD transfer from their wallet to Zed's redemption address.</span></li>
+        <li><span class="badge coral">5</span><span><b>Zed redeems OUSD → USD via Bridge;</b> proceeds land in Zed's Bridge balance, replenishing the USD float.</span></li>
+        <li><span class="badge coral">6</span><span><b>The PHP payout is funded from Zed's PHP float</b> at Netbank — the user does not wait on redemption settlement.</span></li>
+        <li><span class="badge coral">7</span><span><b>Netbank's Disburse-to-Account API pays the user's own, name-matched PH bank account</b> — InstaPay for &lt; ₱50k (near-real-time), PESONet above. Each off-ramp records OUSD redeemed, USD received, rate, spread, PHP sent, rail, and rail reference.</span></li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3><span class="flag" style="background:#7a756c"></span>Treasury &amp; rewards</h3>
+      <ol class="steps">
+        <li><span class="badge gray">T</span><span><b>Floats are rebalanced daily:</b> net PHP collected is converted to USD (and vice versa) manually on the FX venue's own interface — Coins.ph (BSP-licensed VASP) or a partner bank — dual-approved and ledger-recorded. Ramps execute instantly against floats and never wait on FX.</span></li>
+        <li><span class="badge violet">R</span><span><b>OUSD reserve yield is paid to Zed at the platform level</b> (per Open Standard's distribution program; Open Standard fee ≤ 25bps of yield). Zed passes rewards through to users <b>in OUSD</b> on a monthly distribution, computed from on-chain balance snapshots, fully auditable.</span></li>
+        <li><span class="badge gray">8</span><span><b>US/EU off-ramp (gated):</b> per-user enablement via support; redemption as in 4–5, then Bridge's own fiat rails to the user's own US/EU account. No Zed FX or float involved.</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>Controls &amp; compliance posture</h2>
+  <div class="controls">
+    <div>
+      <ul class="ctrl">
+        <li><b>KYC:</b> every pilot user is already KYC'd via Persona as a Zed cardholder; KYC data is shared with Bridge at onboarding to create the Bridge customer (users complete only any delta Bridge requires).</li>
+        <li><b>Own-account-only fiat legs:</b> deposits originate from, and payouts go to, bank accounts in the user's own name (name-match enforced; third-party payouts excluded) — minimizing mule/AML surface.</li>
+        <li><b>Closed loop:</b> Zed's app is the only interface to the Privy wallet — no external crypto send/receive surface, no deposits from outside the Zed ecosystem shown. Store of value only: no payments, P2P, or merchant spend.</li>
+        <li><b>Transaction monitoring:</b> on/off-ramp events feed Zed's existing monitoring and screening stack (incl. Comply Advantage) used for the card program.</li>
+        <li><b>Destination-account data</b> encrypted at rest and masked everywhere; full account numbers materialized only at disbursement time.</li>
+      </ul>
+    </div>
+    <div>
+      <ul class="ctrl">
+        <li><b>Double-entry ledger</b> over all Zed-controlled funds (floats, in-flight amounts, spread, rewards pool); append-only, balanced postings for every ramp, rebalance, and rewards event.</li>
+        <li><b>Daily three-way reconciliation:</b> internal ledger vs. Bridge / bank / FX-venue statements vs. on-chain OUSD across user wallets. Any break pages ops; the pilot runs a zero-loss bar (no break unresolved &gt; 24h).</li>
+        <li><b>Dual control</b> on every manual money movement (treasury rebalance, manual disbursement, refund): one operator initiates, a second approves, all audit-logged.</li>
+        <li><b>Per-operation state machines:</b> every ramp has an immutable event trail; terminal states only <i>completed</i>, <i>refunded</i>, or <i>failed-with-ops-resolution</i>.</li>
+        <li><b>Halt procedure:</b> documented "close the ramp" runbook — on-ramps can be disabled at any time while off-ramps keep working (withdrawal-priority posture).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PAGE 3 : PARTIES + LIMITS ================= -->
+<div class="page">
+  <h2>Parties &amp; roles</h2>
+  <table style="margin-bottom: 14px">
+    <thead><tr><th style="width:16%">Party</th><th style="width:44%">Role in the flow</th><th>Notes / posture</th></tr></thead>
+    <tbody>
+      <tr><td>Zed</td><td>Program operator: user app, PHP on/off-ramp legs, treasury (PHP + USD floats), rewards pass-through.</td><td>Never custodies user assets — user OUSD is self-custodied. Operates double-entry ledger and daily reconciliation over all Zed-controlled funds.</td></tr>
+      <tr><td>End users</td><td>Source and destination of all fiat. Fund from and withdraw to their own accounts only.</td><td>50 invite-only pilot users drawn from ~11,000 existing Zed cardholders — already KYC'd (Persona) and credit-underwritten, accounts in good standing.</td></tr>
+      <tr><td>Bridge.xyz</td><td>OUSD orchestration: acquisition on on-ramp, redemption on off-ramp, Zed's USD float account, US/EU fiat payout rails.</td><td>Licensed US entity. Zed's Bridge customer records created from shared Persona KYC data.</td></tr>
+      <tr><td>Open Standard</td><td>OUSD issuer; reserve management; platform-level yield distribution to Zed.</td><td>Public OUSD launch targeted 9/15/26; external pilot funding gated on it.</td></tr>
+      <tr><td>Privy</td><td>Embedded self-custody wallet infrastructure for user OUSD balances.</td><td>Keys secured per Privy's model; Zed's app is the only wallet interface (no external send/receive UI).</td></tr>
+      <tr><td>Netbank</td><td>PHP collections (per-user virtual accounts) and PHP payouts (Disburse-to-Account: InstaPay / PESONet).</td><td>BSP-supervised. Same rail Zed's users already use today for card bill payments.</td></tr>
+      <tr><td>Coins.ph / bank</td><td>FX venue for daily PHP↔USD treasury rebalancing.</td><td>Coins.ph is a BSP-licensed VASP. Execution is manual on the venue's own interface, dual-controlled.</td></tr>
+      <tr><td>Persona</td><td>KYC provider for all users; artifacts shared with Bridge so pilot users don't re-KYC.</td><td>Existing vendor relationship covering the full cardholder base.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Pilot limits</h2>
+  <table class="limits" style="max-width:720px">
+    <thead><tr><th>Limit</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Users</td><td>50, invite-only, existing KYC'd cardholders</td></tr>
+      <tr><td>Min on-ramp</td><td>₱1,000</td></tr>
+      <tr><td>Max single on-ramp</td><td>₱100,000</td></tr>
+      <tr><td>Max per-user monthly on-ramp</td><td>₱500,000</td></tr>
+      <tr><td>Max per-user balance</td><td>₱500,000 equivalent (≈ $8,700)</td></tr>
+      <tr><td>Pilot-wide TVL cap</td><td>₱15M equivalent (≈ $260,000)</td></tr>
+      <tr><td>Off-ramp</td><td>No minimum beyond rail minimums; max = full balance</td></tr>
+    </tbody>
+  </table>
+
+  <p class="footnote">
+    Limits are proposed pilot values; the current $500 entity-wide cap applies to Zed-internal testing pre-OUSD-public-launch only.
+    FX spread/fees are finalized in tech design. Reflects Zed's PRD v4 (2026-08-16); provided to Bridge for KYB purposes.
+  </p>
+
+  <div class="doc-footer">
+    <span>ZED · OUSD DOLLAR ACCOUNT — FUNDS FLOW · CONFIDENTIAL</span>
+    <span>2026-08-27 · STEVE@ZEDCARD.CO</span>
+  </div>
+</div>
+
+</body>
+</html>
