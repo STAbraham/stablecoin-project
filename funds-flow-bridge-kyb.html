@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Zed — OUSD Dollar Account · Funds Flow (Bridge KYB)</title>
+<title>Zed — OUSD Dollar Wallet · Funds Flow (Bridge KYB)</title>
 <style>
   :root {
     --black: #000000;
@@ -72,12 +72,9 @@
   /* ---------- controls ---------- */
   .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   ul.ctrl { list-style: none; }
-  ul.ctrl li { font-size: 11.5px; color: var(--body); line-height: 1.45; padding-left: 17px; position: relative; margin-bottom: 7px; }
+  ul.ctrl li { font-size: 11px; color: var(--body); line-height: 1.4; padding-left: 17px; position: relative; margin-bottom: 6px; }
   ul.ctrl li::before { content: ""; position: absolute; left: 0; top: 6px; width: 7px; height: 7px; background: var(--neon); border: 1.5px solid var(--black); }
   ul.ctrl b { color: var(--black); font-weight: 600; }
-
-  .limits { font-family: var(--mono); font-size: 10.5px; }
-  .limits td:first-child { font-family: var(--mono); font-weight: 500; }
 
   .footnote { font-size: 11px; color: var(--helper); margin-top: 10px; line-height: 1.45; }
   .doc-footer { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 9.5px; color: var(--subdued); display: flex; justify-content: space-between; letter-spacing: 0.3px; }
@@ -90,21 +87,23 @@
   <div class="doc-header">
     <div>
       <div class="wordmark">ZED<span class="tick">.</span></div>
-      <div class="doc-title">OUSD Dollar Account — Funds Flow</div>
+      <div class="doc-title">OUSD Dollar Wallet — Funds Flow</div>
       <div class="doc-sub">PREPARED FOR BRIDGE.XYZ · KYB ONBOARDING · CONFIDENTIAL</div>
     </div>
     <div class="meta">
       Zed (zedcard.co) · Philippines<br>
-      Date: 2026-08-27<br>
-      Basis: Product spec PRD v4 (2026-08-16)<br>
+      Date: 2026-08-28<br>
+      Basis: Product spec PRD v5 (2026-08-28)<br>
       Contact: steve@zedcard.co
     </div>
   </div>
 
   <p class="overview">
-    <strong>Product:</strong> a dollar-denominated store-of-value account for Zed's existing, KYC'd Philippine credit cardholders.
-    Users fund in PHP from their own bank accounts; Zed converts to USD and acquires <strong>OUSD</strong> (issued by Open Standard, via Bridge)
-    into the user's <strong>self-custody Privy embedded wallet</strong>. Store of value only — no payments, no external crypto transfers.
+    <strong>Product:</strong> a dollar-denominated store-of-value wallet for Zed's existing, KYC'd Philippine credit cardholders.
+    The user requests <strong>primary issuance of OUSD</strong> (issued by Open Standard, orchestrated via Bridge) and pays the PHP amount due
+    at a transparent reference rate — <strong>zero Zed spread or fee</strong>. OUSD is <strong>minted directly to the user's own self-custodied
+    Privy wallet</strong>; Zed acts as distributor, collection agent, and settlement agent. Zed never holds customer OUSD, never creates a
+    customer USD balance, and never executes customer FX. Store of value only — no payments.
   </p>
 
   <svg viewBox="0 0 1560 760" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif">
@@ -132,7 +131,7 @@
     <!-- lane titles -->
     <text x="185"  y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">END USER — OWN FIAT ACCOUNTS</text>
     <text x="535"  y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">ZED — PHP LEG (NETBANK, BSP-SUPERVISED)</text>
-    <text x="905"  y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">ZED — TREASURY (BRIDGE / FX)</text>
+    <text x="905"  y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">ZED — SETTLEMENT (BRIDGE)</text>
     <text x="1325" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">ON-CHAIN / ISSUER</text>
 
     <!-- ============ nodes ============ -->
@@ -148,50 +147,44 @@
       <rect x="390" y="100" width="290" height="92" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
       <text x="408" y="130" font-size="15" font-weight="600" fill="#000">Dedicated virtual account</text>
       <text x="408" y="152" font-size="12.5" fill="#4C4C4C">Per-user collection VA at Netbank,</text>
-      <text x="408" y="170" font-size="12.5" fill="#4C4C4C">used only for dollar-account funding</text>
+      <text x="408" y="170" font-size="12.5" fill="#4C4C4C">used only for dollar-wallet funding</text>
     </g>
-    <!-- B1: USD float at Bridge -->
+    <!-- B1: USD settlement balance at Bridge -->
     <g>
       <rect x="740" y="100" width="330" height="92" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
-      <text x="758" y="130" font-size="15" font-weight="600" fill="#000">Zed USD float — Bridge account</text>
-      <text x="758" y="152" font-size="12.5" fill="#4C4C4C">Pre-funded balance at Bridge; funds</text>
-      <text x="758" y="170" font-size="12.5" fill="#4C4C4C">OUSD acquisition for on-ramps</text>
+      <text x="758" y="130" font-size="15" font-weight="600" fill="#000">Zed USD settlement balance</text>
+      <text x="758" y="152" font-size="12.5" fill="#4C4C4C">Pre-funded, Zed-owned liquidity at Bridge —</text>
+      <text x="758" y="170" font-size="12.5" fill="#4C4C4C">consumed to fund primary OUSD issuance</text>
     </g>
     <!-- P1: Privy wallet -->
     <g>
       <rect x="1130" y="100" width="390" height="100" rx="10" fill="#fff" stroke="#000" stroke-width="2.5"/>
-      <text x="1148" y="130" font-size="15" font-weight="600" fill="#000">User's self-custody wallet (Privy)</text>
-      <text x="1148" y="152" font-size="12.5" fill="#4C4C4C">OUSD held on Base (target chain) in a Privy</text>
-      <text x="1148" y="170" font-size="12.5" fill="#4C4C4C">embedded wallet — user-controlled; Zed app is</text>
-      <text x="1148" y="188" font-size="12.5" fill="#4C4C4C">the only interface (closed-loop, no external sends)</text>
+      <text x="1148" y="130" font-size="15" font-weight="600" fill="#000">User-owned self-custody wallet (Privy)</text>
+      <text x="1148" y="152" font-size="12.5" fill="#4C4C4C">OUSD on-chain in a wallet the user genuinely owns —</text>
+      <text x="1148" y="170" font-size="12.5" fill="#4C4C4C">exportable/recoverable, open-loop; every outbound</text>
+      <text x="1148" y="188" font-size="12.5" fill="#4C4C4C">transaction is user-signed; Zed holds no signing keys</text>
     </g>
-    <!-- N2: PHP float -->
+    <!-- N2: PHP liquidity -->
     <g>
       <rect x="390" y="300" width="290" height="100" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
-      <text x="408" y="330" font-size="15" font-weight="600" fill="#000">Zed PHP float</text>
-      <text x="408" y="352" font-size="12.5" fill="#4C4C4C">Settlement account at Netbank —</text>
-      <text x="408" y="370" font-size="12.5" fill="#4C4C4C">collects on-ramps, funds payouts</text>
-    </g>
-    <!-- FX venue -->
-    <g>
-      <rect x="740" y="300" width="300" height="100" rx="10" fill="#fff" stroke="#000" stroke-width="1.5" stroke-dasharray="5 4"/>
-      <text x="758" y="330" font-size="15" font-weight="600" fill="#000">FX — PHP ↔ USD</text>
-      <text x="758" y="352" font-size="12.5" fill="#4C4C4C">On Zed's internal ledger (across floats)</text>
-      <text x="758" y="370" font-size="12.5" fill="#4C4C4C">or via a partner bank / financial institution</text>
+      <text x="408" y="330" font-size="15" font-weight="600" fill="#000">Zed PHP liquidity</text>
+      <text x="408" y="352" font-size="12.5" fill="#4C4C4C">Settlement account at Netbank — receives</text>
+      <text x="408" y="370" font-size="12.5" fill="#4C4C4C">issuance consideration, funds payouts</text>
     </g>
     <!-- OS: Open Standard -->
     <g>
-      <rect x="1130" y="300" width="390" height="92" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
+      <rect x="1130" y="300" width="390" height="100" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
       <text x="1148" y="330" font-size="15" font-weight="600" fill="#000">Open Standard — OUSD issuer</text>
-      <text x="1148" y="352" font-size="12.5" fill="#4C4C4C">Issues OUSD &amp; manages reserves; mint/redeem</text>
-      <text x="1148" y="370" font-size="12.5" fill="#4C4C4C">and distribution via Bridge (licensed US entity)</text>
+      <text x="1148" y="352" font-size="12.5" fill="#4C4C4C">Issues OUSD &amp; manages reserves; mint/redeem via</text>
+      <text x="1148" y="370" font-size="12.5" fill="#4C4C4C">Bridge (licensed US entity). Pays Zed a Network</text>
+      <text x="1148" y="388" font-size="12.5" fill="#4C4C4C">Partner Marketing Fee (Zed revenue, monthly)</text>
     </g>
-    <!-- B2: Bridge redemption -->
+    <!-- B2: issuer/Bridge redemption route -->
     <g>
       <rect x="740" y="500" width="330" height="92" rx="10" fill="#fff" stroke="#000" stroke-width="1.5"/>
-      <text x="758" y="530" font-size="15" font-weight="600" fill="#000">Bridge redemption (OUSD → USD)</text>
-      <text x="758" y="552" font-size="12.5" fill="#4C4C4C">User OUSD to Zed's redemption address,</text>
-      <text x="758" y="570" font-size="12.5" fill="#4C4C4C">redeemed via Bridge for USD</text>
+      <text x="758" y="530" font-size="15" font-weight="600" fill="#000">Issuer / Bridge redemption route</text>
+      <text x="758" y="552" font-size="12.5" fill="#4C4C4C">Customer-attributed OUSD → USD redemption;</text>
+      <text x="758" y="570" font-size="12.5" fill="#4C4C4C">user signs directly — never to a Zed wallet</text>
     </g>
     <!-- N3: disburse -->
     <g>
@@ -213,22 +206,20 @@
     <line x1="330" y1="146" x2="388" y2="146" stroke="#003942" stroke-width="2.5" marker-end="url(#ah-teal)"/>
     <!-- 2: N1 -> N2 -->
     <line x1="535" y1="192" x2="535" y2="298" stroke="#003942" stroke-width="2.5" marker-end="url(#ah-teal)"/>
-    <!-- 3: B1 -> P1 -->
+    <!-- 3: B1 -> P1 (primary mint) -->
     <line x1="1070" y1="140" x2="1128" y2="140" stroke="#003942" stroke-width="2.5" marker-end="url(#ah-teal)"/>
-    <!-- R: OS -> P1 (rewards) -->
+    <!-- R: OS -> P1 (Zed Rewards mint) -->
     <line x1="1450" y1="300" x2="1450" y2="203" stroke="#AF4CDA" stroke-width="2.5" marker-end="url(#ah-violet)"/>
-    <!-- 4: P1 -> B2 -->
+    <!-- 4: P1 -> B2 (user-signed redemption) -->
     <path d="M 1130 175 L 1105 175 L 1105 546 L 1073 546" fill="none" stroke="#FE6232" stroke-width="2.5" marker-end="url(#ah-coral)"/>
-    <!-- 5: B2 -> B1 (USD proceeds replenish float) -->
+    <!-- 5: B2 -> B1 (USD proceeds settle to Zed, operation-attributed) -->
     <line x1="1055" y1="500" x2="1055" y2="195" stroke="#FE6232" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah-coral)"/>
     <!-- 6: N2 -> N3 -->
     <line x1="535" y1="400" x2="535" y2="498" stroke="#FE6232" stroke-width="2.5" marker-end="url(#ah-coral)"/>
     <!-- 7: N3 -> U2 -->
     <line x1="390" y1="546" x2="333" y2="546" stroke="#FE6232" stroke-width="2.5" marker-end="url(#ah-coral)"/>
-    <!-- T1: N2 <-> FX -->
-    <line x1="683" y1="350" x2="737" y2="350" stroke="#7a756c" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah-gray)" marker-start="url(#ah-gray)"/>
-    <!-- T2: FX <-> B1 -->
-    <line x1="890" y1="297" x2="890" y2="195" stroke="#7a756c" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah-gray)" marker-start="url(#ah-gray)"/>
+    <!-- T: N2 <-> B1 (aggregate own-account rebalance) -->
+    <path d="M 683 350 L 890 350 L 890 198" fill="none" stroke="#7a756c" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah-gray)" marker-start="url(#ah-gray)"/>
 
     <!-- ============ badges ============ -->
     <g font-size="12" font-weight="700" fill="#fff" text-anchor="middle">
@@ -239,30 +230,32 @@
       <circle cx="1055" cy="330" r="11" fill="#FE6232"/><text x="1055" y="334.5">5</text>
       <circle cx="535" cy="448" r="11" fill="#FE6232"/><text x="535" y="452.5">6</text>
       <circle cx="360" cy="546" r="11" fill="#FE6232"/><text x="360" y="550.5">7</text>
-      <circle cx="710" cy="327" r="11" fill="#7a756c"/><text x="710" y="331.5">T</text>
+      <circle cx="890" cy="280" r="11" fill="#7a756c"/><text x="890" y="284.5">T</text>
       <circle cx="1450" cy="252" r="11" fill="#AF4CDA"/><text x="1450" y="256.5">R</text>
     </g>
 
     <!-- small inline labels -->
-    <text x="908" y="238" font-size="11.5" fill="rgba(0,0,0,0.45)" font-family="Menlo, monospace">daily float</text>
-    <text x="908" y="253" font-size="11.5" fill="rgba(0,0,0,0.45)" font-family="Menlo, monospace">rebalance</text>
-    <text x="1466" y="257" font-size="11.5" fill="rgba(0,0,0,0.45)" font-family="Menlo, monospace">yield</text>
+    <text x="912" y="262" font-size="11.5" fill="rgba(0,0,0,0.45)" font-family="Menlo, monospace">aggregate own-account</text>
+    <text x="912" y="277" font-size="11.5" fill="rgba(0,0,0,0.45)" font-family="Menlo, monospace">rebalance — Zed funds only</text>
+    <text x="758" y="372" font-size="11.5" fill="rgba(0,0,0,0.45)" font-family="Menlo, monospace">no customer FX at any step</text>
+    <text x="1466" y="257" font-size="11.5" fill="rgba(0,0,0,0.45)" font-family="Menlo, monospace">rewards</text>
 
     <!-- ============ US/EU band ============ -->
     <g>
       <rect x="40" y="662" width="1480" height="84" rx="10" fill="#fff" stroke="#C8C3B9" stroke-width="1.5" stroke-dasharray="6 4"/>
       <circle cx="72" cy="704" r="11" fill="#4C4C4C"/>
       <text x="72" y="708.5" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">8</text>
-      <text x="96" y="694" font-size="14" font-weight="600" fill="#000">US / EU off-ramp — via Bridge's native fiat rails (gated per-user; enabled by support after PH flows are proven)</text>
-      <text x="96" y="716" font-size="12.5" fill="#4C4C4C">User OUSD is redeemed via Bridge exactly as in steps 4–5; Bridge pays out USD (ACH / wire) or EUR (SEPA) directly to the user's own, name-matched US/EU bank account. No PHP leg, no Zed float, no FX by Zed — Bridge rails end-to-end after redemption.</text>
+      <text x="96" y="688" font-size="14" font-weight="600" fill="#000">US / EU off-ramp — via Bridge's native fiat rails (gated per-user; subject to pending legal review of offshore-access rules)</text>
+      <text x="96" y="708" font-size="12.5" fill="#4C4C4C">After the same user-signed redemption (steps 4–5), Bridge pays out USD (ACH / wire) or EUR (SEPA) directly to the user's own, name-matched US/EU bank account.</text>
+      <text x="96" y="726" font-size="12.5" fill="#4C4C4C">No PHP leg. Bridge remains Zed's counterparty throughout — never a retail interface for the end user.</text>
     </g>
   </svg>
 
   <div class="legend">
-    <span class="key"><span class="swatch" style="border-color:#003942"></span>On-ramp: PHP → OUSD (steps 1–3)</span>
-    <span class="key"><span class="swatch" style="border-color:#FE6232"></span>Off-ramp: OUSD → PHP (steps 4–7)</span>
-    <span class="key"><span class="swatch dashed" style="border-color:#7a756c"></span>Treasury float rebalancing (T)</span>
-    <span class="key"><span class="swatch" style="border-color:#AF4CDA"></span>Rewards (R)</span>
+    <span class="key"><span class="swatch" style="border-color:#003942"></span>On-ramp: primary issuance (1–3)</span>
+    <span class="key"><span class="swatch" style="border-color:#FE6232"></span>Off-ramp: user-signed redemption (4–7)</span>
+    <span class="key"><span class="swatch dashed" style="border-color:#7a756c"></span>Treasury rebalance, Zed own funds (T)</span>
+    <span class="key"><span class="swatch" style="border-color:#AF4CDA"></span>Zed Rewards (R)</span>
   </div>
 </div>
 
@@ -271,28 +264,28 @@
   <h2>Flow detail</h2>
   <div class="cols">
     <div class="card">
-      <h3><span class="flag" style="background:#003942"></span>On-ramp — PHP → OUSD</h3>
+      <h3><span class="flag" style="background:#003942"></span>On-ramp — primary issuance</h3>
       <ol class="steps">
-        <li><span class="badge teal">1</span><span><b>User sends PHP</b> from their own bank or e-wallet (QRPH scan or bank transfer) to their dedicated Netbank virtual collection account, used exclusively for dollar-account funding.</span></li>
-        <li><span class="badge teal">2</span><span><b>Deposit is auto-matched</b> to the user and order; PHP settles into Zed's PHP float. Unmatched or out-of-limit deposits alert ops within 15 minutes; default remedy is refund to source.</span></li>
-        <li><span class="badge teal">3</span><span><b>Zed locks the FX rate</b> quoted to the user, debits its pre-funded USD float at Bridge, and acquires OUSD via Bridge, delivered on-chain to the user's Privy self-custody wallet. Each on-ramp records PHP in, rate, spread, USD funded, OUSD out, and tx hash.</span></li>
+        <li><span class="badge teal">1</span><span><b>User requests OUSD;</b> the app shows the PHP amount due at a transparent reference rate — <b>zero Zed spread or fee</b>. The user sends PHP from their own bank or e-wallet (QRPH or transfer) to their dedicated Netbank virtual collection account.</span></li>
+        <li><span class="badge teal">2</span><span><b>Deposit is auto-matched</b> to the user and issuance request; PHP settles into Zed's PHP liquidity as issuance consideration. Unmatched or out-of-limit deposits alert ops within 15 minutes; default remedy is refund to source.</span></li>
+        <li><span class="badge teal">3</span><span><b>Primary mint.</b> Zed consumes its own pre-funded USD settlement balance at Bridge, and OUSD is minted directly to the user's wallet. No customer USD balance or entitlement exists at any point. Records: PHP received, reference rate, USD settlement consumed, Bridge transaction ID, on-chain mint hash.</span></li>
       </ol>
     </div>
     <div class="card">
-      <h3><span class="flag" style="background:#FE6232"></span>Off-ramp — OUSD → PHP</h3>
+      <h3><span class="flag" style="background:#FE6232"></span>Off-ramp — direct redemption</h3>
       <ol class="steps">
-        <li><span class="badge coral">4</span><span><b>User authorizes</b> (Privy signing) an OUSD transfer from their wallet to Zed's redemption address.</span></li>
-        <li><span class="badge coral">5</span><span><b>Zed redeems OUSD → USD via Bridge;</b> proceeds land in Zed's Bridge balance, replenishing the USD float.</span></li>
-        <li><span class="badge coral">6</span><span><b>The PHP payout is funded from Zed's PHP float</b> at Netbank — the user does not wait on redemption settlement.</span></li>
-        <li><span class="badge coral">7</span><span><b>Netbank's Disburse-to-Account API pays the user's own, name-matched PH bank account</b> — InstaPay for &lt; ₱50k (near-real-time), PESONet above. Each off-ramp records OUSD redeemed, USD received, rate, spread, PHP sent, rail, and rail reference.</span></li>
+        <li><span class="badge coral">4</span><span><b>User signs OUSD from their own wallet directly to the issuer/Bridge redemption route</b> (customer-attributed via Bridge customer records). Zed never receives or holds customer OUSD.</span></li>
+        <li><span class="badge coral">5</span><span><b>OUSD is redeemed/burned by the issuer;</b> USD proceeds settle into Zed's settlement balance at Bridge, attributed to the specific redemption operation.</span></li>
+        <li><span class="badge coral">6</span><span><b>The PHP payout is funded from Zed's own PHP liquidity</b> at Netbank — the user does not wait on redemption settlement.</span></li>
+        <li><span class="badge coral">7</span><span><b>Netbank's Disburse-to-Account API pays the user's own, name-matched PH bank account</b> — InstaPay for &lt; ₱50k (near-real-time), PESONet above. Records: redemption tx hash, burn reference, USD settled, PHP paid, rail reference.</span></li>
       </ol>
     </div>
     <div class="card">
       <h3><span class="flag" style="background:#7a756c"></span>Treasury &amp; rewards</h3>
       <ol class="steps">
-        <li><span class="badge gray">T</span><span><b>Floats are rebalanced daily:</b> net PHP collected is converted to USD (and vice versa) either on Zed's own internal ledger across its PHP and USD floats, or via a partner bank / financial institution — dual-approved and ledger-recorded in every case. Ramps execute instantly against floats and never wait on FX.</span></li>
-        <li><span class="badge violet">R</span><span><b>OUSD reserve yield is paid to Zed at the platform level</b> (per Open Standard's distribution program; Open Standard fee ≤ 25bps of yield). Zed passes rewards through to users <b>in OUSD</b> on a monthly distribution, computed from on-chain balance snapshots, fully auditable.</span></li>
-        <li><span class="badge gray">8</span><span><b>US/EU off-ramp (gated):</b> per-user enablement via support; redemption as in 4–5, then Bridge's own fiat rails to the user's own US/EU account. No Zed FX or float involved.</span></li>
+        <li><span class="badge gray">T</span><span><b>Aggregate own-account rebalancing:</b> Zed periodically converts its own net PHP position into USD (and vice versa) via a partner bank / financial institution to replenish its settlement balances — Zed's own funds only, never a customer-specific trade; dual-approved and ledger-recorded. Customer operations execute instantly against Zed's pre-existing balances.</span></li>
+        <li><span class="badge violet">R</span><span><b>Open Standard pays Zed a Network Partner Marketing Fee</b> (accrues daily on registered wallets, paid on-chain monthly) — booked as Zed revenue. Separately, Zed funds a variable <b>"Zed Rewards"</b> program for users; preferred fulfillment is incremental OUSD minted directly to user wallets.</span></li>
+        <li><span class="badge gray">8</span><span><b>US/EU off-ramp (gated):</b> per-user enablement, pending legal review; redemption as in 4–5, then Bridge's own fiat rails to the user's own US/EU account. Bridge remains Zed's counterparty — never a retail interface for the user.</span></li>
       </ol>
     </div>
   </div>
@@ -301,49 +294,51 @@
   <div class="controls">
     <div>
       <ul class="ctrl">
-        <li><b>KYC:</b> every user is already KYC'd via Persona as a Zed cardholder; KYC data is shared with Bridge at onboarding to create the Bridge customer (users complete only any delta Bridge requires).</li>
-        <li><b>Own-account-only fiat legs:</b> deposits originate from, and payouts go to, bank accounts in the user's own name (name-match enforced; third-party payouts excluded) — minimizing mule/AML surface.</li>
-        <li><b>Closed loop:</b> Zed's app is the only interface to the Privy wallet — no external crypto send/receive surface, no deposits from outside the Zed ecosystem shown. Store of value only: no payments, P2P, or merchant spend.</li>
-        <li><b>Transaction monitoring:</b> on/off-ramp events feed Zed's existing monitoring and screening stack (incl. Comply Advantage) used for the card program.</li>
-        <li><b>Destination-account data</b> encrypted at rest and masked everywhere; full account numbers materialized only at disbursement time.</li>
+        <li><b>KYC:</b> every user is already KYC'd via Persona as a Zed cardholder; KYC data is shared with Bridge at onboarding (users complete only any delta Bridge requires).</li>
+        <li><b>Own-account-only fiat legs:</b> deposits from, and payouts to, accounts in the user's own name (name-match enforced; no third parties) — minimizing mule/AML surface.</li>
+        <li><b>No custody, no customer fiat balances:</b> customer OUSD is never held in any Zed-controlled wallet — mints go directly to, and redemptions are signed directly from, the user's wallet. No record represents a customer USD balance or entitlement.</li>
+        <li><b>Self-custody, open-loop:</b> the wallet is genuinely user-owned (exportable/recoverable); Zed holds no signing keys and cannot move user funds. Externally received OUSD is shown truthfully; compliance screening gates in-app actions, not ownership.</li>
+        <li><b>Transaction monitoring:</b> ramp events feed Zed's existing monitoring/screening stack (incl. Comply Advantage); on-chain activity on registered wallets is monitored.</li>
       </ul>
     </div>
     <div>
       <ul class="ctrl">
-        <li><b>Double-entry ledger</b> over all Zed-controlled funds (floats, in-flight amounts, spread, rewards pool); append-only, balanced postings for every ramp, rebalance, and rewards event.</li>
+        <li><b>Zero issuance economics:</b> no Zed spread or fee on the PHP↔OUSD legs — the PHP amount due is set by a transparent reference rate.</li>
+        <li><b>Double-entry ledger</b> over all Zed-controlled funds (liquidity balances, in-flight operations, Marketing Fee revenue, Zed Rewards); append-only, balanced postings for every issuance, redemption, rebalance, and rewards event.</li>
         <li><b>Daily three-way reconciliation:</b> internal ledger vs. Bridge / bank statements vs. on-chain OUSD across user wallets. Any break pages ops; the program is operated to a zero-loss bar (no break unresolved &gt; 24h).</li>
         <li><b>Dual control</b> on every manual money movement (treasury rebalance, manual disbursement, refund): one operator initiates, a second approves, all audit-logged.</li>
-        <li><b>Per-operation state machines:</b> every ramp has an immutable event trail; terminal states only <i>completed</i>, <i>refunded</i>, or <i>failed-with-ops-resolution</i>.</li>
+        <li><b>Destination-account data</b> encrypted at rest and masked everywhere; full account numbers materialized only at disbursement time.</li>
         <li><b>Halt procedure:</b> documented "close the ramp" runbook — on-ramps can be disabled at any time while off-ramps keep working (withdrawal-priority posture).</li>
       </ul>
     </div>
   </div>
 </div>
 
-<!-- ================= PAGE 3 : PARTIES + LIMITS ================= -->
+<!-- ================= PAGE 3 : PARTIES ================= -->
 <div class="page">
   <h2>Parties &amp; roles</h2>
   <table style="margin-bottom: 14px">
     <thead><tr><th style="width:16%">Party</th><th style="width:44%">Role in the flow</th><th>Notes / posture</th></tr></thead>
     <tbody>
-      <tr><td>Zed</td><td>Program operator: user app, PHP on/off-ramp legs, treasury (PHP + USD floats), rewards pass-through.</td><td>Never custodies user assets — user OUSD is self-custodied. Operates double-entry ledger and daily reconciliation over all Zed-controlled funds.</td></tr>
-      <tr><td>End users</td><td>Source and destination of all fiat. Fund from and withdraw to their own accounts only.</td><td>Existing Zed credit cardholders — already KYC'd (Persona) and credit-underwritten, accounts in good standing.</td></tr>
-      <tr><td>Bridge.xyz</td><td>OUSD orchestration: acquisition on on-ramp, redemption on off-ramp, Zed's USD float account, US/EU fiat payout rails.</td><td>Licensed US entity. Zed's Bridge customer records created from shared Persona KYC data.</td></tr>
-      <tr><td>Open Standard</td><td>OUSD issuer; reserve management; platform-level yield distribution to Zed.</td><td>Public OUSD launch targeted 9/15/26.</td></tr>
-      <tr><td>Privy</td><td>Embedded self-custody wallet infrastructure for user OUSD balances.</td><td>Keys secured per Privy's model; Zed's app is the only wallet interface (no external send/receive UI).</td></tr>
+      <tr><td>Zed</td><td>Distributor and collection/settlement agent: user app, PHP collection and local disbursement, own-account treasury, Zed Rewards program.</td><td>Never custodies user assets; holds no wallet signing keys; creates no customer fiat balances; charges no issuance spread/fee. Operates double-entry ledger and daily reconciliation over all Zed-controlled funds.</td></tr>
+      <tr><td>End users</td><td>Source and destination of all fiat; sign every outbound OUSD transaction from their own wallet.</td><td>Existing Zed credit cardholders — already KYC'd (Persona) and credit-underwritten, accounts in good standing.</td></tr>
+      <tr><td>Bridge.xyz</td><td>OUSD issuance orchestration: primary mint to user wallets, customer-attributed redemption routes, Zed's USD settlement balance, US/EU fiat payout rails.</td><td>Licensed US entity. Zed's counterparty throughout — never a retail interface for end users. Bridge customer records created from shared Persona KYC data.</td></tr>
+      <tr><td>Open Standard</td><td>OUSD issuer; reserve management; pays Zed a Network Partner Marketing Fee on OUSD held in registered wallets.</td><td>Public OUSD launch targeted 9/15/26. Marketing Fee is Zed revenue, distinct from the user-facing Zed Rewards program.</td></tr>
+      <tr><td>Privy</td><td>Embedded self-custody wallet infrastructure for user OUSD balances.</td><td>Wallets are genuinely user-owned: exportable/recoverable, usable independently of Zed; no Zed signer, owner role, or export capability.</td></tr>
       <tr><td>Netbank</td><td>PHP collections (per-user virtual accounts) and PHP payouts (Disburse-to-Account: InstaPay / PESONet).</td><td>BSP-supervised. Same rail Zed's users already use today for card bill payments.</td></tr>
-      <tr><td>FX</td><td>Daily PHP↔USD treasury rebalancing across Zed's floats.</td><td>Executed on Zed's internal ledger or via a partner bank / financial institution; dual-controlled and ledger-recorded.</td></tr>
+      <tr><td>Treasury FI</td><td>Partner bank / financial institution for Zed's aggregate own-account PHP↔USD rebalancing.</td><td>Zed funds only — no customer FX; dual-controlled and ledger-recorded.</td></tr>
       <tr><td>Persona</td><td>KYC provider for all users; artifacts shared with Bridge so users don't re-KYC.</td><td>Existing vendor relationship covering the full cardholder base.</td></tr>
     </tbody>
   </table>
 
   <p class="footnote">
-    FX spread/fees are finalized in tech design. Reflects Zed's PRD v4 (2026-08-16); provided to Bridge for KYB purposes.
+    Rail fees, reference-rate sourcing, and rewards program parameters are finalized in tech design. Reflects Zed's PRD v5 (2026-08-28);
+    provided to Bridge for KYB purposes.
   </p>
 
   <div class="doc-footer">
-    <span>ZED · OUSD DOLLAR ACCOUNT — FUNDS FLOW · CONFIDENTIAL</span>
-    <span>2026-08-27 · STEVE@ZEDCARD.CO</span>
+    <span>ZED · OUSD DOLLAR WALLET — FUNDS FLOW · CONFIDENTIAL</span>
+    <span>2026-08-28 · STEVE@ZEDCARD.CO</span>
   </div>
 </div>
 
