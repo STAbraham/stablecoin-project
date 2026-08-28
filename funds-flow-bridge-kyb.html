@@ -105,7 +105,6 @@
     <strong>Product:</strong> a dollar-denominated store-of-value account for Zed's existing, KYC'd Philippine credit cardholders.
     Users fund in PHP from their own bank accounts; Zed converts to USD and acquires <strong>OUSD</strong> (issued by Open Standard, via Bridge)
     into the user's <strong>self-custody Privy embedded wallet</strong>. Store of value only — no payments, no external crypto transfers.
-    <strong>Pilot scope:</strong> 50 invite-only users · pilot-wide TVL cap ≈ ₱15M (≈ $260k) · per-user balance cap ≈ $8,700.
   </p>
 
   <svg viewBox="0 0 1560 760" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif">
@@ -133,7 +132,7 @@
     <!-- lane titles -->
     <text x="185"  y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">END USER — OWN FIAT ACCOUNTS</text>
     <text x="535"  y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">ZED — PHP LEG (NETBANK, BSP-SUPERVISED)</text>
-    <text x="905"  y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">ZED — TREASURY (BRIDGE / FX VENUE)</text>
+    <text x="905"  y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">ZED — TREASURY (BRIDGE / FX)</text>
     <text x="1325" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#000">ON-CHAIN / ISSUER</text>
 
     <!-- ============ nodes ============ -->
@@ -176,9 +175,9 @@
     <!-- FX venue -->
     <g>
       <rect x="740" y="300" width="300" height="100" rx="10" fill="#fff" stroke="#000" stroke-width="1.5" stroke-dasharray="5 4"/>
-      <text x="758" y="330" font-size="15" font-weight="600" fill="#000">FX venue</text>
-      <text x="758" y="352" font-size="12.5" fill="#4C4C4C">Coins.ph (BSP-licensed VASP) or</text>
-      <text x="758" y="370" font-size="12.5" fill="#4C4C4C">partner bank — manual, dual-controlled</text>
+      <text x="758" y="330" font-size="15" font-weight="600" fill="#000">FX — PHP ↔ USD</text>
+      <text x="758" y="352" font-size="12.5" fill="#4C4C4C">On Zed's internal ledger (across floats)</text>
+      <text x="758" y="370" font-size="12.5" fill="#4C4C4C">or via a partner bank / financial institution</text>
     </g>
     <!-- OS: Open Standard -->
     <g>
@@ -291,7 +290,7 @@
     <div class="card">
       <h3><span class="flag" style="background:#7a756c"></span>Treasury &amp; rewards</h3>
       <ol class="steps">
-        <li><span class="badge gray">T</span><span><b>Floats are rebalanced daily:</b> net PHP collected is converted to USD (and vice versa) manually on the FX venue's own interface — Coins.ph (BSP-licensed VASP) or a partner bank — dual-approved and ledger-recorded. Ramps execute instantly against floats and never wait on FX.</span></li>
+        <li><span class="badge gray">T</span><span><b>Floats are rebalanced daily:</b> net PHP collected is converted to USD (and vice versa) either on Zed's own internal ledger across its PHP and USD floats, or via a partner bank / financial institution — dual-approved and ledger-recorded in every case. Ramps execute instantly against floats and never wait on FX.</span></li>
         <li><span class="badge violet">R</span><span><b>OUSD reserve yield is paid to Zed at the platform level</b> (per Open Standard's distribution program; Open Standard fee ≤ 25bps of yield). Zed passes rewards through to users <b>in OUSD</b> on a monthly distribution, computed from on-chain balance snapshots, fully auditable.</span></li>
         <li><span class="badge gray">8</span><span><b>US/EU off-ramp (gated):</b> per-user enablement via support; redemption as in 4–5, then Bridge's own fiat rails to the user's own US/EU account. No Zed FX or float involved.</span></li>
       </ol>
@@ -302,7 +301,7 @@
   <div class="controls">
     <div>
       <ul class="ctrl">
-        <li><b>KYC:</b> every pilot user is already KYC'd via Persona as a Zed cardholder; KYC data is shared with Bridge at onboarding to create the Bridge customer (users complete only any delta Bridge requires).</li>
+        <li><b>KYC:</b> every user is already KYC'd via Persona as a Zed cardholder; KYC data is shared with Bridge at onboarding to create the Bridge customer (users complete only any delta Bridge requires).</li>
         <li><b>Own-account-only fiat legs:</b> deposits originate from, and payouts go to, bank accounts in the user's own name (name-match enforced; third-party payouts excluded) — minimizing mule/AML surface.</li>
         <li><b>Closed loop:</b> Zed's app is the only interface to the Privy wallet — no external crypto send/receive surface, no deposits from outside the Zed ecosystem shown. Store of value only: no payments, P2P, or merchant spend.</li>
         <li><b>Transaction monitoring:</b> on/off-ramp events feed Zed's existing monitoring and screening stack (incl. Comply Advantage) used for the card program.</li>
@@ -312,7 +311,7 @@
     <div>
       <ul class="ctrl">
         <li><b>Double-entry ledger</b> over all Zed-controlled funds (floats, in-flight amounts, spread, rewards pool); append-only, balanced postings for every ramp, rebalance, and rewards event.</li>
-        <li><b>Daily three-way reconciliation:</b> internal ledger vs. Bridge / bank / FX-venue statements vs. on-chain OUSD across user wallets. Any break pages ops; the pilot runs a zero-loss bar (no break unresolved &gt; 24h).</li>
+        <li><b>Daily three-way reconciliation:</b> internal ledger vs. Bridge / bank statements vs. on-chain OUSD across user wallets. Any break pages ops; the program is operated to a zero-loss bar (no break unresolved &gt; 24h).</li>
         <li><b>Dual control</b> on every manual money movement (treasury rebalance, manual disbursement, refund): one operator initiates, a second approves, all audit-logged.</li>
         <li><b>Per-operation state machines:</b> every ramp has an immutable event trail; terminal states only <i>completed</i>, <i>refunded</i>, or <i>failed-with-ops-resolution</i>.</li>
         <li><b>Halt procedure:</b> documented "close the ramp" runbook — on-ramps can be disabled at any time while off-ramps keep working (withdrawal-priority posture).</li>
@@ -328,32 +327,17 @@
     <thead><tr><th style="width:16%">Party</th><th style="width:44%">Role in the flow</th><th>Notes / posture</th></tr></thead>
     <tbody>
       <tr><td>Zed</td><td>Program operator: user app, PHP on/off-ramp legs, treasury (PHP + USD floats), rewards pass-through.</td><td>Never custodies user assets — user OUSD is self-custodied. Operates double-entry ledger and daily reconciliation over all Zed-controlled funds.</td></tr>
-      <tr><td>End users</td><td>Source and destination of all fiat. Fund from and withdraw to their own accounts only.</td><td>50 invite-only pilot users drawn from ~11,000 existing Zed cardholders — already KYC'd (Persona) and credit-underwritten, accounts in good standing.</td></tr>
+      <tr><td>End users</td><td>Source and destination of all fiat. Fund from and withdraw to their own accounts only.</td><td>Existing Zed credit cardholders — already KYC'd (Persona) and credit-underwritten, accounts in good standing.</td></tr>
       <tr><td>Bridge.xyz</td><td>OUSD orchestration: acquisition on on-ramp, redemption on off-ramp, Zed's USD float account, US/EU fiat payout rails.</td><td>Licensed US entity. Zed's Bridge customer records created from shared Persona KYC data.</td></tr>
-      <tr><td>Open Standard</td><td>OUSD issuer; reserve management; platform-level yield distribution to Zed.</td><td>Public OUSD launch targeted 9/15/26; external pilot funding gated on it.</td></tr>
+      <tr><td>Open Standard</td><td>OUSD issuer; reserve management; platform-level yield distribution to Zed.</td><td>Public OUSD launch targeted 9/15/26.</td></tr>
       <tr><td>Privy</td><td>Embedded self-custody wallet infrastructure for user OUSD balances.</td><td>Keys secured per Privy's model; Zed's app is the only wallet interface (no external send/receive UI).</td></tr>
       <tr><td>Netbank</td><td>PHP collections (per-user virtual accounts) and PHP payouts (Disburse-to-Account: InstaPay / PESONet).</td><td>BSP-supervised. Same rail Zed's users already use today for card bill payments.</td></tr>
-      <tr><td>Coins.ph / bank</td><td>FX venue for daily PHP↔USD treasury rebalancing.</td><td>Coins.ph is a BSP-licensed VASP. Execution is manual on the venue's own interface, dual-controlled.</td></tr>
-      <tr><td>Persona</td><td>KYC provider for all users; artifacts shared with Bridge so pilot users don't re-KYC.</td><td>Existing vendor relationship covering the full cardholder base.</td></tr>
-    </tbody>
-  </table>
-
-  <h2>Pilot limits</h2>
-  <table class="limits" style="max-width:720px">
-    <thead><tr><th>Limit</th><th>Value</th></tr></thead>
-    <tbody>
-      <tr><td>Users</td><td>50, invite-only, existing KYC'd cardholders</td></tr>
-      <tr><td>Min on-ramp</td><td>₱1,000</td></tr>
-      <tr><td>Max single on-ramp</td><td>₱100,000</td></tr>
-      <tr><td>Max per-user monthly on-ramp</td><td>₱500,000</td></tr>
-      <tr><td>Max per-user balance</td><td>₱500,000 equivalent (≈ $8,700)</td></tr>
-      <tr><td>Pilot-wide TVL cap</td><td>₱15M equivalent (≈ $260,000)</td></tr>
-      <tr><td>Off-ramp</td><td>No minimum beyond rail minimums; max = full balance</td></tr>
+      <tr><td>FX</td><td>Daily PHP↔USD treasury rebalancing across Zed's floats.</td><td>Executed on Zed's internal ledger or via a partner bank / financial institution; dual-controlled and ledger-recorded.</td></tr>
+      <tr><td>Persona</td><td>KYC provider for all users; artifacts shared with Bridge so users don't re-KYC.</td><td>Existing vendor relationship covering the full cardholder base.</td></tr>
     </tbody>
   </table>
 
   <p class="footnote">
-    Limits are proposed pilot values; the current $500 entity-wide cap applies to Zed-internal testing pre-OUSD-public-launch only.
     FX spread/fees are finalized in tech design. Reflects Zed's PRD v4 (2026-08-16); provided to Bridge for KYB purposes.
   </p>
 
