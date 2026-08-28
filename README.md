@@ -1,6 +1,6 @@
 # Stablecoin project — working conventions
 
-Docs for the Zed Dollar Wallet (OUSD) pilot. See `ousd-account-prd.md` (PRD, v5), `counterparty-counsel-tracker.md` (Phase 0 partner/legal confirmations — the source of truth for what's confirmed vs. assumed), `funds-flow-bridge-kyb.html`/`.pdf` (Bridge KYB handoff), and — once started — `tech-design.md`.
+Docs for the Zed Dollar Wallet (OUSD) pilot. See `ousd-account-prd.md` (PRD, v5.1), `regulatory-policy-memo.md` (regulatory architecture rationale — the *why* behind D3–D6/D10–D12 and R27–R34), `counterparty-counsel-tracker.md` (Phase 0 partner/legal confirmations — the source of truth for what's confirmed vs. assumed, with pilot-blocker/launch-blocker gates), `funds-flow-bridge-kyb.html`/`.pdf` (Bridge KYB handoff), and — once started — `tech-design.md`.
 
 ## How iteration works
 
@@ -20,8 +20,7 @@ Docs for the Zed Dollar Wallet (OUSD) pilot. See `ousd-account-prd.md` (PRD, v5)
 Detail + status per item in `counterparty-counsel-tracker.md`. Headlines:
 
 - **Zed → Bridge:** complete KYB (gates OUSD sandbox access; funds-flow doc prepared 8/27).
-- **Bridge (Freddie):** primary mint direct-to-customer-wallet (C-BR-1), direct redemption from customer wallet (C-BR-2), `on_behalf_of` attribution (C-BR-3), reward mints (C-BR-4), chains + test-cap raise (C-BR-5). C-BR-1/2 are load-bearing for the v5 architecture.
-- **Open Standard:** user-wallet registration under the Relationship test (C-OS-1), Marketing Fee payout token/destination (C-OS-2), immediate wallet-registration path — accrual is not backdated (C-OS-3).
-- **Netbank:** Disburse-to-Account scope + sandbox (C-NB-1); second VA per user (C-NB-2).
-- **Privy:** user-owned wallet config with recovery/export and no Zed signer (C-PR-1); contract + sandbox (C-PR-2).
-- **Counsel:** BSP VASP/FX posture (C-LC-1), SEC CASP/offering path (C-LC-2), BSP M-2026-003 offshore-access analysis (C-LC-3) — the R34 launch gates; only items that can block launch after the build is done.
+- **Bridge / Open Standard (Freddie):** legal issuer of record (C-BR-1); primary mint direct to customer wallets (C-BR-2/3); direct redemption + attributed settlement (C-BR-7..10); retail-relationship structure (C-BR-6); Marketing Fee asset/wallet (C-BR-11/12); reward minting (C-BR-13); licensing evidence (C-BR-14); chains + test cap (C-BR-16); immediate wallet registration — accrual not backdated (C-BR-17). C-BR-2/3 and C-BR-7..10 are load-bearing for the v5 architecture.
+- **Netbank:** second VA per user (C-NB-1); corporate PHP↔USD conversion + USD funding to Bridge (C-NB-3/4); Disburse-to-Account scope + sandbox (C-NB-5); segregation (C-NB-7).
+- **Privy:** user-sole-owner config, no Zed signer, export/recovery, open-loop sends, redemption signing (C-PR-1..5); contract + sandbox.
+- **Counsel:** BSP issuer-offer exclusion + FX posture (C-LC-1..4), M-2026-003 (C-LC-5), SEC CASP/exemption/offering/StratBox (C-LC-6..9), security/EMI/disclosures/AMLC (C-LC-10..14) — the R34 launch gates; only items that can block launch after the build is done. Strategy in `regulatory-policy-memo.md`.

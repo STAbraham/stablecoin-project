@@ -1,7 +1,9 @@
 # Zed Dollar Wallet (OUSD) — Product Requirements Document
 
-**Status:** Draft v5 — regulatory architecture settled per 8/28 handoff; D1–D12 settled; partner/legal confirmations tracked in `counterparty-counsel-tracker.md`
+**Status:** Draft v5.1 — regulatory architecture settled per 8/28 handoff + policy memo; D1–D12 settled; partner/legal confirmations tracked in `counterparty-counsel-tracker.md`
 **Date:** 2026-08-28
+
+**Changelog v5 → v5.1:** Processed the two remaining deep-dive artifacts. (1) **`regulatory-policy-memo.md`** (port of the 8/28 positioning memo) is now the authoritative rationale for the v5 architecture — §8 below is rewritten to summarize and reference it instead of restating conclusions without authority (BSP Circular 1206 issuer-offer exclusion, MC/FXD analysis, SEC MC 4/5 CASP risk + relief strategy, StratBox, Howey, EMI). (2) **`counterparty-counsel-tracker.md` replaced** with a faithful port of the authoritative docx tracker from the deep dive (C-BR-1..17, C-PR-1..7, C-NB-1..7, C-LC-1..14, C-INT-1..6, with pilot-blocker vs launch-blocker gates); all PRD references re-anchored to the new IDs. (3) **D10/T2 sharpened:** Netbank is the *preferred* venue for corporate PHP↔USD conversion (C-NB-3/4/6) — confirming the removal of any VASP from the treasury path. (4) **§6.3 sharpened:** Marketing Fee received into a dedicated Zed corporate payout wallet (C-BR-12), assumed paid in OUSD (C-BR-11, working assumption); rewards fulfillment must not be depicted or built as issuer→customer yield. (5) §5 disclosures extended (stablecoin/reserve risk, smart-contract risk, per memo §8).
 **Product:** Zed stablecoin store-of-value wallet, piloting on **Open Standard's OUSD** *(working name "Dollar Wallet" — final naming per Open Question #9)*
 **Scope:** MVP pilot ("PoC") for 50 of Zed's ~11,000 credit cardholders
 **Timeline:** **3–4 week build target** (external launch gated on OUSD public launch, targeted 9/15/26, and on the regulatory gates in R34)
@@ -61,7 +63,7 @@ Secondary learning goals: real rails cost per transaction, treasury liquidity si
 
 Context for D5, §6.3, and the scale-up gate. Three OS documents received 8/28:
 
-- **Marketing Fee (OUSD Rewards doc):** OUSD reserve revenue (cash + short-term treasuries, held via OS's issuing partner) is distributed monthly to Network Partners in proportion to OUSD held across their **registered wallets**, paid as a **Marketing Fee**. Accrues daily (daily balance × daily net yield, balances sampled at unannounced times); paid **on the 10th business day** of the following month, **on-chain to a payout wallet the partner designates** (payout token to confirm — tracker C-OS-2). Wallets qualify by **Ownership** (partner controls the wallet) or **Relationship** (wallet provisioned for / custodying OUSD for a direct customer with an active relationship) — Zed-provisioned user-owned Privy wallets are the Relationship case (attribution construct only; tracker C-OS-1). Registration via dashboard/API/CSV; **unregistered wallets do not accrue and accrual is not backdated**. Illustrative net yield in OS's examples: 3.75%/yr.
+- **Marketing Fee (OUSD Rewards doc):** OUSD reserve revenue (cash + short-term treasuries, held via OS's issuing partner) is distributed monthly to Network Partners in proportion to OUSD held across their **registered wallets**, paid as a **Marketing Fee**. Accrues daily (daily balance × daily net yield, balances sampled at unannounced times); paid **on the 10th business day** of the following month, **on-chain to a payout wallet the partner designates** (payout token to confirm — tracker C-BR-11/12). Wallets qualify by **Ownership** (partner controls the wallet) or **Relationship** (wallet provisioned for / custodying OUSD for a direct customer with an active relationship) — Zed-provisioned user-owned Privy wallets are the Relationship case (attribution construct only; tracker C-BR-6/17). Registration via dashboard/API/CSV; **unregistered wallets do not accrue and accrual is not backdated**. Illustrative net yield in OS's examples: 3.75%/yr.
 - **Equity earn-in (Earning Equity doc):** partners can buy into OS equity annually pro-rata to **Ecosystem Activity** = Supply (average daily OUSD balance across registered wallets) + Qualified Flow (5% of OUSD moved with other partners' registered wallets, capped at 1.5× Supply; intra-platform, unregistered, and round-trip flow excluded). Pool: 10%/yr for the first four years (40% total); 5% max ownership per partner group; **$50M minimum supply to qualify** — far beyond pilot scale, relevant only to the scale-up decision gate.
 - **Supply attribution (Supply Contribution Proposal):** token-level "coloring" — OUSD picks up a partner's color when it lands in a registered address and the color travels with the token; exits from unclaimed addresses draw own-color first, then weighted-random. Implication for Zed: register every wallet tied to the platform promptly (Phase 0 action), and expect attribution to be measurable by OS independent of our books.
 
@@ -88,12 +90,12 @@ Context for D5, §6.3, and the scale-up gate. Three OS documents received 8/28:
 |---|---|---|
 | D1 | Product core | Store of value: hold OUSD, earn Zed Rewards, on/off-ramp. No spend. |
 | D2 | Stablecoin | **OUSD** (Open Standard), accessed via **Bridge.xyz**. White-label revisited post-pilot. |
-| D3 | Custody *(revised v5)* | **Genuinely user-owned self-custody** via **Privy** embedded wallets: the user is the wallet owner; recovery/export path lets the user use the wallet independently of Zed; **no Zed authorization key, signer, owner role, or export capability** (R31); **open-loop** (R32). No seed-phrase UX. Privy configuration confirmation is a Phase 0 gate (tracker C-PR-1). |
+| D3 | Custody *(revised v5)* | **Genuinely user-owned self-custody** via **Privy** embedded wallets: the user is the wallet owner; recovery/export path lets the user use the wallet independently of Zed; **no Zed authorization key, signer, owner role, or export capability** (R31); **open-loop** (R32). No seed-phrase UX. Privy configuration confirmation is a Phase 0 gate (tracker C-PR-1..5). |
 | D4 | On-ramp *(revised v5)* | **Primary issuance, Zed as distributor/collection/settlement agent**: user requests OUSD; app shows PHP amount due at a transparent reference rate with **zero Zed spread/fee** (R29); PHP collected via the dedicated Netbank VA is issuance consideration; Zed funds issuance from **pre-existing Zed-owned USD liquidity** at Bridge; **OUSD is minted directly to the user's Privy address** (R27) — no Zed OUSD inventory/resale, no customer USD balance at any point (R28). Full flow in §6.2. |
-| D5 | Rewards *(revised v5)* | Two separate things: (a) **Open Standard pays Zed a Network Partner Marketing Fee** (mechanics VERIFIED, §2a) — booked as **Zed revenue** (accounting confirmation: tracker C-AC-1), not customer property; (b) **"Zed Rewards"** — a Zed-funded, variable-rate rewards program for users with its own terms and accrual logic (§6.3). Preferred fulfillment: **incremental OUSD primary mints directly to user wallets** (tracker C-BR-4); Zed payout-wallet → user-wallet transfer is the fallback, requiring legal sign-off. Never marketed as interest or as the user owning OS's fee. |
-| D6 | Off-ramp *(revised v5)* | PH: **direct redemption** — user signs OUSD from their own wallet **directly to issuer/Bridge redemption infrastructure** via a customer-attributed redemption route; **Zed never receives customer OUSD** (R30); USD proceeds settle to Zed's settlement balance, operation-attributed; Zed pays PHP locally via Netbank Disburse-to-Account (§6.4). US/EU via Bridge rails per D11. If Bridge cannot support the direct pattern, **do not** fall back to customer→Zed-wallet — escalate (fallback decision: licensed PH VASP off-ramp, or defer PH off-ramp). Phase 0 gate: tracker C-BR-2. |
+| D5 | Rewards *(revised v5)* | Two separate things: (a) **Open Standard pays Zed a Network Partner Marketing Fee** (mechanics VERIFIED, §2a) — booked as **Zed revenue** (accounting confirmation: tracker C-INT-6), received into a dedicated Zed corporate payout wallet (C-BR-12; payout asset assumed OUSD — C-BR-11), not customer property; (b) **"Zed Rewards"** — a Zed-funded, variable-rate rewards program for users with its own terms and accrual logic (§6.3). Preferred fulfillment: **incremental OUSD primary mints directly to user wallets** (tracker C-BR-13); Zed payout-wallet → user-wallet transfer is the fallback, requiring legal sign-off. Never marketed as interest or as the user owning OS's fee. |
+| D6 | Off-ramp *(revised v5)* | PH: **direct redemption** — user signs OUSD from their own wallet **directly to issuer/Bridge redemption infrastructure** via a customer-attributed redemption route; **Zed never receives customer OUSD** (R30); USD proceeds settle to Zed's settlement balance, operation-attributed; Zed pays PHP locally via Netbank Disburse-to-Account (§6.4). US/EU via Bridge rails per D11. If Bridge cannot support the direct pattern, **do not** fall back to customer→Zed-wallet — escalate (fallback decision: licensed PH VASP off-ramp, or defer PH off-ramp). Phase 0 gates: tracker C-BR-7..10. |
 | D6a | KYC | Reuse existing **Persona** KYC; share data with Bridge so pilot users don't re-KYC. |
-| D6b | Chain | EVM L2 preferred, **Base** the leading candidate. Confirm OUSD's default/supported chains with Bridge in tech design (tracker C-BR-5). |
+| D6b | Chain | EVM L2 preferred, **Base** the leading candidate. Confirm OUSD's default/supported chains with Bridge in tech design (tracker C-BR-16). |
 
 ### Settled in v3 (per Steve, 8/16)
 
@@ -107,8 +109,8 @@ Context for D5, §6.3, and the scale-up gate. Three OS documents received 8/28:
 | # | Decision | Choice | Rationale |
 |---|---|---|---|
 | D9a | PHP collections | **Second per-user Netbank virtual collection account, dedicated to stablecoin funding.** Verified in code: each user already gets a Netbank VA with QRPH generated against it, and the webhook posts *every* credit to it as a card payment. A second, purpose-dedicated VA per user cleanly separates card bill-pay from Dollar Wallet funding. | Reuses the live, proven collection rail these exact users already use; the only change is a purpose dimension on VA issuance and a branch in the webhook. |
-| D9b | PHP payouts | **Netbank Disburse-to-Account API in MVP** (net-new integration). Single endpoint; real-time InstaPay < ₱50k; PESONet for larger. Same vendor and auth pattern as collections; sized ~2–4 days incl. payout state machine. **Manual bank-portal payout with dual approval is the documented fallback runbook.** Phase 0 gate: confirm disburse scope + sandbox credentials (tracker C-NB-1). | One vendor for both PHP legs. If the capability check fails or slips, fall back to manual payouts for wave 1 without changing user-facing flow. |
-| D10 | Treasury *(revised v5)* | **Pre-funded Zed-owned liquidity + aggregate own-account rebalancing.** USD settlement liquidity at Bridge (Zed's own funds, consumed by issuance and replenished by redemptions); PHP liquidity at Netbank. Ramps execute instantly against Zed's own balances. Treasury periodically converts **aggregate** Zed-owned PHP↔USD on its own account — via a partner bank/FI, manual, dual-controlled — **never a customer-specific trade, never a customer FX service**. Coins.ph is not in the money path (D8). Automation is a post-MVP upgrade. | Instant-feeling UX; currency exposure bounded and trivial at pilot caps; own-account framing keeps Zed out of the customer-FX business — the point of the v5 architecture. |
+| D9b | PHP payouts | **Netbank Disburse-to-Account API in MVP** (net-new integration). Single endpoint; real-time InstaPay < ₱50k; PESONet for larger. Same vendor and auth pattern as collections; sized ~2–4 days incl. payout state machine. **Manual bank-portal payout with dual approval is the documented fallback runbook.** Phase 0 gate: confirm disburse scope + sandbox credentials (tracker C-NB-5). | One vendor for both PHP legs. If the capability check fails or slips, fall back to manual payouts for wave 1 without changing user-facing flow. |
+| D10 | Treasury *(revised v5)* | **Pre-funded Zed-owned liquidity + aggregate own-account rebalancing.** USD settlement liquidity at Bridge (Zed's own funds, consumed by issuance and replenished by redemptions); PHP liquidity at Netbank. Ramps execute instantly against Zed's own balances. Treasury periodically converts **aggregate** Zed-owned PHP↔USD on its own account — **Netbank preferred as the executing bank** (corporate conversion + USD funding to Bridge: tracker C-NB-3/4/6), manual, dual-controlled — **never a customer-specific trade, never a customer FX service**. Coins.ph is not in the money path (D8; per memo §4, no VASP is inserted into treasury). Automation is a post-MVP upgrade. | Instant-feeling UX; currency exposure bounded and trivial at pilot caps; own-account framing keeps Zed out of the customer-FX business — the point of the v5 architecture. |
 | D11 | US/EU off-ramp *(revised v5)* | **In scope, gated per-user, sequenced after PH flows are green (week-4 stretch), and additionally gated on legal review of BSP M-2026-003** (offshore-access rule): Bridge must remain **Zed's counterparty**, never a direct retail interface for PH users (R33; tracker C-LC-3). Only destinations with existing Bridge fiat off-ramps. | The redemption leg exists regardless; the US/EU leg is external-account registration + a Bridge transfer. The legal gate decides whether it ships at all. |
 
 ### Settled in v5 (per 8/28 handoff)
@@ -123,7 +125,7 @@ Context for D5, §6.3, and the scale-up gate. Three OS documents received 8/28:
 
 - **Pilot cohort:** 50 users, invite-only, selected from the ~11,000 active cardholders.
 - **Proposed eligibility criteria** *(confirm — Open Question #3)*: account in good standing (not delinquent), Persona KYC completed at a tier sufficient for Bridge's requirements, active app usage in the last 90 days, and opt-in via waitlist/invitation.
-- Users must accept new terms: Zed Dollar Wallet terms of service, Zed Rewards program terms (separate, per D5), Bridge's end-user terms, applicable OUSD/Open Standard terms, and Privy's terms, with clear self-custody and no-deposit-insurance disclosures (this is not a bank deposit; not PDIC-insured; OUSD is issued by Open Standard, not Zed; the wallet is user-owned and exportable).
+- Users must accept new terms: Zed Dollar Wallet terms of service, Zed Rewards program terms (separate, per D5), Bridge's end-user terms, applicable OUSD/Open Standard terms, and Privy's terms, with clear self-custody and no-deposit-insurance disclosures (this is not a bank deposit; not PDIC-insured; OUSD is issued by Open Standard, not Zed; the wallet is user-owned and exportable; stablecoin/reserve and smart-contract/blockchain risks disclosed per memo §8).
 - If a pilot user becomes delinquent on their card, their OUSD remains theirs (self-custody — Zed cannot seize it, and per R31 could not move it even operationally). Proposed policy: freeze *new on-ramps* for delinquent users; off-ramp remains available. *(Confirm — Open Question #7.)*
 
 ---
@@ -136,7 +138,7 @@ Context for D5, §6.3, and the scale-up gate. Three OS documents received 8/28:
 2. User reviews and accepts terms and self-custody + risk disclosures (including the open-loop nature of the wallet and the recovery/export path).
 3. Behind the scenes, Zed:
    - Creates a **Bridge customer** using shared Persona KYC data. If Bridge requires additional fields, the user completes only the delta.
-   - Provisions a **user-owned Privy embedded wallet** per D3 (user is owner; recovery/export available; no Zed signer — configuration per tracker C-PR-1).
+   - Provisions a **user-owned Privy embedded wallet** per D3 (user is owner; recovery/export available; no Zed signer — configuration per tracker C-PR-1..5).
    - Registers the wallet address with the account module **and with Open Standard's wallet registry** (accrual is not backdated — §2a).
 4. User lands on a zero-balance home screen with a clear "Add dollars" call to action.
 
@@ -164,8 +166,8 @@ Context for D5, §6.3, and the scale-up gate. Three OS documents received 8/28:
 
 1. Home screen shows: OUSD balance (from chain), PHP-equivalent at current indicative reference rate, lifetime Zed Rewards earned, and the current Zed Rewards rate — clearly labeled **"variable Zed Rewards,"** never "interest" or a guaranteed APY (D12, R10).
 2. **Program structure (per D5):** Open Standard pays Zed a Network Partner Marketing Fee on OUSD held in registered wallets (mechanics §2a — accrues daily, paid on-chain monthly on the 10th business day). This is Zed revenue. Separately, **Zed Rewards** accrue to users under Zed's own program terms (proposed: accrue daily on on-chain balances, distribute monthly), at a rate Zed sets and can vary.
-3. **Fulfillment:** preferred — Zed funds **incremental OUSD primary mints directly to user wallets** (tracker C-BR-4); fallback — transfers from a Zed payout wallet, only with legal sign-off.
-4. **Wallet registration:** every user wallet is registered with Open Standard at creation (§6.1) so Marketing Fee accrual matches the user base; registration uses the Relationship qualification (§2a; attribution construct only — tracker C-OS-1).
+3. **Fulfillment:** preferred — Zed funds **incremental OUSD primary mints directly to user wallets** (tracker C-BR-13); fallback — transfers from a Zed payout wallet, only with legal sign-off. The Marketing Fee itself is received into a **dedicated Zed corporate payout wallet** (C-BR-12), kept strictly separate from customer assets; the fee is never depicted or built as issuer→customer yield.
+4. **Wallet registration:** every user wallet is registered with Open Standard at creation (§6.1) so Marketing Fee accrual matches the user base; registration uses the Relationship qualification (§2a; attribution construct only, under Zed's relationship — tracker C-BR-6/C-BR-17).
 5. Activity feed shows every event: mints (on-ramps), redemptions (off-ramps), Zed Rewards distributions.
 
 **Requirements:**
@@ -177,7 +179,7 @@ Context for D5, §6.3, and the scale-up gate. Three OS documents received 8/28:
 ### 6.4 Off-ramp — Philippine bank via direct redemption *(rewritten v5)*
 
 1. User taps "Withdraw," chooses "Philippine bank account," enters/selects a destination account, and an amount within limits. Zed shows estimated PHP proceeds and any disclosed local rail fee — **not** framed as Zed buying OUSD or converting currency (D12).
-2. **Customer-attributed redemption route.** Zed creates/uses a Bridge redemption route tied to the Bridge customer / `on_behalf_of` identifier (or a customer-specific liquidation address) — tracker C-BR-2/C-BR-3.
+2. **Customer-attributed redemption route.** Zed creates/uses a Bridge redemption route tied to the Bridge customer / `on_behalf_of` identifier (or a customer-specific liquidation address) — tracker C-BR-7/C-BR-8/C-BR-9.
 3. **User signs OUSD directly to the redemption infrastructure** (Privy signing UX). Source: the customer's wallet. Destination: **issuer/Bridge infrastructure — never a Zed wallet** (R30).
 4. **Redemption/burn.** Bridge/OUSD issuer redeems; USD proceeds settle into Zed's settlement/prefunded arrangement, attributable to the specific redemption operation.
 5. **Local payout.** Zed pays PHP from its own PHP liquidity via the **Netbank Disburse-to-Account API** (D9b: InstaPay < ₱50k real-time, PESONet above; manual bank-portal payout with dual approval is the fallback runbook).
@@ -197,7 +199,7 @@ Context for D5, §6.3, and the scale-up gate. Three OS documents received 8/28:
 2. Zed passes through Bridge's rails, fees, and timelines transparently.
 
 **Requirements:**
-- R15 *(revised v5)*. Gated per-user behind "contact support to enable"; built as a week-4 stretch after PH flows are green; **and gated on legal review of BSP M-2026-003** — Bridge remains Zed's counterparty and is never presented as a direct retail app/interface to PH users (R33; tracker C-LC-3). Only destinations with existing Bridge fiat off-ramps are offered.
+- R15 *(revised v5)*. Gated per-user behind "contact support to enable"; built as a week-4 stretch after PH flows are green; **and gated on legal review of BSP M-2026-003** — Bridge remains Zed's counterparty and is never presented as a direct retail app/interface to PH users (R33; tracker C-LC-5). Only destinations with existing Bridge fiat off-ramps are offered.
 - R13 (name-match: user's own account) and R12a (encrypted storage, masked rendering) apply here too.
 
 ### 6.6 Notifications & comms
@@ -231,7 +233,7 @@ The zero-loss bar (§2) is enforced by construction, not by hope.
 - **R31 — User signing.** All outbound wallet transactions require user cryptographic authorization; Zed cannot unilaterally sign, change owners/signers/policies, or export keys.
 - **R32 — Open-loop truthfulness.** External OUSD received by the wallet is recognized in the displayed on-chain balance; compliance controls may block in-app actions but must not falsify ownership or balances.
 - **R33 — Counterparty attribution.** Each mint/redemption is attributable to a Zed user in Bridge/OUSD systems (customer / `on_behalf_of` records) without giving that user direct retail access to an offshore VASP interface.
-- **R34 — Regulatory gates.** External launch requires written sign-off on BSP VASP/FX posture and a resolved SEC path: no-action/interpretive confirmation, exemption, or StratBox relief. (Tracker C-LC-1/C-LC-2.)
+- **R34 — Regulatory gates.** External launch requires written sign-off on BSP VASP/FX posture and a resolved SEC path: no-action/interpretive confirmation, exemption, or StratBox relief. (Tracker C-LC-1..14; strategy per `regulatory-policy-memo.md` §5/§10.)
 
 ---
 
@@ -258,20 +260,23 @@ The zero-loss bar (§2) is enforced by construction, not by hope.
 | Pilot-wide TVL cap | ₱15M equivalent (≈ $260k) |
 | Off-ramp | No minimum beyond rail minimums; max = full balance |
 
-**Compliance posture (v5; counsel validation per R34 — tracker C-LC):**
-- **Structure:** Zed distributes a third-party public stablecoin (issued by Open Standard, orchestrated by Bridge, a licensed US entity) into genuinely user-owned self-custody wallets, collects PHP as issuance consideration, and disburses PHP after issuer-side redemption — all fiat legs through BSP-supervised partners. Zed takes no custody (R30), creates no customer fiat balances (R28), charges no exchange spread (R29), and executes no customer FX (D10). This positions Zed as distributor/agent rather than exchange, custodian, or deposit-taker.
-- **The** legal questions to resolve before launch (R34): (a) whether the PHP↔OUSD issuance/redemption activity triggers **BSP VASP registration or FX licensing** (launch blocker, in parallel with build); (b) the **SEC CASP/offering** track for offering a stablecoin product to PH retail — no-action/interpretive confirmation, exemption, or StratBox relief; (c) **BSP M-2026-003 offshore-access rule** — Bridge/OS must remain Zed's counterparties, never direct retail interfaces for PH users (R33, bears on D11).
-- **Open-loop posture** *(replaces v4 closed-loop rationale)*: the wallet is user-owned and externally usable (D3, R31, R32). Compliance controls operate on *Zed's product actions* (screening on ramps, in-app action gating, monitoring of registered wallets) — not by falsifying balances or pretending transfers are impossible. External receipts are screened before being actionable in-app (policy in tech design); on-chain activity on registered wallets is monitored at pilot scale.
-- Own-account-only fiat legs (R13) keep AML/travel-rule surface minimal for MVP.
-- Existing transaction-monitoring obligations extend to this product: on/off-ramp events feed the same monitoring/alerting used for card payments (Comply Advantage screening where applicable).
-- Clear user disclosures: not a bank deposit, not PDIC-insured, variable Zed Rewards (not interest), FX risk on the PHP value of holdings, self-custody model with export/recovery, OUSD issued by Open Standard.
+**Compliance posture (v5.1 — authority: `regulatory-policy-memo.md`; confirmations: tracker §4; gates: R34):**
+- **Executive position (memo):** strong basis that Zed needs **no BSP VASP or money-changing/FX authority**; the remaining material perimeter is the **SEC CASP regime** (Zed may be an "offeror"/intermediary under MC 4, s. 2025 even without operating an exchange). Strategy: SEC interpretive confirmation first, then MC 5 registration exemption, StratBox (MC 9, s. 2024) as pilot fallback — not a full CASP license build.
+- **BSP VASP thesis (memo §3):** the M-Regulations (Circular 1206) exclude services related to an *issuer's offer/sale* and entities acting *solely on their own behalf*. The architecture is built on those two exclusions — genuine primary issuance (no Zed inventory, no secondary execution, no spread: R27/R29), direct issuer redemption (R30), no custody/control (R31), own-account treasury (D10). The per-limb analysis (fiat↔VA, VA↔VA, transfer, safekeeping) is in the memo; counsel confirmation is C-LC-1..4.
+- **Core design principle (memo §1):** every regulated-looking function must be issuer activity, Zed own-account treasury, bank activity, or customer-controlled wallet activity. The memo's §9 "facts to avoid" table (customer USD entitlements, Zed spread, Zed inventory, customer OUSD to Zed, omnibus wallet, Zed signer, intermediate USDC, yield language) is binding on product and engineering — mirrored in R27–R32 and D12.
+- **Offshore counterparty (memo §3.2, BSP M-2026-003):** Bridge is Zed's infrastructure/counterparty, never a retail interface for PH users; Bridge customer/`on_behalf_of` records are KYC/attribution constructs (R33, C-LC-5, C-BR-6); Bridge home-jurisdiction licensing evidence is launch diligence (C-BR-14).
+- **Securities overlay (memo §6):** working position OUSD is not itself a security (1:1 redemption, no token-level yield right — C-LC-10), and the separate, discretionary Zed Rewards program must not create one (C-LC-11). This is *why* D5's Marketing-Fee/Zed-Rewards separation exists.
+- **EMI/deposit-taking (memo §7):** no Zed monetary-value liability exists — the customer's asset is issuer-issued OUSD on-chain (C-LC-12). D12 terminology enforces the characterization.
+- **Open-loop posture** *(replaces v4 closed-loop rationale)*: the wallet is user-owned and externally usable (D3, R31, R32). Compliance controls operate on *Zed's product actions* — ramp screening, in-app action gating, monitoring of registered wallets — never by falsifying balances. Wallet screening policy (external inbound/outbound, sanctions, unsupported assets) is C-INT-4; whether user-signed send/receive UI creates a residual VASP "transfer" limb is C-LC-2.
+- Own-account-only fiat legs (R13) keep AML/travel-rule surface minimal for MVP; existing monitoring obligations extend to this product (Comply Advantage where applicable), with crypto indicators added to monitoring/case-management rules and AMLC posture confirmed (C-LC-13/14).
+- Clear user disclosures (memo §8): not a bank deposit, not PDIC-insured, variable Zed Rewards (not interest), FX risk on the PHP value of holdings, self-custody model with export/recovery, OUSD issued by Open Standard, stablecoin/reserve risk, smart-contract/blockchain risk.
 
 **Key product risks:**
 
 | Risk | Mitigation |
 |---|---|
 | Regulatory: PHP↔OUSD activity deemed licensable (BSP VASP/FX) or an unregistered offering (SEC) | Counsel review pre-launch = R34 launch gate; distributor/agent architecture (R27–R33); 50-user invite-only framing; StratBox/no-action paths scoped |
-| Bridge cannot support direct mint-to-wallet or direct redemption (working assumptions, §tracker) | Phase 0 confirmation gates C-BR-1/C-BR-2; if unsupported, escalate to fallback decision (licensed PH VASP off-ramp or defer) — never customer→Zed-wallet |
+| Bridge cannot support direct mint-to-wallet or direct redemption (working assumptions, §tracker) | Phase 0 confirmation gates C-BR-2/3 and C-BR-7..10; if unsupported, escalate to fallback decision (licensed PH VASP off-ramp or defer) — never customer→Zed-wallet |
 | OUSD/Open Standard dependency (launch slips past 9/15; depeg or reserve issues) | Timeline buffer; monitor via Bridge; off-ramp-priority halt procedure; scale-up gate re-evaluates issuer choice |
 | Currency exposure on Zed's own liquidity | Caps + periodic aggregate rebalancing + small liquidity sizing (T1–T4) |
 | Reconciliation break / lost funds | Ledger-first design, daily recon (R20/R25), dual control (R19), zero-loss bar |
@@ -288,11 +293,11 @@ Anchors: build starts **week of 8/18**; Open Standard's public OUSD launch targe
 
 **Phase 0 — Partner & legal track (immediately, parallel to build):** tracked item-by-item in `counterparty-counsel-tracker.md`. Headlines:
 - Complete **Bridge KYB** (owner: Steve — gates OUSD test access; funds-flow doc prepared 8/27).
-- **Bridge:** confirm primary mint direct-to-customer-wallet, direct redemption from customer wallet, `on_behalf_of`/liquidation-address attribution, chains, test-cap raise (C-BR-1..5).
-- **Privy:** contract + sandbox; confirm user-owned wallet configuration, recovery/export, absence of Zed signer (C-PR-1..2).
-- **Netbank:** Disburse-to-Account scope + sandbox credentials; second VA per user under current agreement (C-NB-1..2).
-- **Open Standard:** wallet registration for user wallets (Relationship test), Marketing Fee payout token/destination, reward-mint fulfillment support (C-OS-1..3).
-- **Counsel:** BSP VASP/FX posture; SEC CASP/offering path; BSP M-2026-003 analysis (C-LC-1..3) — R34 gates.
+- **Bridge / Open Standard:** legal issuer of record; primary mint direct-to-customer-wallet; direct redemption + settlement attribution; retail-relationship structure; Marketing Fee asset/wallet; reward minting; home-jurisdiction licensing; chains + test-cap; immediate wallet registration (C-BR-1..17).
+- **Privy:** contract + sandbox; user-sole-owner configuration, no Zed signer, export/recovery, open-loop send/receive, direct redemption signing, non-custodial policy controls (C-PR-1..7).
+- **Netbank:** second VA per user; collections documented as purpose-specific settlement; corporate PHP↔USD conversion + USD funding to Bridge; Disburse-to-Account scope/sandbox; account segregation (C-NB-1..7).
+- **Counsel:** BSP issuer-offer exclusion, transfer-limb, redemption treatment, FX posture, M-2026-003; SEC CASP classification/exemption/offering/StratBox; security analysis; EMI; disclosures; AMLC (C-LC-1..14) — the R34 gates.
+- **Internal:** naming, reference-rate policy, rewards formula, wallet screening policy, regulatory engagement sequence, accounting treatment (C-INT-1..6).
 
 **Week 1 (8/18) — Foundations:** backend module skeleton (tables, ledger per §6.8, operation state machines, feature flag), Bridge + Privy sandbox clients, web app skeleton with auth/session hand-off, onboarding flow against sandbox.
 **Week 2 (8/25) — Money flows:** on-ramp end-to-end in sandbox (QRPH/reference deposit → match → primary mint to wallet), off-ramp end-to-end (direct redemption → InstaPay/PESONet payout), reconciliation job v1, minimal ops dashboard + dual-control approvals.
@@ -303,7 +308,7 @@ Anchors: build starts **week of 8/18**; Open Standard's public OUSD launch targe
 **Phase 3 — Full pilot:** all 50 users. Runs ≥ 60 days against §2 metrics.
 **Decision gate:** scale (React Native in-app section, higher caps, more users, **white-label vs. staying on OUSD** — informed by §2a equity economics at realized AUM), pivot, or wind down (wind-down = off-ramp everyone, a first-class documented flow).
 
-Timeline risks: KYB/partner-access delays directly eat build weeks; the Bridge direct-mint/redeem confirmations (C-BR-1/2) now sit on the critical path of the *architecture*, not just access; OUSD public launch slipping delays wave 1 but not the build; counsel (R34) is the item that can block launch with the build finished.
+Timeline risks: KYB/partner-access delays directly eat build weeks; the Bridge direct-mint/redeem confirmations (C-BR-2/3, C-BR-7..10) now sit on the critical path of the *architecture*, not just access; OUSD public launch slipping delays wave 1 but not the build; counsel (R34) is the item that can block launch with the build finished.
 
 ---
 
@@ -311,16 +316,16 @@ Timeline risks: KYB/partner-access delays directly eat build weeks; the Bridge d
 
 *Partner-capability and legal confirmations moved to `counterparty-counsel-tracker.md` (v5); this section is now business decisions only.*
 
-1. **Zed Rewards economics** *(reframed v5 — mechanics now verified, §2a)*: set the Zed Rewards rate (vs. realized Marketing Fee revenue), distribution cadence (proposed: accrue daily, pay monthly), minimum balance to earn (if any), and whether the rate is published as a number or a range. (Former partner-mechanics sub-questions → tracker C-OS-1..3.)
-2. **Reference-rate policy:** which reference rate is displayed, and how long is a quote's PHP-amount-due valid (user sees amount → pays from their bank minutes/hours later)? Proposed: amount fixed at quote time within a validity window; tech design defines the stale-quote remedy (top-up request vs. partial mint vs. refund).
+1. **Zed Rewards economics** *(reframed v5 — mechanics now verified, §2a; = tracker C-INT-3)*: set the Zed Rewards rate (vs. realized Marketing Fee revenue), distribution cadence (proposed: accrue daily, pay monthly), minimum balance to earn (if any), and whether the rate is published as a number or a range. (Partner-mechanics sub-questions → tracker C-BR-11/12/17.)
+2. **Reference-rate policy** *(= tracker C-INT-2)*: which reference rate is displayed, and how long is a quote's PHP-amount-due valid (user sees amount → pays from their bank minutes/hours later)? Proposed: amount fixed at quote time within a validity window; tech design defines the stale-quote remedy (top-up request vs. partial mint vs. refund).
 3. **Pilot selection:** what criteria pick the 50 (and the wave-1 15)? Power users? High payers? Waitlist volunteers?
 4. ~~Pricing~~ *(superseded v5 by R29 — zero spread/fee for the pilot. Post-pilot monetization is a scale-up-gate question.)*
-5. **Recovery/export UX:** how prominently is wallet export/recovery surfaced (it must exist per D3; the question is UX placement and support burden)? (Privy capability confirmation → tracker C-PR-1.)
+5. **Recovery/export UX:** how prominently is wallet export/recovery surfaced (it must exist per D3; the question is UX placement and support burden)? (Privy capability confirmation → tracker C-PR-3/C-PR-7.)
 6. **Limits:** confirm/adjust §8 table.
 7. **Delinquency policy:** confirm proposed freeze-on-ramps/allow-off-ramps for delinquent cardholders.
-8. **Legal/compliance owner:** who runs the BSP + SEC counsel track (R34), and what's the drop-dead date for the opinions relative to Phase 2?
-9. **Product naming/branding:** "Dollar Wallet"? "OUSD Wallet"? How prominently is OUSD/Open Standard disclosed (legal floor; marketing preference). D12 constrains the vocabulary either way.
-10. ~~OUSD mechanics to confirm with Bridge~~ *(moved v5 → tracker C-BR-1..5)*
+8. **Legal/compliance owner:** who runs the BSP + SEC counsel track (R34), and what's the drop-dead date for the opinions relative to Phase 2? Includes the engagement-sequence call (tracker C-INT-5: informal meeting vs. written interpretive request vs. exemption vs. StratBox first).
+9. **Product naming/branding** *(= tracker C-INT-1)*: "Dollar Wallet"? "OUSD Wallet"? How prominently is OUSD/Open Standard disclosed (legal floor; marketing preference). D12 constrains the vocabulary either way.
+10. ~~OUSD mechanics to confirm with Bridge~~ *(moved v5 → tracker C-BR-1..17)*
 11. ~~D9/D10 confirmation~~ — resolved in v4.
 
 ---
