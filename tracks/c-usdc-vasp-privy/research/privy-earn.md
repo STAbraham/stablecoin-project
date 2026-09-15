@@ -52,7 +52,7 @@ Veda requires a custom agreement; Aave/Veda vaults require Privy enablement (sal
 
 ## Related Privy platform notes (from the same drop — relevant to all tracks)
 - **Balance/transaction webhooks + REST balance API** (docs.privy.io/wallets/gas-and-asset-management/assets/overview): incoming-deposit and outgoing-withdrawal events on wallets "reconstituted server-side." Useful everywhere: detecting USDC arrival from the VASP partner (Track C on-ramp matching) and detecting external receipts for screening (incumbent R32/C-INT-4).
-- **Custom OAuth** (docs.privy.io/authentication/user-authentication/login-methods/custom-oauth): Zed can be the OAuth provider behind Privy wallet auth — standard authorization-code flow with client id/secret (+PKCE); per Pete, only the traditional pre-shared-key flow. Note: "once users are created under a custom OAuth provider, the configuration cannot be deleted." Relevant to D7 session-handoff design in every track. The page says nothing about custody/keys — C-PR-1..3 remain open (no tracker changes from this drop).
+- **Custom OAuth** (docs.privy.io/authentication/user-authentication/login-methods/custom-oauth): Zed can be the OAuth provider behind Privy wallet auth — standard authorization-code flow with client id/secret (+PKCE). Note: "once users are created under a custom OAuth provider, the configuration cannot be deleted." **Superseded in part (9/14):** Pete's "only the traditional pre-shared-key flow" applied to this custom-OAuth method; Privy separately supports **JWT/OIDC bring-your-own-auth** (any OIDC-compliant provider) — the better fit for D7 session handoff. See `privy-tech-docs.md`.
 
 ## Source docs
 | Doc | Received | Processed | Notes |
@@ -65,3 +65,4 @@ Veda requires a custom agreement; Aave/Veda vaults require Privy enablement (sal
 | Privy overview deck (DocSend, 14 slides) | 9/14 (Steve) | 9/14 | Platform claims + yield comparables |
 | Privy blog: Moreta | 9/14 (Steve) | 9/14 | SEA QR payments; ramp-partner compliance model |
 | Privy blog: Robinhood Earn | 9/14 (Steve) | 9/14 | Self-custodial Morpho lending; insurance layer |
+| Privy tech docs ×7 (security, JWT auth, user wallets, actions, flows, gas, controls) | 9/14 (Privy contact via Steve) | 9/14 | Custody statements, C-Q4 signing answer, governance/quorums → `privy-tech-docs.md` |
