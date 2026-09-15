@@ -2,6 +2,10 @@
 
 Docs for the Zed Dollar Wallet (OUSD) pilot. See `ousd-account-prd.md` (PRD, v5.1), `regulatory-policy-memo.md` (regulatory architecture rationale — the *why* behind D3–D6/D10–D12 and R27–R34), `counterparty-counsel-tracker.md` (Phase 0 partner/legal confirmations — the source of truth for what's confirmed vs. assumed, with pilot-blocker/launch-blocker gates), `funds-flow-bridge-kyb.html`/`.pdf` (Bridge KYB handoff), and — once started — `tech-design.md`.
 
+## Parallel tracks (added 2026-09-14)
+
+The project explores **three alternatives in parallel** alongside the incumbent (PRD v5.1) architecture: **A** OUSD+CASP, **B** OUSD+VASP, **C** USDC via VASP partner + Privy Earn. `tracks/TRACKS.md` is the comparison board and rulebook; each track has `tracks/<track>/track.md` (thesis, Mermaid architecture, track-scoped IDs like `C-Q7`) and `research/` (digests of vendor docs, cited to source). Route inbox items to a track via `inbox/track-a|b|c/` or a filename prefix (`c-…`); unrouted items get inferred. Vendor docs are digested into `research/<topic>.md` — the digest is the grok artifact the track references. Track lifecycle: exploring → candidate (gets a branded funds-flow diagram) → selected (merges into the PRD) / parked (with post-mortem).
+
 ## How iteration works
 
 1. **Drop raw inputs in `inbox/`** — email PDFs, call notes, screenshots, pasted Slack threads, anything. No formatting needed; a `.md` with three bullets from a Netbank call is fine. Name with a date if convenient (`2026-08-18-netbank-call.md`).
