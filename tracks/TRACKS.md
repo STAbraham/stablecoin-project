@@ -38,6 +38,7 @@
 | Date | Event | Effect on tracks |
 |---|---|---|
 | 2026-09-14 | Tracks created per Steve; scope expanded to parallel exploration | A/B/C opened at `exploring` |
+| 2026-09-14 | Privy overview deck (DocSend) + Moreta and Robinhood Earn case studies digested. Robinhood Earn = self-custodial Morpho lending at retail (est. 7% APY, Lloyd's/RELM-insured) — strongest Track C comparable; Moreta = ramp-partner-carries-the-license + Privy + USDC live in SEA incl. PH; Deel's branded DLUSD ("custom stablecoin economics") noted as a second white-label route for the incumbent's scale-up gate; rate benchmarks 3.25%–~7% inform Zed Rewards economics | C strengthened again; white-label note relevant to Track 0's decision gate |
 | 2026-09-14 | Privy Earn public docs digested (links via Pete). USDC-on-Base self-serve vaults exist today; vault shares stay self-custodied in user wallets; app fee share up to 50% of yield (Morpho) → Track C's yield + margin mechanisms confirmed. PH eligibility (C-Q6) now the threshold unknown; TMMF variant flagged for counsel (C-Q14) | C strengthened; no change to A/B/0 |
 
 ## What would make us pick each (working kill/win criteria — Steve to refine)

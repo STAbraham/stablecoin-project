@@ -39,6 +39,11 @@ Privy's own disclaimer: "Earnings are generated from third-party vaults and are 
 ## Contractual structure (C-Q8 — PARTIAL)
 Veda requires a custom agreement; Aave/Veda vaults require Privy enablement (sales); Morpho self-serve via dashboard. What Zed signs with Privy overall, and what obligations attach to Zed as the distributing app, remain open → Privy conversation.
 
+## Comparables now on file (see sibling digests)
+- Robinhood Earn: USDG lending via Morpho, self-custodial embedded wallet, est. 7% APY, **Lloyd's of London + RELM insurance** (→ part-answers C-Q7: insurance over DeFi lending risk is procurable). `robinhood-earn-case-study.md`
+- Ramp: up to 3.25% rewards on held stablecoins (business). Deel: Earn vault + branded DLUSD. `privy-overview-deck.md`
+- Moreta: ramp-partner + Privy + USDC in SEA incl. PH — the rent-the-license shape, live. `moreta-case-study.md`
+
 ## Facts that surprised us / matter for the comparison
 1. **Self-custody is preserved through Earn** — vault shares in the user's wallet. Track C keeps the "no Zed custody" posture even while generating yield.
 2. **The revenue mechanism is real and quantified**: up to 50% of yield (Morpho) configurable at vault setup. Track C's economics question (C-Q13) is now "what's the right split," not "is there a margin."
@@ -57,3 +62,6 @@ Veda requires a custom agreement; Aave/Veda vaults require Privy enablement (sal
 | docs.privy.io/wallets/actions/earn/revenue-sharing | 9/14 (followed from overview) | 9/14 | Fee mechanics per provider |
 | docs.privy.io/wallets/gas-and-asset-management/assets/overview | 9/14 (Pete) | 9/14 | Webhooks/balances (platform note) |
 | docs.privy.io/authentication/user-authentication/login-methods/custom-oauth | 9/14 (Pete) | 9/14 | Custom OAuth (platform note) |
+| Privy overview deck (DocSend, 14 slides) | 9/14 (Steve) | 9/14 | Platform claims + yield comparables |
+| Privy blog: Moreta | 9/14 (Steve) | 9/14 | SEA QR payments; ramp-partner compliance model |
+| Privy blog: Robinhood Earn | 9/14 (Steve) | 9/14 | Self-custodial Morpho lending; insurance layer |

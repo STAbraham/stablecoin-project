@@ -1,6 +1,6 @@
 # Track C — USDC accounts via VASP partnership + Privy Earn yield
 
-**Status:** exploring · opened 2026-09-14 · Privy Earn docs digested 2026-09-14 (`research/privy-earn.md` — C-Q1/2/3/5 answered, C-Q13 mechanism confirmed; **C-Q6 PH eligibility is the open threshold item**)
+**Status:** exploring · opened 2026-09-14 · Privy Earn docs + overview deck + Moreta/Robinhood case studies digested 2026-09-14 (`research/` — C-Q1/2/3/5 answered, C-Q13 mechanism confirmed, C-Q7 part-answered by the Robinhood Lloyd's/RELM insurance precedent; **C-Q6 PH eligibility is the open threshold item**). Strongest comparable: Robinhood Earn = self-custodial Morpho lending in a retail app, est. 7% APY.
 **Thesis:** Instead of engineering Zed out of the licensing perimeter (Track 0) or into it (A/B), **rent the license**: a BSP-licensed PH VASP partner (working candidate: Coins.ph) performs the regulated PHP↔crypto exchange leg, the customer's **USDC** lands in their **Privy wallet**, and yield comes from **Privy Earn** (vault deposits) rather than an issuer reserve-share. No Bridge, no OUSD, no Open Standard dependency — this is the one track that hedges the whole OS/Bridge stack.
 
 Two structural notes up front:
@@ -36,7 +36,7 @@ The load-bearing unknowns are the two seams: **(1→2)** who is the partner's cu
 - **C-Q1.** ✅ ANSWERED — API rails into third-party vaults (Aave/Morpho/Kamino/Veda DeFi lending + tokenized MMFs); user's counterparty is the vault/protocol, "Privy does not control" them.
 - **C-Q2.** ✅ ANSWERED — self-custody preserved: ERC-4626 vault shares sit in the user's wallet as ordinary ERC-20s; yield via share-price appreciation.
 - **C-Q3.** ✅ ANSWERED — variable protocol yield; **configurable app fee share (up to 50% of yield on Morpho)** accruing to a Zed-controlled admin signing wallet.
-- **C-Q4.** ◐ PARTIAL — single API calls, withdraw anytime, gas sponsorship, no lockups mentioned; **open: who authorizes user-side deposits/withdrawals** (user-signed vs. server/session-signer — the Earn analog of R31). Ask Privy / API reference.
+- **C-Q4.** ◐ PARTIAL — single API calls, withdraw anytime, gas sponsorship, no lockups mentioned; **open: who authorizes user-side deposits/withdrawals** (user-signed vs. server/session-signer — the Earn analog of R31). Ask Privy / API reference. Caution from the Moreta case study: the stack demonstrably supports *programmatic initiation and sweeps to an app-controlled wallet*, so our no-Zed-signing posture is a config choice to verify and lock, not a platform default.
 - **C-Q5.** ✅ ANSWERED (today's set) — **USDC on Base, self-serve** (Gauntlet USDC Prime, Steakhouse Prime Instant); more via sales.
 - **C-Q6.** ⛔ OPEN — **threshold item**: PH eligibility / geographic restrictions / KYC split are absent from the docs; this is a Privy-the-company (terms) question.
 - **C-Q7.** ◐ PARTIAL — "not guaranteed... risk, including loss of funds"; full protocol/curator/depeg/liquidity stack for disclosures still to assemble; no insurance mentioned.
