@@ -63,3 +63,4 @@ The load-bearing unknowns are the two seams: **(1→2)** who is the partner's cu
 | Date | Event |
 |---|---|
 | 2026-09-14 | Track opened at Steve's direction. Blocking input: Privy Earn docs (Steve has them; drop in `inbox/track-c/`). Second input: Coins.ph partnership model (C-Q9). |
+| 2026-09-14 | Privy docs/deck/case studies digested (see `research/`). **Privy sandbox app created: App ID `cmsxvzv9e00ad0cjsiqvmxjha`** — sandbox verification of the Earn flow (C-Q4 residual, vault list, eligibility surfaces) is now unblocked. |

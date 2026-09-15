@@ -30,6 +30,8 @@ Statuses: `Open` — no reliable answer yet · `Working assumption` — used in 
 
 ## 2. Privy (owner: Steve)
 
+**Sandbox status:** app created 2026-09-14 in the Privy dashboard — **App ID `cmsxvzv9e00ad0cjsiqvmxjha`** (shared with Privy contact per their onboarding ask). Dashboard exploration notes (Earn vault list, Treasury workspace, eligibility settings) land in `tracks/c-usdc-vasp-privy/research/` as Steve captures them.
+
 | ID | Question | Why it matters | Working assumption | Gate | Status |
 |---|---|---|---|---|---|
 | C-PR-1 | **User ownership** — can wallets be configured so the user is the sole owner with exclusive owner permissions? | Self-custody / no-control analysis. | User is sole owner. | Pilot blocker | **Working assumption — docs-supported** (user-wallets docs, 9/14: "Users retain full custody... Neither Privy nor your application ever sees a user's private key"). Confirm our app's configuration — the platform also offers service-controlled accounts |
