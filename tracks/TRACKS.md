@@ -25,8 +25,12 @@
 
 ## Workflow rules (extends the README conventions)
 
-1. **Inbox routing.** Drop raw inputs in `inbox/` as before. To force routing, use `inbox/track-a|b|c/` or prefix the filename (`c-privy-earn-overview.pdf`). Unrouted items: Claude infers the track(s) — one document can feed several (e.g., a Coins.ph pricing sheet touches B and C).
-2. **Research digestion.** Vendor/partner docs get digested into `tracks/<track>/research/<topic>.md`: what the doc actually says (cited to page/section), what it implies for the track, and which research questions it closes. The raw doc moves to `inbox/processed/` as usual. **The digest, not the raw doc, is what the track.md references** — this is the "grok" artifact.
+1. **Inbox routing.** Drop raw inputs in `inbox/` as before. To force *primary* routing, use `inbox/track-a|b|c/` or prefix the filename (`c-privy-earn-overview.pdf`). Routing is a hint, not a wall: content is always digested to wherever it's relevant — a doc dropped in `track-c/` still has its cross-track sections routed to shared digests. Unrouted items: Claude infers.
+2. **Research digestion — by topic, not by source doc.** A digest is a living topic file, and one source doc can feed several digests. Each topic lives at the **narrowest scope that covers all its consumers**:
+   - Track-exclusive topic → `tracks/<track>/research/<topic>.md` (e.g., `c-usdc-vasp-privy/research/privy-earn.md`).
+   - Cross-track or incumbent-relevant topic → **root `research/<topic>.md`** (e.g., `research/privy-platform.md`, which also feeds tracker items C-PR-1..7).
+   - Digestion splits a doc along those lines: the Privy docs' platform/wallet sections land in the shared digest; their Earn sections land in Track C's. The processing report says which digests each doc fed, and each digest's source table records the doc + sections used. **The digest, not the raw doc, is what track.md and the PRD reference** — it's the "grok" artifact.
+   - A shared-digest fact that answers a `counterparty-counsel-tracker.md` item updates that item's status directly, with the source, per the tracker's source discipline. Research and confirmation are the same motion.
 3. **Track-scoped IDs.** Decisions and questions inside a track use the track prefix: `A-D1`, `B-Q3`, `C-Q7`. Never collide with the main PRD's D/R/T numbering or the tracker's C-* IDs. Cross-reference freely ("same constraint as R30").
 4. **Shared counterparty questions** stay in `../counterparty-counsel-tracker.md` (single source of truth for Bridge/Privy/Netbank/counsel confirmations). A track-specific counterparty question lives in the track.md until the track reaches `candidate`, then graduates into the tracker with a C-* ID.
 5. **Diagrams.** While `exploring`: Mermaid in track.md (renders on GitHub, cheap to iterate). At `candidate`: branded HTML/PDF funds flow, one per track, `tracks/<track>/funds-flow.html`.
