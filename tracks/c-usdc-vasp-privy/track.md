@@ -1,6 +1,6 @@
 # Track C — USDC accounts via VASP partnership + Privy Earn yield
 
-**Status:** exploring · opened 2026-09-14 · **awaiting Steve's Privy docs** (drop in `inbox/track-c/` → they get digested into `research/`)
+**Status:** exploring · opened 2026-09-14 · Privy Earn docs digested 2026-09-14 (`research/privy-earn.md` — C-Q1/2/3/5 answered, C-Q13 mechanism confirmed; **C-Q6 PH eligibility is the open threshold item**)
 **Thesis:** Instead of engineering Zed out of the licensing perimeter (Track 0) or into it (A/B), **rent the license**: a BSP-licensed PH VASP partner (working candidate: Coins.ph) performs the regulated PHP↔crypto exchange leg, the customer's **USDC** lands in their **Privy wallet**, and yield comes from **Privy Earn** (vault deposits) rather than an issuer reserve-share. No Bridge, no OUSD, no Open Standard dependency — this is the one track that hedges the whole OS/Bridge stack.
 
 Two structural notes up front:
@@ -32,15 +32,16 @@ The load-bearing unknowns are the two seams: **(1→2)** who is the partner's cu
 
 ## Research questions
 
-**Privy Earn (answer from Steve's docs → `research/privy-earn.md`):**
-- **C-Q1.** What *is* Privy Earn structurally — Privy-operated product, or integration rails into third-party vaults/protocols (which ones)? Who is the user's counterparty?
-- **C-Q2.** Custody/possession: does the user's wallet hold vault shares/receipt tokens directly (self-custody preserved), or does Privy/a partner take possession?
-- **C-Q3.** Yield source and range; how variable; who sets/skims; is there a Zed fee-share or margin mechanism?
-- **C-Q4.** Deposit/withdraw mechanics: user-signed? gas? timing/liquidity constraints, lockups, caps?
-- **C-Q5.** Supported assets/chains — USDC on which chains; minimums.
-- **C-Q6.** Geographic/eligibility restrictions — **is PH allowed?** KYC obligations on whom?
-- **C-Q7.** Risk stack: underlying protocol risk, depeg, smart-contract, any insurance/guarantees; what disclosures Privy requires of distributors.
-- **C-Q8.** Contractual: who signs what with whom (Zed↔Privy? user↔Privy? user↔protocol?) and what Zed's regulatory exposure is as the app distributing access.
+**Privy Earn (digest: `research/privy-earn.md`, from public docs 9/14):**
+- **C-Q1.** ✅ ANSWERED — API rails into third-party vaults (Aave/Morpho/Kamino/Veda DeFi lending + tokenized MMFs); user's counterparty is the vault/protocol, "Privy does not control" them.
+- **C-Q2.** ✅ ANSWERED — self-custody preserved: ERC-4626 vault shares sit in the user's wallet as ordinary ERC-20s; yield via share-price appreciation.
+- **C-Q3.** ✅ ANSWERED — variable protocol yield; **configurable app fee share (up to 50% of yield on Morpho)** accruing to a Zed-controlled admin signing wallet.
+- **C-Q4.** ◐ PARTIAL — single API calls, withdraw anytime, gas sponsorship, no lockups mentioned; **open: who authorizes user-side deposits/withdrawals** (user-signed vs. server/session-signer — the Earn analog of R31). Ask Privy / API reference.
+- **C-Q5.** ✅ ANSWERED (today's set) — **USDC on Base, self-serve** (Gauntlet USDC Prime, Steakhouse Prime Instant); more via sales.
+- **C-Q6.** ⛔ OPEN — **threshold item**: PH eligibility / geographic restrictions / KYC split are absent from the docs; this is a Privy-the-company (terms) question.
+- **C-Q7.** ◐ PARTIAL — "not guaranteed... risk, including loss of funds"; full protocol/curator/depeg/liquidity stack for disclosures still to assemble; no insurance mentioned.
+- **C-Q8.** ◐ PARTIAL — Morpho self-serve via dashboard; Aave/Veda need Privy sales enablement; Veda needs a custom agreement; the Zed↔Privy contract and distributor obligations remain open.
+- **C-Q14** *(new)*. The **TMMF option** (Treasury-backed tokenized money-market funds via the same API): economically closest to OUSD reserve yield, but a fund share is plausibly a *security* in PH analysis — counsel question; possible "C-prime" variant if DeFi-lending characterization fails. `PENDING counsel`
 
 **VASP partner (Coins.ph or alternative):**
 - **C-Q9.** Partnership models on offer: B2B API where users become Coins.ph customers? White-label ramp? Can they deliver USDC to an external (Privy) address on-ramp and accept from it on off-ramp? Fees, limits, settlement times.

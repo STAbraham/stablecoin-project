@@ -8,11 +8,11 @@
 |---|---|---|---|---|
 | One-line thesis | Distribute OUSD via primary issuance/redemption, engineered to need no new Zed license (SEC relief sought) | Zed obtains **SEC CASP registration**; no BSP VASP | Zed obtains **BSP VASP license**; no CASP | Zed licenses nothing new: a **licensed PH VASP partner** (e.g., Coins.ph) does the regulated exchange leg; yield comes from **Privy Earn vaults**, not issuer reserve share |
 | Stablecoin | OUSD | OUSD | OUSD | USDC |
-| Yield source | OS Network Partner Marketing Fee → Zed Rewards | Same as 0 | Same as 0 | DeFi vault yield via Privy Earn (mechanics: PENDING Steve's Privy docs) |
-| Custody | User-owned Privy, open-loop, no Zed keys | Likely same as 0 (BSP constraints still bind) | Custody becomes *optional* — Zed may hold omnibus | Privy wallets; vault positions held how? (PENDING) |
-| Zed economics | Zero spread (R29); Marketing Fee revenue | Marketing Fee; spread posture TBD | **Spread/fees become legal** — licensed exchange economics | Partner rev-share? Vault fee share? (PENDING) |
+| Yield source | OS Network Partner Marketing Fee → Zed Rewards | Same as 0 | Same as 0 | DeFi vault yield via Privy Earn (VERIFIED: Aave/Morpho/Kamino/Veda + TMMFs; app share up to 50% of yield) |
+| Custody | User-owned Privy, open-loop, no Zed keys | Likely same as 0 (BSP constraints still bind) | Custody becomes *optional* — Zed may hold omnibus | Privy wallets; vault shares self-custodied in user wallet (VERIFIED) |
+| Zed economics | Zero spread (R29); Marketing Fee revenue | Marketing Fee; spread posture TBD | **Spread/fees become legal** — licensed exchange economics | Vault fee share VERIFIED (≤50% of yield, Morpho); VASP-partner rev-share PENDING |
 | Architecture doc | `../ousd-account-prd.md` (v5.1) + `../regulatory-policy-memo.md` | `a-ousd-casp/track.md` | `b-ousd-vasp/track.md` | `c-usdc-vasp-privy/track.md` |
-| Status | **Spec'd** — blocked on C-BR/C-LC confirmations | Exploring | Exploring | Exploring — awaiting Privy docs |
+| Status | **Spec'd** — blocked on C-BR/C-LC confirmations | Exploring | Exploring | Exploring — Earn mechanics verified; PH eligibility + Coins.ph model open |
 
 ## Track lifecycle
 
@@ -38,6 +38,7 @@
 | Date | Event | Effect on tracks |
 |---|---|---|
 | 2026-09-14 | Tracks created per Steve; scope expanded to parallel exploration | A/B/C opened at `exploring` |
+| 2026-09-14 | Privy Earn public docs digested (links via Pete). USDC-on-Base self-serve vaults exist today; vault shares stay self-custodied in user wallets; app fee share up to 50% of yield (Morpho) → Track C's yield + margin mechanisms confirmed. PH eligibility (C-Q6) now the threshold unknown; TMMF variant flagged for counsel (C-Q14) | C strengthened; no change to A/B/0 |
 
 ## What would make us pick each (working kill/win criteria — Steve to refine)
 
