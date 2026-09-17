@@ -26,9 +26,13 @@ Source: revenue-sharing + setup pages.
 ## Deposit / withdrawal UX (C-Q4 — PARTIAL)
 Single API calls for deposit/withdraw; withdraw "at any time"; no lockups mentioned; **gas sponsorship** available if enabled. **Open: who authorizes the user-side deposit/withdraw transaction** — user-signed vs. server/session-signer initiated is not stated in the pages fetched. This matters regulatorily (it's the Earn analog of the no-unilateral-Zed-signing posture, R31/C-PR-2) → ask Privy / read the API reference. Starter template: github.com/privy-io/examples (privy-next-yield-demo).
 
-## Assets & chains (C-Q5 — ANSWERED for today's self-serve set)
-Self-serve vaults as of 9/14/26: **Gauntlet USDC Prime (USDC on Base)**, **Steakhouse Prime Instant (USDC on Base)** — both Morpho-family — plus Sentora PathUSD on Tempo. "Contact sales@privy.io to enable any Aave, Veda, or Morpho vault not shown." → **USDC on Base works today, self-serve**, which matches Track C's coin and the incumbent's target chain.
-Source: setup page.
+## Assets & chains (C-Q5 — ANSWERED; SANDBOX-VERIFIED 9/16)
+Self-serve vaults, confirmed live in Zed's sandbox dashboard (screenshot `inbox/processed/2026-09-16-privy-sandbox-earn-vaults.png`), matching the setup docs:
+- **Gauntlet USDC Prime** — Morpho, USDC on Base — **~4.4% APY, $169M TVL**
+- **Steakhouse Prime USDC** — Morpho, USDC on Base — **~4.4% APY, $435M TVL**
+- **Sentora pathUSD** — Morpho, pathUSD on Tempo — ~3.2% APY, $36M TVL, plus a "limited time... 7% yield boost" promo ("terms and conditions apply") — treat as marketing, not economics
+"If you are interested in participating, or looking for other vaults or providers, please reach out to sales@privy.io." Both USDC vaults are curated conservative ("Prime") Morpho vaults; curators are Gauntlet (quant risk firm, ex-Aave/Compound risk management) and Steakhouse Financial (stablecoin-focused, MakerDAO/Sky lineage). → **USDC on Base works today, self-serve**, matching Track C's coin and the incumbent's target chain. Economics note: at 4.4% gross with a 25–50% Zed fee share, users see ~2.2–3.3% — *below* the OUSD Marketing Fee's illustrative ~3.75% gross; run the real side-by-side at parameter-setting time (C-INT-3 analog for Track C).
+Dashboard flow observed: "Create a vault configuration → Deposit assets → Withdraw assets with accrued earnings"; app is in development mode pending "Upgrade to production".
 
 ## Eligibility & geography (C-Q6 — STILL OPEN)
 Nothing in the docs on geographic restrictions, PH availability, or KYC division of labor. This is a Privy-the-company question (terms/contract), not a docs question. **Threshold item for Track C — ask Privy directly.**
