@@ -52,6 +52,10 @@ The load-bearing unknowns are the two seams: **(1→2)** who is the partner's cu
 - **C-Q12.** Securities/consumer analysis of offering DeFi lending yield to PH retail through Zed's app — versus the Marketing-Fee/Zed-Rewards structure. Does Earn make Zed an offeror of *someone else's investment product* (worse than CASP-adjacent?) `PENDING counsel`
 - **C-Q13.** USDC economics without a Marketing Fee: is there any issuer-side revenue (Circle partner programs?) or is vault yield-share the entire margin? `Steve/Privy docs`
 
+## Bookmarked deep dives (Steve, 9/16)
+
+- **C-Q15 — Morpho protocol mechanics under stress.** Build deep understanding of the lending protocol itself before committing user funds: collateralization mechanics (isolated markets, LLTV parameters, oracles), the liquidation machinery, and vault liquidity dynamics — specifically **what happens under sudden volatility or a black-swan move in the volatile crypto collateral** (ETH/BTC variants, LSTs) that backs otherwise-stable USDC lending. Questions to answer: liquidation cascade behavior, bad-debt socialization (who eats losses and in what order), oracle failure modes, withdrawal availability when markets are fully utilized mid-crash, historical stress episodes (how did Morpho/Aave-style markets behave in past drawdowns). Deliverable: `research/morpho-deep-dive.md`. Status: **bookmarked, not started**.
+
 ## What this track deliberately gives up
 
 - OUSD Marketing Fee + OS equity earn-in program (PRD §2a) — replaced by vault economics (C-Q3/C-Q13).
