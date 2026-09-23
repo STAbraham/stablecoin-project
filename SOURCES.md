@@ -4,6 +4,7 @@ Every piece of external context processed into this project gets a row here at p
 
 | Processed | Source | Type | Digested into | Informed |
 |---|---|---|---|---|
+| 2026-09-23 | [Shadow Ledger Redux — Steve's card-product ledger design (Notion)](https://app.notion.com/p/zedfinancial/Shadow-Ledger-Redux-58f48642828d42f99fb9b8188d4e2b9c) | Internal design doc | `tracks/c-usdc-vasp-privy/research/php-ledger-design.md` (conventions inherited) | PHP ledger design v0.1 (C-R7a implementation) |
 | 2026-09-23 | ["Stablecoin Account - Design Intro" — design-team call notes (Granola)](https://notes.granola.ai/t/06acda81-212b-4191-9d19-0f6949b4b7d4-008umkv4) | Meeting notes | PRD v0.2 changelog | C-D11 + C-D14 settled; priority ladder; InstaPay-first; TMMF elevated + §8 design-blocking; positioning principles; follow-ups (Wise ref, Andy session, OQ-10) |
 | 2026-09-23 | [#coins-ph-zed Slack thread: on/off-ramp Q&A recap](https://zedfinancial.slack.com/archives/C09HS2FTGTG/p1789436387222499) (Coins.ph: lara.tan, shawn.dong; 9/14–9/21) | Slack thread | `tracks/c-usdc-vasp-privy/research/coinsph-integration.md` | Track C PRD (on-ramp/KYC/off-ramp), C-Q9 |
 | 2026-09-23 | "Create Customer API Documentation (V2).pdf" (Slack file F0C2DP9PM4N, from shawn.dong@coins.ph; archived `inbox/processed/`) | PDF spec | `coinsph-integration.md` §Create-customer spec detail | C-R1/C-R1a, C-D10 (H5 step), OQ-1 refinement, OQ-6 auth scheme |
