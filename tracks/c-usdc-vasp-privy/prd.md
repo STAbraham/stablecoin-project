@@ -71,7 +71,7 @@ Key structural facts (source: [the Coins.ph Slack thread, 9/14–16](https://zed
 
 | # | Decision | Proposed default | Note |
 |---|---|---|---|
-| C-D7 | Client surface | Mobile-responsive web app in the existing app webview; JWT/OIDC bring-your-own-auth into Privy | Webview keeps daily deploy cadence, no app-store cycle |
+| C-D7 | Client surface | **REOPENED 9/23 → §3.4** (prior default: web app embedded in the existing app's webview). Constant either way: JWT/OIDC bring-your-own-auth into Privy | Full option tree + decision inputs in §3.4; to be decided with design + engineering |
 | C-D8 | Backend home | Bounded module in `zed-rust-api` (own tables/routes, feature-flagged) | Existing production Coins.ph client (card payments) — evaluate reuse vs. isolate |
 
 ### 3.3 OPEN — remaining
@@ -85,6 +85,36 @@ Key structural facts (source: [the Coins.ph Slack thread, 9/14–16](https://zed
 | C-D15 | Pilot cohort and limits (proposed: 50 invite-only existing cardholders, conservative caps) | — | Not yet discussed; proposal as stated |
 | C-D16 | Chain | Base (Earn USDC vaults available self-serve on Base) | Blocked on OQ-2: Coins.ph USDC delivery on Base |
 | C-D17 | Stale unconverted-PHP policy | Cleared PHP sitting unconverted: auto-refund to source after N days vs. nudge-only (auto-convert rejected — violates C-R4b(c)) | **HELD as a key decision (Steve, 9/23).** Auto-refund ends indefinite nudging and reinforces the interface-not-holder position — returning funds is the only instruction-free disposition consistent with C-R4b(c)/(d). Interacts with OQ-10, OQ-13 |
+
+### 3.4 Open platform & design decisions (for the design + engineering session)
+
+Added 9/23 (Steve): the client surface was inherited as a proposed default and deserves a first-principles discussion before build. **C-D7 is reopened**; the decision tree:
+
+**Q1 — Standalone app, or part of the existing Zed app?**
+- *In-app:* ~11k existing cardholders one tap away; shared auth/session; no install funnel. Against: couples release risk and app-store review to the card app; the wallet reads as "a feature," which may undercut the preserve-wealth positioning (§1.1).
+- *Standalone:* distinct brand and room to become the forever product; independent release cadence; review-risk isolation. Against: new install friction; a second app to maintain. (Auth is not a blocker either way — JWT/OIDC bring-your-own-auth.)
+
+**Q2 — If standalone: web or mobile app?**
+- *Web:* fastest iteration, zero store review. Against: PH consumer expectations are app-first; push notifications and passkey UX are weaker on mobile web.
+- *Mobile:* store presence and credibility; full native capability. Against: store review cycles, including Apple/Google crypto-app policies (self-custody wallets are permitted, but review adds latency and policy exposure).
+
+**Q3 — If mobile (standalone or in-app): implementation approach.**
+
+| Option | For | Against |
+|---|---|---|
+| (a) Mobile web app (React) embedded in a tab/webview | One codebase; daily deploys with no store cycle; Privy's React SDK is the most mature surface; precedent exists in the current app | Wallet signing/passkey UX inside a webview is the weak point; Coins' H5 verification page becomes webview-in-webview (OQ-1) |
+| (b) React Native (or other cross-platform) module | Native feel; Privy ships a React Native SDK; one implementation across iOS/Android; portable into the existing apps as a module | New stack in the mobile codebase; store-cycle deploys; bridge/upgrade maintenance |
+| (c) Fully native iOS + Android | Best platform integration (passkeys, biometrics); Privy ships Swift and Android SDKs | Two implementations; slowest iteration; largest team cost |
+
+**Decision inputs to gather before the session:**
+1. Privy SDK maturity per surface — especially embedded-wallet **signing UX** and passkey/recovery flows in webview vs. React Native vs. native (verify against Privy docs; good question for their forward-deployed engineer).
+2. Coins.ph H5 verification page behavior inside each surface (OQ-1).
+3. Deploy-cadence needs during the pilot (daily web iteration was decisive in the prior default).
+4. Positioning interaction with C-D9: standalone supports the preserve-wealth brand; in-app supports adoption.
+5. Team skills/capacity (React vs. RN vs. Swift/Kotlin) against the pilot timeline.
+6. App Store / Play review-risk appetite for a crypto-adjacent product.
+
+**Constraints that hold regardless of the outcome:** JWT/OIDC bring-your-own-auth into Privy; every wallet action user-signed (C-R9); terminology discipline (C-D9/C-R12).
 
 ## 4. Yield side-option under exploration: tokenized money-market funds ("TMMFs")
 
@@ -122,7 +152,7 @@ Held open, not in MVP scope — **and elevated at the 9/23 design intro: the des
 
 ## 6. Open items & next steps
 
-Reference ledgers: Coins.ph technical = OQ-1..14 (integration doc) · partner/legal = C-Q6, C-Q10, C-Q12, C-Q14, C-PR-1..5 (counterparty tracker) · product = C-D9/10/12/13/15/16/17 · research = C-Q15 (→ C-R15).
+Reference ledgers: Coins.ph technical = OQ-1..14 (integration doc) · partner/legal = C-Q6, C-Q10, C-Q12, C-Q14, C-PR-1..5 (counterparty tracker) · product = C-D7 (reopened, §3.4) + C-D9/10/12/13/15/16/17 · research = C-Q15 (→ C-R15).
 
 1. Resolve remaining decisions C-D9/C-D10/C-D12/C-D13/C-D15/C-D16; Andy design follow-up covers the UX-blocking subset.
 2. Send OQ-1..12 to Coins.ph technical contacts (incl. OQ-10 two-step mechanics, OQ-11 delivery-model optionality, OQ-12 recon supports).
