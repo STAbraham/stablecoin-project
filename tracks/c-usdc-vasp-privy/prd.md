@@ -1,7 +1,7 @@
 # Zed USDC Dollar Wallet — Product Requirements Document
 
 **Status:** Draft v0.2 (2026-09-23, post design-intro call) — settled facts only; decisions marked `OPEN` are for joint resolution (none silently assumed). Written as a **standalone product proposal** (no cross-track framing, per Steve 9/23).
-**Surfaces:** working copy = collaborative Claude Doc (claude.ai/code/artifact/0bd0af8e-52f1-4d22-9d88-4251da290eac); team snapshots published to Google Docs per release; this repo file mirrors the working copy at checkpoints. Team snapshots carry no internal-workflow language.
+**Surfaces:** working copy = collaborative Claude Doc (claude.ai/code/artifact/0bd0af8e-52f1-4d22-9d88-4251da290eac); team snapshots published to Google Docs per release (current: docs.google.com/document/d/1TsDvL4Rav9CF3ugRIy-GphyAMdsGk7MZcO4P6AYimSQ, v0.2 2026-09-23); this repo file mirrors the working copy at checkpoints. Team snapshots carry no internal-workflow language.
 **IDs:** product decisions `C-D*`, requirements `C-R*`; research questions (C-Q*) and Coins.ph technical questions (OQ-*) tracked separately.
 
 **Product:** USD Coin ("USDC") store-of-value account with optional onchain-lending yield, for existing Zed cardholders. Working name inherits the "Dollar Wallet" frame — naming is C-D9/OPEN.
