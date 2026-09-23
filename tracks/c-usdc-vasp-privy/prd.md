@@ -4,10 +4,6 @@
 **Surfaces:** working copy = collaborative Claude Doc (claude.ai/code/artifact/0bd0af8e-52f1-4d22-9d88-4251da290eac); team snapshots published to Google Docs per release (current: docs.google.com/document/d/1TsDvL4Rav9CF3ugRIy-GphyAMdsGk7MZcO4P6AYimSQ, v0.2 2026-09-23); this repo file mirrors the working copy at checkpoints. Team snapshots carry no internal-workflow language.
 **IDs:** product decisions `C-D*`, requirements `C-R*`; research questions (C-Q*) and Coins.ph technical questions (OQ-*) tracked separately.
 
-**Product:** USD Coin ("USDC") store-of-value account with optional onchain-lending yield, for existing Zed cardholders. Working name inherits the "Dollar Wallet" frame — naming is C-D9/OPEN.
-
-**Regulatory posture:** self-custody throughout; no Zed custody of user crypto and no customer fiat balances on Zed's books; disciplined terminology (no "deposit," "interest," or customer-FX framing) — consistent with Zed's established stablecoin regulatory positions.
-
 **Changelog v0.2 (2026-09-23):** design-intro call (Granola notes → SOURCES.md) settled **C-D11 (yield = opt-in)** and **C-D14 (two-step deposit flow, FX rate shown at conversion)**; set the product priority ladder (USD acquisition must-have · yield stretch · QR payments out of pilot); InstaPay-first rail preference; TMMFs elevated to the design team's preferred yield alternative pending the SRC §8 question (now design-blocking); positioning principles added; standalone-ized (all cross-track references removed). New follow-ups: Wise deposit-flow reference screenshots; Andy design session; OQ-10.
 **Changelog v0.1 (2026-09-23):** initial draft from the Coins.ph integration thread + Create-Customer V2 spec, the Privy Earn research, the onchain-lending analysis, and Steve's direction (Coins.ph onramp → self-custodied Privy wallet → Privy vault yield; TMMFs exploratory given SRC §8).
 
@@ -15,11 +11,17 @@
 
 ## 1. Summary
 
-Zed offers Philippine customers a dollar-denominated account holding **USDC** in a **genuinely user-owned, self-custodied Privy wallet**, with an optional **yield feature powered by Privy Earn** (deposits into a curated onchain lending vault). The regulated PHP↔crypto exchange leg is performed by **Coins.ph, a BSP-licensed VASP**, as principal: users on-ramp by paying PHP into a per-user virtual account, and Coins.ph converts and **delivers USDC directly to the user's Privy address** as part of the same order — Zed never takes custody of user crypto. This is the "rent the license" architecture: the licensed party does the licensed thing; Zed provides the product, the wallet software, and the distribution.
+Zed offers Philippine customers a dollar-denominated account holding **USDC** in a **genuinely user-owned, self-custodied Privy wallet**, with an optional **yield feature powered by Privy Earn** (deposits into a curated onchain lending vault). The regulated PHP↔crypto exchange leg is performed by **Coins.ph, a BSP-licensed VASP**, as principal: users on-ramp by paying PHP into a per-user virtual account, and Coins.ph converts and **delivers USDC directly to the user's Privy address** as part of the same order — Zed never takes custody of user crypto. This is the "rent the license" architecture: the licensed party does the licensed thing; Zed provides the product, the wallet software, and the distribution. (Working name: "Dollar Wallet" — final naming is C-D9.)
 
-**Why this architecture:** the exchange leg sits with a domestically licensed VASP rather than an offshore counterparty; yield economics are Zed-configurable (vault fee share) rather than issuer-set. Trade-off: yield derives from onchain lending markets, inheriting decentralized-finance ("DeFi") characterization questions addressed in §§4–5.
+**Why this architecture:** the exchange leg sits with a domestically licensed VASP rather than an offshore counterparty; yield economics are Zed-configurable (vault fee share) rather than issuer-set. Trade-off: yield derives from onchain lending markets, inheriting decentralized-finance ("DeFi") characterization questions addressed in §§4–5 — handled under the same posture discipline as Zed's other stablecoin work: no customer fiat balances on Zed's books; no "deposit," "interest," or customer-FX framing.
 
-**Product priorities & positioning (design intro, 9/23):** value props in priority order — (1) **easy acquisition of US dollars: must-have**; (2) yield on USD holdings: stretch; (3) pay-with-USD via QR: tertiary, **out of pilot scope** (small-merchant payments, not peer-to-peer). Ship with #1 alone if time-constrained; the pilot validates demand, it is not the forever product. Positioning: **"preserve wealth" over "grow savings"** (peso-depreciation framing); never present yield numbers in isolation — 6% on pesos net of ~10% currency loss is worse than 4% on USD; design for the literacy gap (users may not know what USDC is, or trust it less than a USD bank account).
+### 1.1 Problems we're solving for the user
+
+1. **Make it easy to acquire USD (or a proxy).** Philippine users have no simple way to hold dollars. *Our answer:* PHP in from their bank, GCash or Maya → Coins.ph converts → USDC lands in their own wallet (C-D4, C-D14).
+2. **Earn a meaningful yield on a USD-denominated balance.** *Our answer:* optional Privy Earn vault deposits, variable and loss-possible (C-D5, C-D11, C-D13). Tokenized money-market funds remain a side option (§4).
+3. **Spend a USD-denominated balance via QR Ph.** *Not yet discussed; outside MVP scope (C-D1: no payments or spend).* Listed so it shapes the architecture now (e.g. whether an off-ramp at the point of sale is fast enough), without committing to it for the pilot.
+
+Priority order (design intro, 9/23): **#1 must-have · #2 stretch · #3 out of pilot** — ship #1 alone if time-constrained; the pilot validates demand, not the forever product. Positioning principles: **"preserve wealth" over "grow savings"** (peso-depreciation framing); never present yield in isolation (6% on pesos net of ~10% currency loss is worse than 4% on USD); design for the literacy gap (users may not know or fully trust USDC vs. a USD bank account).
 
 ## 2. The funds flow (settled shape)
 
@@ -38,18 +40,17 @@ flowchart LR
   U -->|"1 PHP transfer (InstaPay preferred)"| VA --> MA
   MA -->|"2 user initiates conversion; FX rate shown; fiat already cleared"| X
   X -->|"3 USDC delivered directly on-chain"| W
-  W -->|"4 optional opt-in, user-signed"| V
+  W -->|"4 opt-in, user-signed deposit"| V
   V -->|"5 user-signed withdraw"| W
   W -->|"6 off-ramp: USDC to Coins.ph, on-chain confirm first"| X
   X -->|"7 PHP out via InstaPay/PESONet"| U
 ```
 
-Key structural facts (per Coins.ph, 9/14–9/16; detail in `research/coinsph-integration.md`):
-- **Two-step deposit (C-D14, settled 9/23):** step 1 — user sends PHP to their virtual account; step 2 — user initiates conversion, FX rate shown at that moment. Avoids rate lock-in and fiat-clearing timing risk. Mechanics with Coins.ph → OQ-10.
+Key structural facts (source: [the Coins.ph Slack thread, 9/14–16](https://zedfinancial.slack.com/archives/C09HS2FTGTG/p1789436387222499) + their Create-Customer V2 spec; per-fact attribution in `research/coinsph-integration.md`):
+- **Two-step deposit (C-D14, settled 9/23):** PHP lands and clears first; the user then initiates conversion with the FX rate shown at that moment — avoiding rate lock-in and fiat-clearing timing risk, and creating a user-visible PHP-pending state (C-R4a). Once initiated, conversion and on-chain delivery are **one bundled Coins.ph order** (their 9/15 description — no intermediate USDC custody stop; convert-then-hold optionality → OQ-11).
 - Sequenced settlement in both directions (fiat clears → crypto sends; crypto confirms on-chain → PHP releases). No Zed float in the crypto leg.
 - PHP transits **Zed's master account at Coins.ph** (tagged per customer) → Zed-controlled fiat at the Coins layer → ledger/recon obligations (C-R7).
 - No per-user balance API — **the chain is the source of truth for user balances**.
-- Onboarding includes a **required Coins H5 verification page** (`redirectUrl`; MPIN step lives there) — a designed step to embed, not an error path (C-R1, C-D10).
 
 ## 3. Decisions
 
@@ -57,14 +58,14 @@ Key structural facts (per Coins.ph, 9/14–9/16; detail in `research/coinsph-int
 
 | # | Decision | Choice | Basis |
 |---|---|---|---|
-| C-D1 | Product core | USDC store-of-value account + **optional** yield; no payments/spend in MVP. Priority ladder (9/23): acquisition must-have; yield stretch; QR payments out of pilot | Store-of-value-only scope discipline at launch |
+| C-D1 | Product core | USDC store-of-value account + **optional** yield; no payments/spend in MVP (priority ladder: §1.1) | Store-of-value-only scope discipline at launch |
 | C-D2 | Stablecoin | **USDC** | Coins.ph supports USDC/PHP live; Privy Earn USDC vaults self-serve |
 | C-D3 | Custody | User-owned, self-custodied Privy wallet; open-loop; no Zed signer/keys; all outbound user-signed | No-unilateral-Zed-signing posture; Privy config confirmations pending (C-PR-1..5) |
 | C-D4 | On-ramp | **Coins.ph VASP partnership**: create-customer (Persona pass-through) → per-user VA → user pays PHP → exchange order delivers USDC **directly to the user's Privy address**. **InstaPay preferred over PESONet for MVP** (settlement lag + 1–2% intraday FX risk — 9/23) | Coins.ph thread + V2 spec; KYC details → C-D10, OQ-1/3 |
 | C-D5 | Yield mechanism | **Privy Earn** vault deposits, user-authorized from the user's own wallet | Signing model per Privy tech docs |
 | C-D6 | Off-ramp | Reverse Coins.ph flow: user-signed USDC → on-chain confirmation → PHP via InstaPay/PESONet | Coins.ph recap; detail pending (OQ-4) |
 | C-D11 | Yield enrollment | **Opt-in (settled 9/23, design intro):** users intentionally move funds into the vault; base account holds plain USDC with no vault risk | Consent/disclosure UX to be designed (Andy session) |
-| C-D14 | On-ramp UX | **Two-step deposit flow (settled 9/23):** send PHP → user-initiated conversion with FX rate shown. Persistent FX tracker deferred from MVP | Wise deposit flow = UX reference; mechanics → OQ-10 |
+| C-D14 | On-ramp UX | **Two-step deposit flow (settled 9/23)** — mechanics and rationale in §2. Persistent FX tracker deferred from MVP | Wise deposit flow = UX reference; mechanics → OQ-10/OQ-11 |
 
 ### 3.2 Proposed defaults
 
@@ -88,7 +89,7 @@ Key structural facts (per Coins.ph, 9/14–9/16; detail in `research/coinsph-int
 
 Held open, not in MVP scope — **and elevated at the 9/23 design intro: the design team's preferred yield alternative** if the regulatory question clears; **the Section 8 status must be resolved BEFORE the yield flow is designed** (now design-blocking, not just launch-gating). The attraction: Treasury-bill-backed yield (~3–4%), countercyclical, less speculative, easiest regulator story — reachable via the same Privy Earn API. **The concern:** a fund share offered to Philippine retail plausibly triggers **SRC Section 8** (registration before securities are sold/offered in the PH) — "Zed Invest territory." **Gates:** counsel opinion; Privy TMMF availability/eligibility for PH users. If DeFi-vault characterization fails at counsel, TMMF-with-registration becomes the fallback rather than the sidecar.
 
-## 5. Requirements (v0.2)
+## 5. Requirements
 
 **Provisioning & KYC**
 - C-R1. Onboarding creates: Privy wallet (user-sole-owner config), Coins.ph user via create-customer V2 (Persona data + live-captured device context: IP/source/user-agent), per-user VA — one session where possible. The Coins H5 verification page is a designed in-app step with defined handling for MPIN timeout ("Failed") and abandonment ("Cancelled"). All five KYC webhook statuses map to product states; Rejected/Failed alert ops with a user-facing "in review" state.
@@ -116,13 +117,11 @@ Held open, not in MVP scope — **and elevated at the 9/23 design intro: the des
 - C-R15. Vault diligence memo on chosen venue.
 - C-R16. Runbooks: stuck order, Coins.ph outage, Privy outage, vault liquidity crunch, pilot halt with off-ramp priority.
 
-## 6. Open questions (pointers)
+## 6. Open items & next steps
 
-Technical: OQ-1..10 (`research/coinsph-integration.md`). Partner/legal: C-Q6, C-Q10, C-Q12, C-Q14, C-PR-1..5 (counterparty tracker). Product: C-D9/10/12/13/15/16. Research: C-Q15 (Morpho stress deep-dive → C-R15).
-
-## 7. Next steps
+Reference ledgers: Coins.ph technical = OQ-1..11 (integration doc) · partner/legal = C-Q6, C-Q10, C-Q12, C-Q14, C-PR-1..5 (counterparty tracker) · product = C-D9/10/12/13/15/16 · research = C-Q15 (→ C-R15).
 
 1. Resolve remaining decisions C-D9/C-D10/C-D12/C-D13/C-D15/C-D16; Andy design follow-up covers the UX-blocking subset.
-2. Send OQ-1..10 to Coins.ph technical contacts (incl. new OQ-10: two-step-flow mechanics).
+2. Send OQ-1..11 to Coins.ph technical contacts (incl. OQ-10 two-step mechanics, OQ-11 delivery-model optionality).
 3. Sandbox: create-customer + VA creation in Coins.ph test env; Earn deposit signing in Privy sandbox.
 4. Privy in writing: PH eligibility for Earn (C-Q6). Counsel: TMMF/SRC §8 before yield-flow design. Collect Wise deposit-flow screenshots (two-step "I've sent funds" UX reference).
