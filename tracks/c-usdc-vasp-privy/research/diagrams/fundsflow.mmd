@@ -1,0 +1,18 @@
+flowchart LR
+  subgraph User
+    U["User's PH bank /<br/>GCash / Maya"]
+    W["User's Privy wallet<br/>(USDC, self-custodied)"]
+    V["Privy Earn vault position<br/>(opt-in, user-signed)"]
+  end
+  subgraph CoinsPH["Coins.ph (BSP-licensed VASP)"]
+    VA["Per-user virtual account<br/>(collection number)"]
+    MA["Zed master account<br/>(deposits tagged per customer)"]
+    X["Exchange order<br/>(getQuote / acceptQuote)"]
+  end
+  U -->|"1 PHP transfer (InstaPay preferred)"| VA --> MA
+  MA -->|"2 user initiates conversion<br/>(FX rate shown; fiat already cleared)"| X
+  X -->|"3 USDC delivered directly on-chain"| W
+  W -->|"4 opt-in, user-signed deposit"| V
+  V -->|"5 user-signed withdraw"| W
+  W -->|"6 off-ramp: USDC to Coins.ph<br/>(on-chain confirm first)"| X
+  X -->|"7 PHP out via InstaPay/PESONet"| U

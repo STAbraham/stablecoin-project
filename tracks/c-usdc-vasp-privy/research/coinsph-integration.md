@@ -35,6 +35,29 @@
 6. **PHP lands in Zed's master account** (tagged per customer) before conversion. So there IS Zed-controlled fiat in the flow at the Coins.ph layer → ledger + reconciliation requirements carry over from the incumbent's §6.8 pattern.
 
 ## On-ramp flow (as understood — sequence to verify in test env)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant Z as Zed app + backend
+    participant C as Coins.ph
+    participant B as Base (on-chain)
+    note over U,C: One-time provisioning (C-R1)
+    Z->>C: create-customer V2 (Persona data + device context)
+    C->>U: H5 verification page (MPIN)
+    C-->>Z: KYC webhook: Approved, coinsUserId
+    Z->>C: virtual-account/create
+    note over U,B: Every deposit — two-step flow (C-D14)
+    U->>C: PHP to virtual account (InstaPay preferred)
+    C-->>Z: cash-in webhook (cleared funds)
+    Z->>U: show unconverted PHP balance
+    U->>Z: initiate conversion (FX rate shown now)
+    Z->>C: getQuote / acceptQuote (destination = user's Privy address)
+    C->>B: convert & send USDC (one bundled order)
+    C-->>Z: order status webhook (tx hash)
+    Z->>U: USDC in wallet
+```
 1. One-time: `merchantCreateUser` (Persona data) → webhook → `coinsUserId`; `virtual-account/create` → user's collection number.
 2. Per deposit: user gets quote (`getQuote`) → pays PHP to their VA from any bank/GCash/Maya → cash-in webhook fires → `acceptQuote` (destination = user's Privy address, chain) → Coins converts and sends USDC on-chain → confirmation via order status/webhook.
    - ⚠️ Exact ordering of quote-vs-deposit and quote validity windows not yet specified → OQ-3.

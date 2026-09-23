@@ -1,0 +1,18 @@
+flowchart TB
+  subgraph EVENTS["Events (originators)"]
+    CI["Cash-in webhook<br/>posts directly to Posted"]
+    CV["Conversion order<br/>Pending to Posted / Cancelled"]
+    RF["Refund-out<br/>Pending to Posted / Cancelled"]
+  end
+  subgraph ACCOUNTS["Accounts — mirror of funds held at Coins.ph"]
+    MA["coins_master_php<br/>debit-normal (asset)"]
+    UP["customer_php_unconverted per user<br/>credit-normal (liability)"]
+  end
+  CI -->|"Dr"| MA
+  CI -->|"Cr"| UP
+  CV -->|"Dr"| UP
+  CV -->|"Cr"| MA
+  RF -->|"Dr"| UP
+  RF -->|"Cr"| MA
+  INV(["Invariant I1: coins_master_php = sum of customer_php_unconverted"])
+  ACCOUNTS -.- INV

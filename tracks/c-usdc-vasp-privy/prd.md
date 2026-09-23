@@ -209,7 +209,7 @@ C-D7 platform/surface (§3.4 — design+eng session) · C-D9 naming · C-D10 KYC
 
 | Document | What it holds | Where |
 |---|---|---|
-| **This PRD** | Product decisions, requirements, status board | Working copy: Claude Doc (claude.ai/code/artifact/0bd0af8e-52f1-4d22-9d88-4251da290eac) · team snapshots: Google Docs · repo mirror: this file |
+| **This PRD** | Product decisions, requirements, status board | Working copy: Claude Doc (claude.ai/code/artifact/0bd0af8e-52f1-4d22-9d88-4251da290eac) · team copies: Drive → Shared drives/Product/USDC Accounts · repo mirror: this file |
 | Coins.ph technical integration | API surface, flows, per-question technical detail behind §6.2 | `research/coinsph-integration.md` |
 | PHP ledger design | Double-entry design for unconverted-PHP balances (C-R7a), worked journal entries, D-L questions | `research/php-ledger-design.md` |
 | Privy Earn digest | How Earn works: vaults, custody, fees, signing — with sources | `research/privy-earn.md` |

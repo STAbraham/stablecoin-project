@@ -1,0 +1,26 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<style>body{background:#fff;margin:0;padding:16px;font-family:-apple-system,Helvetica,Arial}</style>
+</head><body><pre class="mermaid">sequenceDiagram
+    autonumber
+    participant U as User
+    participant Z as Zed app + backend
+    participant C as Coins.ph
+    participant B as Base (on-chain)
+    note over U,C: One-time provisioning (C-R1)
+    Z->>C: create-customer V2 (Persona data + device context)
+    C->>U: H5 verification page (MPIN)
+    C-->>Z: KYC webhook: Approved, coinsUserId
+    Z->>C: virtual-account/create
+    note over U,B: Every deposit — two-step flow (C-D14)
+    U->>C: PHP to virtual account (InstaPay preferred)
+    C-->>Z: cash-in webhook (cleared funds)
+    Z->>U: show unconverted PHP balance
+    U->>Z: initiate conversion (FX rate shown now)
+    Z->>C: getQuote / acceptQuote (destination = user's Privy address)
+    C->>B: convert & send USDC (one bundled order)
+    C-->>Z: order status webhook (tx hash)
+    Z->>U: USDC in wallet
+</pre>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{useMaxWidth:false}, sequence:{useMaxWidth:false}, state:{useMaxWidth:false}});</script>
+</body></html>

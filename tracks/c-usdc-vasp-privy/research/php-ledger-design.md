@@ -20,6 +20,27 @@ Compared to the card ledger: **one currency** (PHP centavos — USDC is never le
 **Invariant I2 (per transaction):** Σ debits == Σ credits, single currency.
 **Invariant I3 (external):** `coins_master_php.posted_balance == Coins-side aggregate` (recon anchor → OQ-12); per-user balances == Coins `coinsUserId` attribution if OQ-12(b) confirms it exists.
 
+```mermaid
+flowchart TB
+  subgraph EVENTS["Events (originators)"]
+    CI["Cash-in webhook<br/>posts directly to Posted"]
+    CV["Conversion order<br/>Pending to Posted / Cancelled"]
+    RF["Refund-out<br/>Pending to Posted / Cancelled"]
+  end
+  subgraph ACCOUNTS["Accounts — mirror of funds held at Coins.ph"]
+    MA["coins_master_php<br/>debit-normal (asset)"]
+    UP["customer_php_unconverted per user<br/>credit-normal (liability)"]
+  end
+  CI -->|"Dr"| MA
+  CI -->|"Cr"| UP
+  CV -->|"Dr"| UP
+  CV -->|"Cr"| MA
+  RF -->|"Dr"| UP
+  RF -->|"Cr"| MA
+  INV(["Invariant I1: coins_master_php = sum of customer_php_unconverted"])
+  ACCOUNTS -.- INV
+```
+
 ❖ **No clearing/in-flight accounts.** In-flight visibility comes from `status = Pending` transactions on a `group_id`, exactly like a card auth. Alternative considered: explicit `conversion_in_flight` clearing accounts — rejected for v0.1 (adds accounts without adding information; revisit if ops wants in-flight as a balance-sheet line). **← Steve to confirm.**
 
 ## 2. Transaction types & originators
@@ -62,6 +83,15 @@ On acceptQuote (order accepted, in flight) — status Pending, group_2:
 
 On order completion webhook (USDC delivered, tx hash recorded on `coins_orders`): discard transaction_2 (`discarded_at = T3`), insert transaction_3 — identical entries, status **Posted**, same group_2.
 On order failure: discard transaction_2, insert status **Cancelled** transaction (no net effect); PHP remains in `cust_u1`; ops alerted (C-R6).
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending: user accepts quote — funds earmarked (pending JEs)
+    Pending --> Posted: USDC delivered (tx hash) — pending JEs discarded, posted JEs written
+    Pending --> Cancelled: order fails — no net effect, PHP stays unconverted; ops alerted
+    Posted --> [*]
+    Cancelled --> [*]
+```
 
 The user's displayable balance during flight uses the Redux **`current_balance`** definition (posted increases − posted-and-pending decreases): the ₱3,000 is unavailable the moment they accept the quote — no double-convert race.
 

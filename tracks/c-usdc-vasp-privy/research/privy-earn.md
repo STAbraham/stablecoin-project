@@ -14,6 +14,15 @@ Source: docs.privy.io/wallets/actions/earn/overview.
 Vault positions are **ERC-4626 shares held as standard ERC-20 tokens in the user's own wallet** — "can be transferred between wallets like any other token." Yield accrues by **share-price appreciation**, "no claiming or compounding required." Self-custody survives a deposit: the user holds the receipt asset; Privy custodies nothing.
 Source: overview page.
 
+```mermaid
+flowchart LR
+  W["User's Privy wallet<br/>(USDC)"] -->|"user-signed deposit<br/>(Earn wallet action)"| V["Morpho Prime USDC vault<br/>ERC-4626 shares held in the user's own wallet"]
+  V -->|"user-signed withdraw, anytime<br/>(subject to market liquidity)"| W
+  V -. "yield accrues via share-price<br/>appreciation — no claiming" .-> V
+  V -. "Zed fee share (up to 50% of yield)" .-> A["Zed admin wallet<br/>(key-quorum, dual control)"]
+```
+<!-- earn-flow-diagram -->
+
 ## Yield mechanics & economics (C-Q3, C-Q13 — ANSWERED)
 - DeFi vault APY "fluctuates based on borrower demand, market utilization, and the curator's allocation strategy"; TMMF yield tracks short-term rates.
 - **App revenue share exists and is configurable** — this is Track C's margin mechanism:
