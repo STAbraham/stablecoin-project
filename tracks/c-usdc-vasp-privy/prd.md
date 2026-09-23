@@ -50,7 +50,7 @@ Key structural facts (source: [the Coins.ph Slack thread, 9/14–16](https://zed
 - **Two-step deposit (C-D14, settled 9/23):** PHP lands and clears first; the user then initiates conversion with the FX rate shown at that moment — avoiding rate lock-in and fiat-clearing timing risk, and creating a user-visible PHP-pending state (C-R4a). Once initiated, conversion and on-chain delivery are **one bundled Coins.ph order** (their 9/15 description — no intermediate USDC custody stop; convert-then-hold optionality → OQ-11).
 - Sequenced settlement in both directions (fiat clears → crypto sends; crypto confirms on-chain → PHP releases). No Zed float in the crypto leg.
 - PHP transits **Zed's master account at Coins.ph** (tagged per customer) → Zed-controlled fiat at the Coins layer → ledger/recon obligations (C-R7).
-- No per-user balance API — **the chain is the source of truth for user balances**.
+- No per-user balance API ("total balance across your users needs to be tracked on your end" — their 9/14 recap). For USDC, the chain is the source of truth; **for pending PHP, Zed's own ledger is the authoritative per-user record** — nothing at Coins.ph is queryable per user, only tagged cash-in webhooks and order events (C-R7/C-R7a; OQ-12).
 
 ## 3. Decisions
 
@@ -100,6 +100,7 @@ Held open, not in MVP scope — **and elevated at the 9/23 design intro: the des
 **Money movement**
 - C-R4. Every on-ramp records: PHP in (cash-in webhook), order/quote refs, applied rate, USDC delivered, destination address, tx hash — reconcilable end to end.
 - C-R4a *(new v0.2)*. The two-step flow introduces a **user-visible PHP-pending state** (funds received, awaiting user-initiated conversion): displayed clearly, with the FX rate shown at conversion time and nudges for stale un-converted balances (policy → OQ-10).
+- C-R7a *(added 9/23 — consequence of C-D14 + no per-user balance API)*. **The PHP subledger is a first-class subsystem:** every user-visible PHP-pending balance derives solely from Zed's ledger — credits from tagged cash-in webhooks, debits from conversion orders and refunds. Reconciliation anchors: Coins.ph order/transaction records and the master-account aggregate (balance/statement API availability → OQ-12). Any discrepancy between a displayed pending balance and Coins-side records is a paged break.
 - C-R5. Per-operation state machines; terminal states only completed/refunded/failed-with-ops-resolution.
 - C-R6. Unmatched/failed/stuck orders alert ops; refund-to-source default (confirm path — OQ-3).
 - C-R7. Double-entry ledger over Zed-controlled funds at the Coins.ph layer; user balances NOT ledger liabilities — on-chain is source of truth. Daily recon: ledger vs. Coins.ph orders vs. on-chain deliveries vs. Privy data.
@@ -113,15 +114,15 @@ Held open, not in MVP scope — **and elevated at the 9/23 design intro: the des
 
 **Gates before external users**
 - C-R13. Philippine availability of Privy Earn confirmed in writing (C-Q6 — threshold item).
-- C-R14. Counsel: DeFi-yield-to-retail characterization (C-Q12); Coins.ph-partnership legal shape incl. whose order the exchange is (C-Q10/OQ-8); **TMMF/SRC §8 — now design-blocking (9/23)**.
+- C-R14. Counsel: DeFi-yield-to-retail characterization (C-Q12); Coins.ph-partnership legal shape incl. whose order the exchange is (C-Q10/OQ-8); **TMMF/SRC §8 — design-blocking (9/23)**; and the pending-PHP characterization under C-D14 — user funds held at Coins vs. Zed-administered stored value (e-money implications of an open-ended pending window).
 - C-R15. Vault diligence memo on chosen venue.
 - C-R16. Runbooks: stuck order, Coins.ph outage, Privy outage, vault liquidity crunch, pilot halt with off-ramp priority.
 
 ## 6. Open items & next steps
 
-Reference ledgers: Coins.ph technical = OQ-1..11 (integration doc) · partner/legal = C-Q6, C-Q10, C-Q12, C-Q14, C-PR-1..5 (counterparty tracker) · product = C-D9/10/12/13/15/16 · research = C-Q15 (→ C-R15).
+Reference ledgers: Coins.ph technical = OQ-1..12 (integration doc) · partner/legal = C-Q6, C-Q10, C-Q12, C-Q14, C-PR-1..5 (counterparty tracker) · product = C-D9/10/12/13/15/16 · research = C-Q15 (→ C-R15).
 
 1. Resolve remaining decisions C-D9/C-D10/C-D12/C-D13/C-D15/C-D16; Andy design follow-up covers the UX-blocking subset.
-2. Send OQ-1..11 to Coins.ph technical contacts (incl. OQ-10 two-step mechanics, OQ-11 delivery-model optionality).
+2. Send OQ-1..12 to Coins.ph technical contacts (incl. OQ-10 two-step mechanics, OQ-11 delivery-model optionality, OQ-12 recon supports).
 3. Sandbox: create-customer + VA creation in Coins.ph test env; Earn deposit signing in Privy sandbox.
 4. Privy in writing: PH eligibility for Earn (C-Q6). Counsel: TMMF/SRC §8 before yield-flow design. Collect Wise deposit-flow screenshots (two-step "I've sent funds" UX reference).
