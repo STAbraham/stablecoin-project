@@ -1,6 +1,7 @@
 # OUSD Counterparty & Counsel Open Questions Tracker
 
 **Status:** Live — Phase 0 artifact. Markdown port (with stable IDs added) of `Zed_OUSD_Counterparty_Counsel_Open_Questions.docx` (2026-08-28, from the policy/architecture deep dive; original in `inbox/processed/`). Items marked *(added)* are Zed-side additions from the 8/28 Open Standard docs and ops needs; everything else is verbatim-in-substance from the docx.
+**Scope note (9/23):** the USDC/Coins.ph product tracks its counterparty confirmations (OQ-1..14 and product-specific counsel items) in its own PRD's status board (`tracks/c-usdc-vasp-privy/prd.md` §6), per Steve — that PRD is the build-reference hub. This tracker remains canonical for the shared Privy configuration items (C-PR-*) and all OUSD-product items.
 **How to use:** the policy memo (`regulatory-policy-memo.md`) and PRD v5 intentionally proceed on working assumptions. This tracker is **the source of truth for closing them**. **Launch blocker** = must be confirmed before external customer launch; **Pilot blocker** = must be confirmed before any real-money external pilot.
 
 Statuses: `Open` — no reliable answer yet · `Working assumption` — used in current architecture, unconfirmed · `Confirmed` — written answer / verified contract or API behavior, source linked · `Rejected` — answer contradicts assumption; **policy memo and PRD must be updated**.

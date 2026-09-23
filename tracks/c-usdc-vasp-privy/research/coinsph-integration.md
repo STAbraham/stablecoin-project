@@ -43,6 +43,8 @@
 Per the recap: crypto confirmed on-chain first, then PHP released. Mechanics (deposit address per user? order-attributed? destination bank registration? InstaPay/PESONet routing; fees) **not yet described** → OQ-4.
 
 ## Open technical questions (→ Coins.ph tech contacts)
+
+**Status tracking moved to the PRD §6.2 (Steve, 9/23) — the PRD is the canonical status board; this section keeps the full technical elaboration per question.**
 - **OQ-1** *(refined 9/23 — H5 step confirmed by the V2 spec)*: what exactly is on the H5 verification page (MPIN set? liveness? disclosures?), how long does it take, can it be embedded in Zed's webview, and can any of it be suppressed/pre-filled? What does the user see if they return later after "Failed" (10-min MPIN timeout)?
 - **OQ-2.** Which chains can USDC be delivered on (Base?), and are there per-chain fees/minimums?
 - **OQ-3.** Quote mechanics: validity window, quote-before-or-after deposit, partial/over/under-payment handling, refund path for failed orders.

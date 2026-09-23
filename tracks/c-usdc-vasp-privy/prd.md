@@ -150,11 +150,72 @@ Held open, not in MVP scope — **and elevated at the 9/23 design intro: the des
 - C-R15. Vault diligence memo on chosen venue.
 - C-R16. Runbooks: stuck order, Coins.ph outage, Privy outage, vault liquidity crunch, pilot halt with off-ramp priority.
 
-## 6. Open items & next steps
+## 6. Status board — open decisions, counterparty confirmations & next steps
 
-Reference ledgers: Coins.ph technical = OQ-1..14 (integration doc) · partner/legal = C-Q6, C-Q10, C-Q12, C-Q14, C-PR-1..5 (counterparty tracker) · product = C-D7 (reopened, §3.4) + C-D9/10/12/13/15/16/17 · research = C-Q15 (→ C-R15).
+This section is the live "where are we" view for everyone building the product. Coins.ph items are **canonically tracked here** (the integration doc keeps the technical elaboration); Privy configuration items keep canonical status in the shared counterparty tracker (they serve more than one product) and are mirrored here.
 
-1. Resolve remaining decisions C-D9/C-D10/C-D12/C-D13/C-D15/C-D16; Andy design follow-up covers the UX-blocking subset.
-2. Send OQ-1..12 to Coins.ph technical contacts (incl. OQ-10 two-step mechanics, OQ-11 delivery-model optionality, OQ-12 recon supports).
-3. Sandbox: create-customer + VA creation in Coins.ph test env; Earn deposit signing in Privy sandbox.
-4. Privy in writing: PH eligibility for Earn (C-Q6). Counsel: TMMF/SRC §8 before yield-flow design. Collect Wise deposit-flow screenshots (two-step "I've sent funds" UX reference).
+### 6.1 Open product decisions
+
+C-D7 platform/surface (§3.4 — design+eng session) · C-D9 naming · C-D10 KYC mode (blocked on OQ-1) · C-D12 vault venue · C-D13 fee share · C-D15 pilot scope · C-D16 chain (blocked on OQ-2) · C-D17 stale-balance policy (HELD). Detail in §§3.3–3.4; ledger design questions D-L1–D-L4 in the ledger design doc.
+
+### 6.2 Coins.ph confirmations (canonical here; detail in the integration doc)
+
+| ID | Question (condensed) | Blocks | Status |
+|---|---|---|---|
+| OQ-1 | H5 verification page: contents, duration, embeddability, timeout recovery | C-D10, onboarding UX | Open |
+| OQ-2 | USDC delivery chains — Base? | C-D16 | Open |
+| OQ-3 | Quote mechanics: validity window, over/under-payment, refund path | C-D14 detail, C-R6 | Open |
+| OQ-4 | Off-ramp API detail (deposit address, attribution, rails, fees) | C-D6 | Open |
+| OQ-5 | Fees / FX spread economics; any rev-share | Unit economics | Open |
+| OQ-6 | Webhook auth, retries, idempotency; sandbox↔prod parity | C-R8 | Partially answered (HMAC scheme known for create-customer) |
+| OQ-7 | Limits and compliance thresholds | C-D15 | Open |
+| OQ-8 | Whose order is the exchange (user's vs. Zed's) | Counsel C-Q10 | Open |
+| OQ-9 | Enum tables (employment/ID/country/status); purposeOfAccount as constant? | C-R1a mapping | Open |
+| OQ-10 | Two-step mechanics: unconverted holding period, per-deposit orders, InstaPay-first routing | C-D14, C-D17 | Open |
+| OQ-11 | Delivery model: always bundled to destination address, or convert-then-hold variant (whose balance)? | Custody posture | Open (Zed prefers bundled) |
+| OQ-12 | Recon supports: aggregate balance API/statements; coinsUserId-level attribution; **written custody confirmation** | C-R7a, C-R4b | Open |
+| OQ-13 | Fiat-out for unconverted PHP: refund-to-source and/or user withdrawal via API | C-D17, C-R6 | Open (rails exist; API access undocumented) |
+| OQ-14 | Cash-in webhook fires on cleared funds only; post-webhook recall behavior per rail | Ledger D-L2, adjustment path | Open (thread-consistent; confirming) |
+
+### 6.3 Privy confirmations (canonical status: shared counterparty tracker)
+
+| Item | Status | Gate |
+|---|---|---|
+| C-PR-1/2 — user-sole-owner config, no Zed signer | Docs-supported; verify our app's configuration + sandbox | Pilot-blocking |
+| C-PR-3 — export/recovery usable independently of Zed | Open | Pilot-blocking |
+| C-PR-4/5 — open-loop sends; signing directly to third-party addresses | Supportive docs; verify in sandbox | Pilot-blocking |
+| C-Q4 residual — Earn deposits/withdrawals user-signed under our config | Docs-level answered; sandbox verification pending (App ID live) | Pilot-blocking |
+| **C-Q6 — Philippine eligibility for Privy Earn** | **Open — the threshold item; ask in writing** | Launch-blocking |
+| Vault fee-share + admin-wallet quorum setup | Mechanics known from docs; configure at C-D12/C-D13 decision | Build item |
+| SDK maturity per surface (signing/passkey UX in webview vs. RN vs. native) | Gathering — input to §3.4 | Session prep |
+
+### 6.4 Counsel items
+
+| Item | Status |
+|---|---|
+| C-Q10 + OQ-8 — legal shape of the Coins.ph partnership, incl. whose order the exchange is | Open |
+| C-Q12 — offering DeFi lending yield to Philippine retail | Open |
+| C-Q14 — TMMF / SRC §8 registration question | Open — **design-blocking (9/23)** |
+| C-R4b validation — unconverted PHP as customer funds held at Coins.ph (interface-not-holder position) | Position stated (Steve 9/23); counsel to validate fact pattern |
+
+### 6.5 Next steps
+
+1. Resolve remaining decisions C-D7 (§3.4 session with design + engineering), C-D9/C-D10/C-D12/C-D13/C-D15/C-D16/C-D17; the Andy design follow-up covers the UX-blocking subset.
+2. Send OQ-1..14 to Coins.ph technical contacts.
+3. Sandbox: create-customer + VA creation in the Coins.ph test environment; Earn deposit signing in the Privy sandbox.
+4. Privy in writing: PH eligibility for Earn (C-Q6). Counsel: TMMF/SRC §8 before yield-flow design. Collect the Wise deposit-flow screenshots (two-step "I've sent funds" UX reference).
+
+## 7. Document map (the build-reference set for Design / Eng / everyone)
+
+| Document | What it holds | Where |
+|---|---|---|
+| **This PRD** | Product decisions, requirements, status board | Working copy: Claude Doc (claude.ai/code/artifact/0bd0af8e-52f1-4d22-9d88-4251da290eac) · team snapshots: Google Docs · repo mirror: this file |
+| Coins.ph technical integration | API surface, flows, per-question technical detail behind §6.2 | `research/coinsph-integration.md` |
+| PHP ledger design | Double-entry design for unconverted-PHP balances (C-R7a), worked journal entries, D-L questions | `research/php-ledger-design.md` |
+| Privy Earn digest | How Earn works: vaults, custody, fees, signing — with sources | `research/privy-earn.md` |
+| Privy platform tech-docs digest | Custody statements, wallet actions, auth, gas, governance quorums | `research/privy-tech-docs.md` |
+| Case studies (Robinhood Earn, Moreta, Privy overview deck) | Comparables and precedents | `research/` |
+| Onchain lending explainer & yield-venue decision | Lending-protocol education, Aave vs. Morpho, stress scenarios, vault decision framework | Claude Doc: claude.ai/code/artifact/dbbf6d2c-9350-440c-afdf-034366d3151d |
+| Counterparty & counsel tracker | Shared confirmation tracker (Privy canonical status; OUSD-product items) | `../../counterparty-counsel-tracker.md` |
+| Source bibliography | Every processed source with links and what it informed | `../../SOURCES.md` |
+| Portfolio context | How this product relates to the alternative architectures under exploration | `../TRACKS.md` (internal) |
