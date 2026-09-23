@@ -10,7 +10,8 @@ The project explores **three alternatives in parallel** alongside the incumbent 
 
 1. **Drop raw inputs in `inbox/`** — email PDFs, call notes, screenshots, pasted Slack threads, anything. No formatting needed; a `.md` with three bullets from a Netbank call is fine. Name with a date if convenient (`2026-08-18-netbank-call.md`).
 2. **Tell Claude "process the inbox"** (any session — the project conventions are in persistent memory). Claude reads each item, updates the PRD / tech design accordingly, appends a changelog entry, moves the item to `inbox/processed/`, and commits.
-3. **Review by diff, not by re-reading.** Every doc change is a git commit. Ask Claude "what changed since I last read?" or run `git log --oneline` / `git diff <sha>` — the changelog entries at the top of each doc summarize the same thing in prose.
+3. **Sources that can't go in the inbox** (Slack threads, dashboards, calls, web pages): every processed source gets a row in `SOURCES.md` — the bibliography — with link, date, where it was digested, and what it informed. Inbox items get rows too; it's the master ledger for tracing decisions back to evidence.
+4. **Review by diff, not by re-reading.** Every doc change is a git commit. Ask Claude "what changed since I last read?" or run `git log --oneline` / `git diff <sha>` — the changelog entries at the top of each doc summarize the same thing in prose.
 
 ## Stable anchors (the interface for feedback)
 
