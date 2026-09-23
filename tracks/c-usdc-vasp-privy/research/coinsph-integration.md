@@ -49,6 +49,7 @@ Per the recap: crypto confirmed on-chain first, then PHP released. Mechanics (de
 - **OQ-5.** Fees and FX spread: where Coins.ph takes economics on the quote, and what's negotiable at volume. Any Zed rev-share?
 - **OQ-6.** Webhook auth/signing, retry semantics, idempotency, sandbox↔prod parity.
 - **OQ-7.** Limits: per-user/per-txn/daily caps, and whose (Coins') compliance thresholds trigger enhanced review.
+- **OQ-9.** Full enum tables referenced by the V2 spec but not included: EmploymentStatusEnum, IdTypeEnum, CountryEnum, StatusEnum — needed for the Zed↔Coins field-mapping layer. Also: is `purposeOfAccount` expected per-user or can the merchant set a constant (e.g. `crypto`)?
 - **OQ-8.** Legal shape of the exchange order: is the conversion executed as the *user's* order (coinsUserId-attributed) with Zed as technical facilitator, or as Zed's order? (Feeds counsel question C-Q10 — the answer shapes the whole regulatory characterization.)
 
 ## What this closes / feeds
