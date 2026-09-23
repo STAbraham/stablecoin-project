@@ -14,9 +14,9 @@ Compared to the card ledger: **one currency** (PHP centavos — USDC is never le
 | Account | Normal balance | Cardinality | Meaning |
 |---|---|---|---|
 | `coins_master_php` | Debit (asset) | 1 | Aggregate customer PHP sitting in Zed's master account at Coins.ph |
-| `customer_php_pending:{user_id}` | Credit (liability) | per user | That user's un-converted PHP held at Coins (the number the app displays) |
+| `customer_php_unconverted:{user_id}` | Credit (liability) | per user | That user's cleared-but-unconverted PHP held at Coins (the number the app displays). Named to avoid conflation with rail-clearing 'pending' — no pre-clearing deposit state exists (OQ-14) |
 
-**Invariant I1 (the whole balance sheet):** `coins_master_php.balance == Σ customer_php_pending.balance` at every status level (posted and pending views).
+**Invariant I1 (the whole balance sheet):** `coins_master_php.balance == Σ customer_php_unconverted.balance` at every status level (posted and pending views).
 **Invariant I2 (per transaction):** Σ debits == Σ credits, single currency.
 **Invariant I3 (external):** `coins_master_php.posted_balance == Coins-side aggregate` (recon anchor → OQ-12); per-user balances == Coins `coinsUserId` attribution if OQ-12(b) confirms it exists.
 
@@ -35,7 +35,7 @@ Originator rows are the idempotency boundary: `UNIQUE` on provider identifiers (
 
 ## 3. Posting rules (worked in the Redux illustration style)
 
-Amounts in centavos. `cust_u1` = `customer_php_pending:user_1`.
+Amounts in centavos. `cust_u1` = `customer_php_unconverted:user_1`.
 
 ### Cash-in: user_1 deposits ₱5,000 (webhook = fiat cleared)
 
@@ -50,7 +50,7 @@ Ledger_Entries
 | 1 | coins_master_php | transaction_1 | debit | 500000 | PHP |
 | 2 | cust_u1 | transaction_1 | credit | 500000 | PHP |
 
-❖ Cash-in posts **directly to Posted** (no pending stage): the webhook fires only after fiat clears ("fiat must clear before we send crypto" — the first leg *is* the cleared leg). Late returns/recalls on InstaPay are rare and handled as `adjustment`. **← Steve to confirm.**
+❖ Cash-in posts **directly to Posted** (no pending stage) — **aligned with Steve 9/23**: Coins has no pre-clearing visibility (the cash-in webhook is the first signal, on cleared funds; InstaPay near-instant, batch rails invisible until landing). Post-webhook recalls, if they exist at all, are handled as `adjustment` (per-rail behavior → OQ-14).
 
 ### Conversion: user_1 converts ₱3,000 → USDC (C-D14 step 2)
 
@@ -88,7 +88,7 @@ Reuse the Redux tables **verbatim** — `Ledger_Accounts` (with `normal_balance`
 
 1. **Aggregate:** `coins_master_php.posted_balance` vs Coins-side master-account figure (mechanism → OQ-12a). Until an aggregate API exists: derived check = Σ(cash-in webhooks) − Σ(completed orders) − Σ(refunds) vs our balance — weaker (events-only), flagged as such.
 2. **Per-order:** every `coins_orders` row vs Coins order-status API; every completed order has a tx hash whose on-chain USDC delivery to the user's Privy address is verified (ties into the C-R4 record).
-3. **Per-user (if OQ-12b):** `customer_php_pending:{u}` vs Coins `coinsUserId` attribution.
+3. **Per-user (if OQ-12b):** `customer_php_unconverted:{u}` vs Coins `coinsUserId` attribution.
 4. Any break → paged (C-R7a); unresolved >24h breaches the zero-loss bar.
 
 ## 7. Open design questions (for Steve)
@@ -97,7 +97,7 @@ Reuse the Redux tables **verbatim** — `Ledger_Accounts` (with `normal_balance`
 2. **D-L2:** Cash-in posts straight to Posted — confirm, or model a pending stage for rail-recall risk?
 3. **D-L3:** Integer centavos everywhere — confirm the Decimal→BIGINT standardization?
 4. **D-L4:** Build as the first implementation of generic Redux core tables (shared later with cards) vs. wallet-local tables?
-5. **D-L5 (product):** stale-balance policy — auto-refund-to-source after N days (reinforces C-R4b(c)/(d)) vs. nudge-only? Interacts with OQ-10 (max holding period) and OQ-13 (refund API).
+5. **D-L5 (product):** promoted to PRD decision **C-D17 (HELD, Steve 9/23)** — stale unconverted-PHP policy: auto-refund-to-source after N days vs. nudge-only. The ledger supports either (refund_out postings exist regardless).
 
 ## Coins.ph API validation (Steve's question: "transfer it out of Coins")
 
