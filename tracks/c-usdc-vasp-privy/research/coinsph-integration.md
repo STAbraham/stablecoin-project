@@ -9,13 +9,21 @@
 ## The API surface (as described; VERIFIED against their docs = pending)
 | Piece | What it does | Notes |
 |---|---|---|
-| `merchantCreateUser` | Creates the end user in Coins' system from KYC data Zed already holds: name, DOB, address, ID type + number, ID front/back photos, face photo → returns `coinsUserId` | Not on public docs site; spec = "Create Customer API Documentation (V2).pdf" (Slack file F0C2DP9PM4N — **not yet retrievable via API; ask Pete to drop the PDF in `inbox/`**). Coins does NOT re-verify documents (Persona KYC accepted); they run their own sanctions/watchlist screening on top |
+| `merchantCreateUser` = `POST openapi/v2/account/kyc/create-customer` | Creates the end user in Coins' system from KYC data Zed already holds → returns `coinsUserId` + **`redirectUrl` (required: "H5 verification page URL")** | Full spec processed 9/23 ("Create Customer API Documentation (V2).pdf", now in `inbox/processed/`) — see "Create-customer spec detail" section below. Coins does NOT re-verify documents (Persona KYC accepted); they run their own sanctions/watchlist screening on top |
 | KYC result webhook | Returns one of five statuses: **Approved** (→ `coinsUserId`), **Rejected** (failed risk screening), **Failed** (system error, or user didn't set MPIN within 10 minutes), **Cancelled** (user backed out), **Pending** | ⚠️ The MPIN and "user backed out" language implies *some* end-user interaction even in the merchant-hosted flow — contradicts "users don't see a Coins login or KYC screen." **Open question OQ-1 below** |
 | Dedup behavior | If phone + email + name + DOB match an existing Coins user, no new registration — the existing `coinsUserId` is returned | Affects users who already have personal Coins.ph accounts — likely common in PH. Implications for support flows + data mapping |
 | `virtual-account/create` | Opens a per-user virtual account (collection number) against a `coinsUserId` | VA = unique identifier mapped to **Zed's single master account**; the VA itself holds no balance; deposits land in the master account, tagged per customer |
 | Cash-in webhook | Fires when funds hit a VA | Same "cash in webhook" family as their standard flow |
 | `getQuote` / `acceptQuote` | The exchange order: PHP amount in, target crypto, **destination wallet address + chain** | **Key fact: crypto is delivered directly to the specified external wallet as part of the order — "no separate step to release or withdraw it." PHP clears → conversion → USDC lands at the user's Privy address automatically** |
 | Docs | api.docs.coins.ph/reference/virtual-account | Public reference for the VA APIs |
+
+## Create-customer spec detail (from the V2 PDF, processed 9/23)
+- **Transport:** single `multipart/form-data` POST; parts: `createUserReq` (JSON), `frontIdImage` (required, jpg/png/jpeg ≤2MB), `facePhoto` (required selfie ≤2MB), `backIdImage` (optional), `amlcCertificateImage` (optional — **required when `employmentStatus` = `covered_service`**, the PH AMLA covered-person case).
+- **Auth:** `X-COINS-APIKEY` header + HMAC-SHA256 signature over `recvWindow` + `timestamp` + the raw `createUserReq` JSON, passed as query params; `x-trace-id` header. QA base URL in examples: `api.9001.plqa.coinsxyz.me`. (Part-answers OQ-6 for this endpoint.)
+- **Required fields Zed must supply:** requestId (merchant order id), customerId (merchant-side id), email or phone (≥1), **customerIp, customerSource (WEB/IOS/ANDROID), customerUserAgent** (i.e., the *end user's* device context — Zed must capture and pass these through), firstName, lastName, dateOfBirth, countryOfBirth, country, nationality, state, city, street, postalCode, **employmentStatus** (enum; conditionals: employed → industry/companyName/jobTitle; Unemployed → sourceFunds (+description if `other`)), **purposeOfAccount** (`legal` | `crypto` | `both`), image MD5s, businessScenarios.
+- **Response:** status (enum), requestId, customerId, `coinsUserId` (after successful registration), **`redirectUrl` (required — H5 verification page)**, rejectionReason.
+- **⚠️ Fields Persona likely does NOT hold today:** employmentStatus (+industry/company/title or source-of-funds), purposeOfAccount, possibly countryOfBirth. → Zed's onboarding must collect these (or map from existing underwriting data where lawful) — product requirement C-R1a in the PRD.
+- **The H5 page (resolves the OQ-1 contradiction):** a user-facing Coins verification step exists even in the merchant-hosted flow — `redirectUrl` is a required response field, and the MPIN/"backed out" statuses now make sense as outcomes of that page. "No Coins login/KYC screen" = no document re-collection, not zero Coins surface.
 
 ## Facts that shape the product
 1. **Rails:** PHP clears via InstaPay and PESONet — reaches any participating PH bank or e-wallet, **including GCash and Maya**. End-user on-ramp UX = ordinary bank transfer to the collection number.
@@ -34,7 +42,7 @@
 Per the recap: crypto confirmed on-chain first, then PHP released. Mechanics (deposit address per user? order-attributed? destination bank registration? InstaPay/PESONet routing; fees) **not yet described** → OQ-4.
 
 ## Open technical questions (→ Coins.ph tech contacts)
-- **OQ-1.** Merchant-hosted flow: what exactly does the end user see/do? What is the MPIN step, who sets it, and can it be suppressed? ("Failed if MPIN not set within 10 min" + "Cancelled — user backed out" vs. "no Coins screens.")
+- **OQ-1** *(refined 9/23 — H5 step confirmed by the V2 spec)*: what exactly is on the H5 verification page (MPIN set? liveness? disclosures?), how long does it take, can it be embedded in Zed's webview, and can any of it be suppressed/pre-filled? What does the user see if they return later after "Failed" (10-min MPIN timeout)?
 - **OQ-2.** Which chains can USDC be delivered on (Base?), and are there per-chain fees/minimums?
 - **OQ-3.** Quote mechanics: validity window, quote-before-or-after deposit, partial/over/under-payment handling, refund path for failed orders.
 - **OQ-4.** Off-ramp API detail: how the user's USDC is received (per-user deposit address? order-first?), attribution, PHP payout rails/fees/limits, destination-account registration + name-match support.

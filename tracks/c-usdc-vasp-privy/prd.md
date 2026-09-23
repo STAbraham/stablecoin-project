@@ -68,7 +68,7 @@ Key structural facts (per Coins.ph, 9/14–9/16 — details in `research/coinsph
 | # | Decision | The question | Suggestion (flagged, not assumed) |
 |---|---|---|---|
 | C-D9 | Naming/branding | What users see; how prominently USDC/Circle is disclosed | Inherit "Dollar Wallet" frame + D12-style terminology discipline; needs your call + compliance floor |
-| C-D10 | KYC mode | Merchant-hosted (no Coins screens, Persona pass-through) vs. hosted Ramp widget (Coins KYC) | Merchant-hosted, clearly — **but** the MPIN/"user backed out" statuses imply some user step; resolve OQ-1 before settling |
+| C-D10 | KYC mode | Merchant-hosted (Persona pass-through) vs. hosted Ramp widget (full Coins KYC) | Merchant-hosted, clearly — now with eyes open: the V2 spec confirms a **required Coins H5 verification step** (`redirectUrl`; MPIN lives there). Decision refines to: embed the H5 page in our webview and design around it (refined OQ-1: what's on it, can it be minimized) |
 | C-D11 | Yield enrollment model | Auto-enroll all balances vs. account-level opt-in toggle vs. per-deposit choice | I lean **explicit opt-in, default off** at pilot: cleanest consent/disclosure story for a yield product with loss risk, and it separates the wallet's regulatory posture from Earn's. Costs adoption. Your call — this is the biggest pure-product decision here |
 | C-D12 | Vault venue | Confirm Option A (single Morpho Prime USDC vault) from the lending doc; then Gauntlet vs. Steakhouse | Your comment on the lending doc is still open; venue choice should follow the curator-diligence memo, not the APY print |
 | C-D13 | Fee share / user rate | Zed's cut of vault yield (Morpho allows ≤50%) | The positioning dial: at ~4.4% gross, 25% share → user ~3.3% (vs. incumbent's ~3.75% gross Marketing-Fee comparison). Model both before setting |
@@ -83,7 +83,8 @@ Held open per Steve (9/23), not in MVP scope. The attraction: Treasury-bill-back
 ## 5. Requirements (v0.1 — grounded; numbering leaves room)
 
 **Provisioning & KYC**
-- C-R1. Onboarding creates: Privy wallet (user-sole-owner config), Coins.ph user via `merchantCreateUser` from Persona-held data, and per-user VA — in one session where possible. All five Coins KYC webhook statuses (Approved/Rejected/Failed/Cancelled/Pending) have defined product states; Rejected/Failed alert ops with a user-facing "in review" state.
+- C-R1. Onboarding creates: Privy wallet (user-sole-owner config), Coins.ph user via the create-customer V2 API from Persona-held data + captured device context (customerIp/source/userAgent are required fields), and per-user VA — in one session where possible. The **Coins H5 verification page** (`redirectUrl` in the create-customer response) is a designed step in the flow, not an error path: presented in-app, with defined handling for the 10-minute MPIN timeout ("Failed") and abandonment ("Cancelled"). All five KYC webhook statuses map to defined product states; Rejected/Failed alert ops with a user-facing "in review" state.
+- C-R1a. Onboarding collects the create-customer fields Persona doesn't hold: **employmentStatus** (+ industry/company/title, or source-of-funds if unemployed; AMLC certificate upload if covered_service), **purposeOfAccount**, countryOfBirth — added to the Track C onboarding UX, or mapped from existing Zed underwriting data where lawful (data-reuse question for compliance).
 - C-R2. Coins.ph dedup case (existing `coinsUserId` returned for users who already have Coins accounts) is handled as a first-class path, not an error.
 - C-R3. Consents recorded (Zed terms, Privy terms, Coins.ph terms as applicable, yield-feature terms separately if C-D11 = opt-in).
 
