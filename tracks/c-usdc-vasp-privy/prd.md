@@ -1,9 +1,10 @@
 # Zed USDC Dollar Wallet — Product Requirements Document
 
-**Status:** Draft v0.4 (2026-09-24) — settled facts only; decisions marked `OPEN` are for joint resolution (none silently assumed). Written as a **standalone product proposal** (no cross-track framing, per Steve 9/23).
+**Status:** Draft v0.5 (2026-09-24, post design session) — settled facts only; decisions marked `OPEN` are for joint resolution (none silently assumed). Written as a **standalone product proposal** (no cross-track framing, per Steve 9/23).
 **Surfaces:** working copy = collaborative Claude Doc (claude.ai/code/artifact/0bd0af8e-52f1-4d22-9d88-4251da290eac); team copies = Word files in Drive under Shared drives/Product/USDC Accounts (refreshed on meaningful revisions); this repo file mirrors the working copy at checkpoints. Team copies carry no internal-workflow language.
 **IDs:** product decisions `C-D*`, requirements `C-R*`; research questions (C-Q*) and Coins.ph technical questions (OQ-*) tracked separately.
 
+**Changelog v0.5 (2026-09-24):** design session (Granola notes → SOURCES.md): **C-D7 settled — a new tab in the existing Zed app** (standalone ruled out: App Store review timelines vs. the board-meeting deadline); implementation direction = mobile-responsive web app in the tab, Andy POC to validate, React Native/Flutter fallback (§3.4 now records the resolution). **C-D18 (new, settled): KYC review-and-edit screen** — the user reviews and can edit the prefilled data before it is sent to Coins.ph; doubles as the explicit consent moment. ID-expiry risk flagged (→ OQ-15); no post-onboarding data sync needed. New requirement C-R17: card-account-state independence (delinquency / closure / forced offboarding → OQ-16; documents area open). Yield future option noted: auto-enroll (out of scope). Next steps updated (POC, notification-system component).
 **Changelog v0.4 (2026-09-24):** §5 rewritten as functional requirements (Steve feedback, 9/24): each part now states the flow to build first, then requirements as capability statements with implementation detail nested beneath; added the create-customer data-source table (what is generated vs. pulled from the backend vs. captured live vs. net-new) and the request/response shape summary to C-R1a. No requirement IDs or substance changed.
 **Changelog v0.3 (2026-09-24):** the three-part build decomposition (KYC/onboarding · account interface · yield/vault) made front and center for design and engineering: new §1.2, and the §5 requirement groups relabeled to the same part names (Steve, 9/24).
 **Changelog v0.2 (2026-09-23):** design-intro call (Granola notes → SOURCES.md) settled **C-D11 (yield = opt-in)** and **C-D14 (two-step deposit flow, FX rate shown at conversion)**; set the product priority ladder (USD acquisition must-have · yield stretch · QR payments out of pilot); InstaPay-first rail preference; TMMFs elevated to the design team's preferred yield alternative pending the SRC §8 question (now design-blocking); positioning principles added; standalone-ized (all cross-track references removed). New follow-ups: Wise deposit-flow reference screenshots; Andy design session; OQ-10.
@@ -29,9 +30,9 @@ Priority order (design intro, 9/23): **#1 must-have · #2 stretch · #3 out of p
 
 The build decomposes into three parts. Every screen, requirement, and open question in this document belongs to one of them; design and engineering should treat them as the top-level workstreams:
 
-1. **Know Your Customer (KYC) & onboarding.** Provision the user end to end: create the Coins.ph customer from Zed's existing Persona onboarding data, walk the user through Coins.ph's in-app verification page (mobile PIN, "MPIN"), create the per-user virtual account, and create the self-custodied Privy wallet — one session where possible. Requirements C-R1–C-R3. Open: enum mapping tables (OQ-9); which app surface this lives in (C-D7, §3.4).
+1. **Know Your Customer (KYC) & onboarding.** Provision the user end to end: create the Coins.ph customer from Zed's existing Persona onboarding data, walk the user through Coins.ph's in-app verification page (mobile PIN, "MPIN"), create the per-user virtual account, and create the self-custodied Privy wallet — one session where possible. Requirements C-R1–C-R3. Open: enum mapping tables (OQ-9). Surface settled 9/24: a new tab in the existing Zed app (C-D7).
 2. **Account interface.** Balances and the purchase: show the USDC balance (on-chain is the source of truth) and the unconverted-PHP balance (Zed's ledger mirror of customer funds held at Coins.ph), and let the user make the USDC purchase — user-initiated, with the FX rate disclosed at the moment of conversion (C-D14) — plus the off-ramp back to PHP. Requirements C-R4–C-R8; ledger design in `research/php-ledger-design.md`.
-3. **Yield / vault.** The opt-in Privy Earn feature: user-signed vault deposits and withdrawals, variable-yield display with loss-possible disclosures, Zed's fee share to the admin wallet. Requirements C-R9–C-R12. Gated on Philippine availability confirmed in writing (C-R13) and the vault-venue choice (C-D12).
+3. **Yield / vault.** The opt-in Privy Earn feature: user-signed vault deposits and withdrawals, variable-yield display with loss-possible disclosures, Zed's fee share to the admin wallet. Requirements C-R9–C-R12. Gated on Philippine availability confirmed in writing (C-R13) and the vault-venue choice (C-D12). Kept opt-in for the pilot to observe uptake; auto-enrolling all USDC holders (savings-like) was noted 9/24 as a future option — out of scope.
 
 ## 2. The funds flow (settled shape)
 
@@ -77,12 +78,13 @@ Key structural facts (source: [the Coins.ph Slack thread, 9/14–16](https://zed
 | C-D6 | Off-ramp | Reverse Coins.ph flow: user-signed USDC → on-chain confirmation → PHP via InstaPay/PESONet | Coins.ph recap; detail pending (OQ-4) |
 | C-D11 | Yield enrollment | **Opt-in (settled 9/23, design intro):** users intentionally move funds into the vault; base account holds plain USDC with no vault risk | Consent/disclosure UX to be designed (Andy session) |
 | C-D14 | On-ramp UX | **Two-step deposit flow (settled 9/23)** — mechanics and rationale in §2. Persistent FX tracker deferred from MVP | Wise deposit flow = UX reference; mechanics → OQ-10/OQ-11 |
+| C-D7 | Client surface | **A new tab in the existing Zed app (settled 9/24)** — standalone ruled out (App Store review timelines vs. the board-meeting deadline; existing users already trust the app — better conversion and pilot demand signal). Implementation: mobile-responsive web app loaded in the tab (one codebase, no store cycle per iteration); POC to validate feel; React Native/Flutter fallback if the web view feels too janky. Long-term vision: one app supporting cards + stablecoin, usable without either product | 9/24 design session; §3.4 records the full tree. Session tokens should carry over (no re-auth); pilot targets existing cardholders, so a tab suffices |
+| C-D18 | KYC data review | **Review-and-edit screen (settled 9/24):** the app displays the data Zed already holds; the user reviews and can edit it before anything is sent to Coins.ph. Doubles as the explicit consent moment and the staleness refresh | Resolves the consent + stale-data questions raised in-session; feeds C-R1/C-R1a/C-R3 |
 
 ### 3.2 Proposed defaults
 
 | # | Decision | Proposed default | Note |
 |---|---|---|---|
-| C-D7 | Client surface | **REOPENED 9/23 → §3.4** (prior default: web app embedded in the existing app's webview). Constant either way: JWT/OIDC bring-your-own-auth into Privy | Full option tree + decision inputs in §3.4; to be decided with design + engineering |
 | C-D8 | Backend home | Bounded module in `zed-rust-api` (own tables/routes, feature-flagged) | Existing production Coins.ph client (card payments) — evaluate reuse vs. isolate |
 
 ### 3.3 OPEN — remaining
@@ -97,9 +99,9 @@ Key structural facts (source: [the Coins.ph Slack thread, 9/14–16](https://zed
 | C-D16 | Chain | Base (Earn USDC vaults available self-serve on Base) | Blocked on OQ-2: Coins.ph USDC delivery on Base |
 | C-D17 | Stale unconverted-PHP policy | Cleared PHP sitting unconverted: auto-refund to source after N days vs. nudge-only (auto-convert rejected — violates C-R4b(c)) | **HELD as a key decision (Steve, 9/23).** Auto-refund ends indefinite nudging and reinforces the interface-not-holder position — returning funds is the only instruction-free disposition consistent with C-R4b(c)/(d). Interacts with OQ-10, OQ-13 |
 
-### 3.4 Open platform & design decisions (for the design + engineering session)
+### 3.4 Platform & surface decision (resolved 9/24; decision tree kept for the record)
 
-Added 9/23 (Steve): the client surface was inherited as a proposed default and deserves a first-principles discussion before build. **C-D7 is reopened**; the decision tree:
+**Resolved at the 9/24 design session:** **Q1 — in-app**: a new tab in the existing Zed app (standalone ruled out — App Store review timelines are a dealbreaker for the board-meeting deadline; existing users already trust the app, which helps conversion and the pilot demand signal). **Q2 — moot** (not standalone). **Q3 — option (a)**: a mobile-responsive web app loaded in the tab — one codebase for iOS and Android, no store build per iteration. The known trade-off (an embedded-browser feel undermining trust in a finance product) is being tested head-on: **Andy builds a rough POC (1–2 hours: existing UI components, form fields, buttons, cards — form fields are the key test, since interactive elements feel different on web vs. native)**, and Brandon or John loads it in a dev build of the app. Fallback if the web app feels too janky: React Native or Flutter (option b). Session tokens should carry over so users don't re-authenticate (not required for the POC). The original decision tree, kept for the record:
 
 **Q1 — Standalone app, or part of the existing Zed app?**
 - *In-app:* ~11k existing cardholders one tap away; shared auth/session; no install funnel. Against: couples release risk and app-store review to the card app; the wallet reads as "a feature," which may undercut the preserve-wealth positioning (§1.1).
@@ -137,9 +139,10 @@ Grouped by the three build parts (§1.2), plus cross-cutting launch gates. Each 
 
 ### Part 1 — KYC & onboarding
 
-**The flow to build:** an existing Zed user activates the Dollar Wallet and, in one session: (1) Zed creates their Coins.ph customer record from data we already hold — the user re-enters nothing; (2) the user completes Coins.ph's verification page (sets a mobile PIN); (3) on approval, Zed creates their per-user virtual account (their deposit destination) and their self-custodied Privy wallet. The user lands on a ready-to-deposit account.
+**The flow to build:** an existing Zed user activates the Dollar Wallet and, in one session: (1) the app shows the data Zed already holds for the user to review and edit — this is the explicit consent moment (C-D18); (2) Zed creates their Coins.ph customer record from that confirmed data — the user re-enters nothing; (3) the user completes Coins.ph's verification page (sets a mobile PIN); (4) on approval, Zed creates their per-user virtual account (their deposit destination) and their self-custodied Privy wallet. The user lands on a ready-to-deposit account.
 
-- **C-R1. One-session provisioning.** The app takes a user from "activate" to "ready to deposit" in a single session where possible, orchestrating three creations in order:
+- **C-R1. One-session provisioning.** The app takes a user from "activate" to "ready to deposit" in a single session where possible, orchestrating the review step and three creations in order:
+  - the review-and-edit screen (C-D18) — prefilled with the data Zed holds; the user confirms or corrects it; nothing is sent to Coins.ph before this consent;
   - the Coins.ph customer — one `create-customer` V2 call (data assembly: C-R1a), returning the `coinsUserId` and the verification-page URL;
   - the verification step — Coins.ph's hosted "H5" page where the user sets a mobile PIN (MPIN), presented as a designed in-app step (webview embedding, duration, pre-fill → OQ-1), with explicit UX for its failure outcomes: MPIN not set within 10 minutes (webhook status "Failed") and user backs out ("Cancelled");
   - on the Approved webhook: the per-user virtual account (`virtual-account/create`) and the Privy wallet (user-sole-owner configuration).
@@ -162,9 +165,11 @@ Grouped by the three build parts (§1.2), plus cross-cutting launch gates. Each 
 | purposeOfAccount | net-new | `legal` \| `crypto` \| `both`; likely a programmatic constant — confirm with Coins.ph (OQ-9) |
 | amlcCertificateImage | net-new, rare | only when employment status is a covered person under the Anti-Money Laundering Act; candidate for pilot exclusion |
 
-  Net: nothing is re-collected from the user. The only potential new user-facing question is the covered-person case — and none at all if that case is excluded from the pilot.
+  Net: nothing is re-collected from the user (though everything is user-confirmable via C-D18). The only potential new user-facing question is the covered-person case — and none at all if that case is excluded from the pilot.
+- **C-R1b. ID-expiry handling** *(flagged 9/24)*. Coins.ph may flag expired IDs at create-customer; a fresh Persona capture has a real cost, but the BSP obligation to maintain updated customer records may justify incurring it. Coins.ph's actual behavior on expired IDs → OQ-15.
+- **C-R1c. No post-onboarding sync** *(settled 9/24)*. Once the Coins.ph account is open, no ongoing data sync is needed — the pass-through is one-time.
 - **C-R2. Existing-Coins.ph-user path.** Users who already have a personal Coins.ph account (common in the Philippines) must be a designed first-class path, not an error. Coins.ph dedups on phone + email + name + date of birth and returns the existing `coinsUserId` instead of registering a new user — support flows and data mapping must handle this case explicitly.
-- **C-R3. Consent capture.** Onboarding records the user's consents (data sharing with Coins.ph; product terms). Yield-feature terms are separate and appear only at yield opt-in (C-D11), not during onboarding.
+- **C-R3. Consent capture.** Consent to share data with Coins.ph is explicit and affirmative: it is the C-D18 review-and-edit screen, completed before any data leaves Zed. Product terms are recorded alongside. Yield-feature terms are separate and appear only at yield opt-in (C-D11), not during onboarding.
 
 ### Part 2 — Account interface & money movement
 
@@ -191,10 +196,15 @@ Grouped by the three build parts (§1.2), plus cross-cutting launch gates. Each 
   - Any discrepancy between a displayed balance and Coins.ph-side records is a paged break.
   - Design: `research/php-ledger-design.md` (v0.1, Shadow Ledger Redux conventions).
 - **C-R8. Webhook integrity.** All webhooks are signature-verified and idempotent (the HMAC scheme is documented for create-customer; the rest → OQ-6).
+- **C-R17. Card-account-state independence** *(added 9/24)*. The Dollar Wallet works independently of the user's card-account state:
+  - delinquent cardholder with a USDC balance: Zed cannot touch the stablecoin (it is not custodied by Zed) — the card tab locks and statements continue, while the stablecoin tab stays accessible;
+  - closed card account: today closure blocks app login entirely — the build must preserve stablecoin access after card closure (candidate: the tab returns to an empty/marketing state; Robinhood precedent). Open design item;
+  - forced offboarding (Zed-initiated exit for delinquent/closed accounts): whether Coins.ph supports it, and the app experience if not → OQ-16;
+  - statements/documents: per-product documents section vs. a unified documents area (Marcus/Vanguard model) — no decision yet.
 
 ### Part 3 — Yield / vault (custody)
 
-**The flow to build:** a separate, opt-in surface. The user opts into yield under its own terms (C-D11, C-R3), deposits USDC from their wallet into the curated vault by signing the transaction themselves, watches the position (variable rate, current value), and withdraws anytime by signing again — subject to market liquidity. Zed's fee share accrues to a Zed admin wallet, never through user funds.
+**The flow to build:** a separate, opt-in surface — kept opt-in for the pilot to observe uptake (auto-enrolling all USDC holders, savings-like, was noted 9/24 as a future option only). The user opts into yield under its own terms (C-D11, C-R3), deposits USDC from their wallet into the curated vault by signing the transaction themselves, watches the position (variable rate, current value), and withdraws anytime by signing again — subject to market liquidity. Zed's fee share accrues to a Zed admin wallet, never through user funds.
 
 - **C-R9. User-signed everything; no Zed keys.** No Zed signer or key material on user wallets; every outbound transaction (vault deposit, withdrawal, send) is signed by the user (configuration to verify per C-PR-1/2 + sandbox).
 - **C-R10. No pooling.** Vault operations happen only via the user's own authorized Earn wallet actions; the position (ERC-4626 vault shares) sits in the user's wallet. No Zed omnibus position.
@@ -216,7 +226,7 @@ This section is the live "where are we" view for everyone building the product. 
 
 ### 6.1 Open product decisions
 
-C-D7 platform/surface (§3.4 — design+eng session) · C-D9 naming · C-D10 KYC mode (blocked on OQ-1) · C-D12 vault venue · C-D13 fee share · C-D15 pilot scope · C-D16 chain (blocked on OQ-2) · C-D17 stale-balance policy (HELD). Detail in §§3.3–3.4; ledger design questions D-L1–D-L4 in the ledger design doc.
+C-D9 naming · C-D10 KYC mode (blocked on OQ-1) · C-D12 vault venue · C-D13 fee share · C-D15 pilot scope · C-D16 chain (blocked on OQ-2) · C-D17 stale-balance policy (HELD). Detail in §§3.3–3.4; ledger design questions D-L1–D-L4 in the ledger design doc.
 
 ### 6.2 Coins.ph confirmations (canonical here; detail in the integration doc)
 
@@ -236,6 +246,8 @@ C-D7 platform/surface (§3.4 — design+eng session) · C-D9 naming · C-D10 KYC
 | OQ-12 | Recon supports: aggregate balance API/statements; coinsUserId-level attribution; **written custody confirmation** | C-R7a, C-R4b | Open |
 | OQ-13 | Fiat-out for unconverted PHP: refund-to-source and/or user withdrawal via API | C-D17, C-R6 | Open (rails exist; API access undocumented) |
 | OQ-14 | Cash-in webhook fires on cleared funds only; post-webhook recall behavior per rail | Ledger D-L2, adjustment path | Open (thread-consistent; confirming) |
+| OQ-15 | Expired IDs at create-customer: is expiry validated; rejection behavior; accepted remediation | C-R1b, onboarding UX | Open (raised 9/24) |
+| OQ-16 | Forced offboarding: can the merchant force-close a customer; process + disposition of unconverted PHP | C-R17 | Open (raised 9/24) |
 
 ### 6.3 Privy confirmations (canonical status: shared counterparty tracker)
 
@@ -247,7 +259,7 @@ C-D7 platform/surface (§3.4 — design+eng session) · C-D9 naming · C-D10 KYC
 | C-Q4 residual — Earn deposits/withdrawals user-signed under our config | Docs-level answered; sandbox verification pending (App ID live) | Pilot-blocking |
 | **C-Q6 — Philippine eligibility for Privy Earn** | **Open — the threshold item; ask in writing** | Launch-blocking |
 | Vault fee-share + admin-wallet quorum setup | Mechanics known from docs; configure at C-D12/C-D13 decision | Build item |
-| SDK maturity per surface (signing/passkey UX in webview vs. RN vs. native) | Gathering — input to §3.4 | Session prep |
+| SDK maturity per surface (signing/passkey UX in webview vs. RN vs. native) | Surface settled 9/24 (web-in-tab); still informs the React Native/Flutter fallback call | POC input |
 
 ### 6.4 Counsel items
 
@@ -260,10 +272,13 @@ C-D7 platform/surface (§3.4 — design+eng session) · C-D9 naming · C-D10 KYC
 
 ### 6.5 Next steps
 
-1. Resolve remaining decisions C-D7 (§3.4 session with design + engineering), C-D9/C-D10/C-D12/C-D13/C-D15/C-D16/C-D17; the Andy design follow-up covers the UX-blocking subset.
-2. Send OQ-1..14 to Coins.ph technical contacts.
-3. Sandbox: create-customer + VA creation in the Coins.ph test environment; Earn deposit signing in the Privy sandbox.
-4. Privy in writing: PH eligibility for Earn (C-Q6). Counsel: TMMF/SRC §8 before yield-flow design. Collect the Wise deposit-flow screenshots (two-step "I've sent funds" UX reference).
+1. Resolve remaining decisions C-D9/C-D10/C-D12/C-D13/C-D15/C-D16/C-D17; the Andy design follow-up covers the UX-blocking subset.
+2. Mobile-web POC (C-D7 validation): Andy builds it — 1–2 hours, existing UI components + form fields (form feel is the key test); Brandon or John loads it in a dev build of the app.
+3. Andy: spec the homepage notification-system component — universally useful and needed before stablecoin launch (extract from Agentic Purchasing as a standalone chunk).
+4. Investigate the forced-offboarding path for delinquent/closed accounts (OQ-16) and design the closed-account app experience (C-R17).
+5. Send OQ-1..16 to Coins.ph technical contacts.
+6. Sandbox: create-customer + VA creation in the Coins.ph test environment; Earn deposit signing in the Privy sandbox.
+7. Privy in writing: PH eligibility for Earn (C-Q6). Counsel: TMMF/SRC §8 before yield-flow design. Collect the Wise deposit-flow screenshots (two-step "I've sent funds" UX reference).
 
 ## 7. Document map (the build-reference set for Design / Eng / everyone)
 
