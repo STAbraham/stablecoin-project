@@ -27,8 +27,60 @@ def _insert_in_tblPr(tblPr, el):
         tblPr.append(el)
 
 
+TEXT_WIDTH_DXA = 9360  # 6.5in usable width on letter with 1in margins
+
+
+def _set_column_widths(tbl):
+    # full text width, columns proportional to their longest content
+    grid = tbl._tbl.tblGrid
+    cols = grid.findall(qn('w:gridCol'))
+    ncols = len(cols)
+    if ncols == 0:
+        return
+    maxlen = [1] * ncols
+    for row in tbl.rows:
+        for i, cell in enumerate(row.cells[:ncols]):
+            maxlen[i] = max(maxlen[i], min(len(cell.text), 70))
+    weights = [14 + m for m in maxlen]
+    total = sum(weights)
+    widths = [max(720, int(TEXT_WIDTH_DXA * w / total)) for w in weights]  # floor 0.5in
+    scale = TEXT_WIDTH_DXA / sum(widths)
+    widths = [int(w * scale) for w in widths]
+    for col, w in zip(cols, widths):
+        col.set(qn('w:w'), str(w))
+    for row in tbl.rows:
+        trPr = row._tr.get_or_add_trPr()
+        if trPr.find(qn('w:cantSplit')) is None:
+            trPr.append(OxmlElement('w:cantSplit'))
+        for i, cell in enumerate(row.cells[:ncols]):
+            tcPr = cell._tc.get_or_add_tcPr()
+            tcW = tcPr.find(qn('w:tcW'))
+            if tcW is None:
+                tcW = OxmlElement('w:tcW')
+                tcPr.insert(0, tcW)
+            tcW.set(qn('w:w'), str(widths[i]))
+            tcW.set(qn('w:type'), 'dxa')
+    tblPr = tbl._tbl.tblPr
+    tblW = tblPr.find(qn('w:tblW'))
+    if tblW is None:
+        tblW = OxmlElement('w:tblW')
+        style = tblPr.find(qn('w:tblStyle'))
+        if style is not None:
+            style.addnext(tblW)
+        else:
+            tblPr.insert(0, tblW)
+    tblW.set(qn('w:w'), str(TEXT_WIDTH_DXA))
+    tblW.set(qn('w:type'), 'dxa')
+    layout = tblPr.find(qn('w:tblLayout'))
+    if layout is None:
+        layout = OxmlElement('w:tblLayout')
+        _insert_in_tblPr(tblPr, layout)
+    layout.set(qn('w:type'), 'fixed')
+
+
 def polish(doc):
     for tbl in doc.tables:
+        _set_column_widths(tbl)
         tblPr = tbl._tbl.tblPr
         borders = OxmlElement('w:tblBorders')
         for e in ('w:top', 'w:left', 'w:bottom', 'w:right', 'w:insideH', 'w:insideV'):
