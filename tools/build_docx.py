@@ -68,4 +68,9 @@ for src, name, title, pngs in docs:
     if r.returncode != 0:
         print(name, 'PANDOC ERROR:', r.stderr[:300])
     else:
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from docx import Document
+        from polish_docx import polish
+        polish(Document(outp)).save(outp)
         print(f'{title}.docx', os.path.getsize(outp))

@@ -33,6 +33,12 @@ def set_font(name, family, size, bold=None, italic=None, color=None):
     if color is not None: f.color.rgb = color
     strip_theme_fonts(st)
 
+from docx.enum.style import WD_STYLE_TYPE as _WST
+if 'Source Code' not in [st.name for st in d.styles]:
+    sc = d.styles.add_style('Source Code', _WST.PARAGRAPH)
+    sc.base_style = d.styles['Normal']
+    sc.paragraph_format.space_after = Pt(0)
+
 set_font('Normal',       'Arial', 11)
 set_font('Title',        'Arial', 24, bold=True,  color=NAVY)
 set_font('Subtitle',     'Arial', 13, bold=False, color=RGBColor(0x44,0x44,0x44))
@@ -49,6 +55,11 @@ for nm, before, after in [('Heading 1', 18, 6), ('Heading 2', 14, 4), ('Heading 
     pf = d.styles[nm].paragraph_format
     pf.space_before = Pt(before)
     pf.space_after = Pt(after)
+
+# airier body text
+npf = d.styles['Normal'].paragraph_format
+npf.line_spacing = 1.15
+npf.space_after = Pt(7)
 
 d.save(REF)
 print("wrote", REF, os.path.getsize(REF))
