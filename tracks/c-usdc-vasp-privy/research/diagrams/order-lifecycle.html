@@ -2,9 +2,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
 <style>body{background:#fff;margin:0;padding:16px;font-family:-apple-system,Helvetica,Arial}</style>
 </head><body><pre class="mermaid">stateDiagram-v2
-    [*] --> Pending: user accepts quote — funds earmarked (pending JEs)
-    Pending --> Posted: USDC delivered (tx hash) — pending JEs discarded, posted JEs written
-    Pending --> Cancelled: order fails — no net effect, PHP stays unconverted; ops alerted
+    [*] --> Pending: user accepts quote —<br/>funds earmarked (pending JEs)
+    Pending --> Posted: USDC delivered (tx hash) —<br/>pending JEs discarded, posted JEs written
+    Pending --> Cancelled: order fails — no net effect,<br/>PHP stays unconverted (ops alerted)
     Posted --> [*]
     Cancelled --> [*]
 </pre>

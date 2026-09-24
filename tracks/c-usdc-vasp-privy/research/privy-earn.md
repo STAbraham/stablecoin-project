@@ -15,11 +15,11 @@ Vault positions are **ERC-4626 shares held as standard ERC-20 tokens in the user
 Source: overview page.
 
 ```mermaid
-flowchart LR
+flowchart TD
   W["User's Privy wallet<br/>(USDC)"] -->|"user-signed deposit<br/>(Earn wallet action)"| V["Morpho Prime USDC vault<br/>ERC-4626 shares held in the user's own wallet"]
   V -->|"user-signed withdraw, anytime<br/>(subject to market liquidity)"| W
   V -. "yield accrues via share-price<br/>appreciation — no claiming" .-> V
-  V -. "Zed fee share (up to 50% of yield)" .-> A["Zed admin wallet<br/>(key-quorum, dual control)"]
+  V -. "Zed fee share<br/>(up to 50% of yield)" .-> A["Zed admin wallet<br/>(key-quorum, dual control)"]
 ```
 <!-- earn-flow-diagram -->
 

@@ -1,11 +1,11 @@
 <!DOCTYPE html><html><head><meta charset="utf-8">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
 <style>body{background:#fff;margin:0;padding:16px;font-family:-apple-system,Helvetica,Arial}</style>
-</head><body><pre class="mermaid">flowchart LR
+</head><body><pre class="mermaid">flowchart TD
   W["User's Privy wallet<br/>(USDC)"] -->|"user-signed deposit<br/>(Earn wallet action)"| V["Morpho Prime USDC vault<br/>ERC-4626 shares held in the user's own wallet"]
   V -->|"user-signed withdraw, anytime<br/>(subject to market liquidity)"| W
   V -. "yield accrues via share-price<br/>appreciation — no claiming" .-> V
-  V -. "Zed fee share (up to 50% of yield)" .-> A["Zed admin wallet<br/>(key-quorum, dual control)"]
+  V -. "Zed fee share<br/>(up to 50% of yield)" .-> A["Zed admin wallet<br/>(key-quorum, dual control)"]
 </pre>
 <script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{useMaxWidth:false}, sequence:{useMaxWidth:false}, state:{useMaxWidth:false}});</script>
 </body></html>

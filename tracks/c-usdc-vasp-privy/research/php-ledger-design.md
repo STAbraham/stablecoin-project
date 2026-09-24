@@ -21,7 +21,7 @@ Compared to the card ledger: **one currency** (PHP centavos — USDC is never le
 **Invariant I3 (external):** `coins_master_php.posted_balance == Coins-side aggregate` (recon anchor → OQ-12); per-user balances == Coins `coinsUserId` attribution if OQ-12(b) confirms it exists.
 
 ```mermaid
-flowchart TB
+flowchart LR
   subgraph EVENTS["Events (originators)"]
     CI["Cash-in webhook<br/>posts directly to Posted"]
     CV["Conversion order<br/>Pending to Posted / Cancelled"]
@@ -37,8 +37,6 @@ flowchart TB
   CV -->|"Cr"| MA
   RF -->|"Dr"| UP
   RF -->|"Cr"| MA
-  INV(["Invariant I1: coins_master_php = sum of customer_php_unconverted"])
-  ACCOUNTS -.- INV
 ```
 
 ❖ **No clearing/in-flight accounts.** In-flight visibility comes from `status = Pending` transactions on a `group_id`, exactly like a card auth. Alternative considered: explicit `conversion_in_flight` clearing accounts — rejected for v0.1 (adds accounts without adding information; revisit if ops wants in-flight as a balance-sheet line). **← Steve to confirm.**
@@ -86,9 +84,9 @@ On order failure: discard transaction_2, insert status **Cancelled** transaction
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Pending: user accepts quote — funds earmarked (pending JEs)
-    Pending --> Posted: USDC delivered (tx hash) — pending JEs discarded, posted JEs written
-    Pending --> Cancelled: order fails — no net effect, PHP stays unconverted; ops alerted
+    [*] --> Pending: user accepts quote —<br/>funds earmarked (pending JEs)
+    Pending --> Posted: USDC delivered (tx hash) —<br/>pending JEs discarded, posted JEs written
+    Pending --> Cancelled: order fails — no net effect,<br/>PHP stays unconverted (ops alerted)
     Posted --> [*]
     Cancelled --> [*]
 ```

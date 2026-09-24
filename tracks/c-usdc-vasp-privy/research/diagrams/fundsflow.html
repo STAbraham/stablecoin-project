@@ -1,24 +1,25 @@
 <!DOCTYPE html><html><head><meta charset="utf-8">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
 <style>body{background:#fff;margin:0;padding:16px;font-family:-apple-system,Helvetica,Arial}</style>
-</head><body><pre class="mermaid">flowchart LR
-  subgraph User
-    U["User's PH bank /<br/>GCash / Maya"]
-    W["User's Privy wallet<br/>(USDC, self-custodied)"]
-    V["Privy Earn vault position<br/>(opt-in, user-signed)"]
-  end
-  subgraph CoinsPH["Coins.ph (BSP-licensed VASP)"]
-    VA["Per-user virtual account<br/>(collection number)"]
-    MA["Zed master account<br/>(deposits tagged per customer)"]
-    X["Exchange order<br/>(getQuote / acceptQuote)"]
-  end
-  U -->|"1 PHP transfer (InstaPay preferred)"| VA --> MA
+</head><body><pre class="mermaid">flowchart TD
+  U["User's PH bank /<br/>GCash / Maya"]
+  VA["Per-user virtual account<br/>at Coins.ph (collection number)"]
+  MA["Zed master account at Coins.ph<br/>(deposits tagged per customer)"]
+  X["Coins.ph exchange order<br/>(getQuote / acceptQuote)"]
+  W["User's Privy wallet<br/>(USDC, self-custodied)"]
+  V["Privy Earn vault position<br/>(opt-in, user-signed)"]
+  U -->|"1 PHP transfer<br/>(InstaPay preferred)"| VA
+  VA --> MA
   MA -->|"2 user initiates conversion<br/>(FX rate shown; fiat already cleared)"| X
-  X -->|"3 USDC delivered directly on-chain"| W
-  W -->|"4 opt-in, user-signed deposit"| V
-  V -->|"5 user-signed withdraw"| W
+  X -->|"3 USDC delivered<br/>directly on-chain"| W
+  W -->|"4 opt-in, user-signed<br/>deposit"| V
+  V -->|"5 user-signed<br/>withdraw"| W
   W -->|"6 off-ramp: USDC to Coins.ph<br/>(on-chain confirm first)"| X
-  X -->|"7 PHP out via InstaPay/PESONet"| U
+  X -->|"7 PHP out via<br/>InstaPay/PESONet"| U
+  classDef coins fill:#eef3fa,stroke:#4a6fa5
+  classDef user fill:#f2efe9,stroke:#a08c5b
+  class VA,MA,X coins
+  class U,W,V user
 </pre>
 <script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{useMaxWidth:false}, sequence:{useMaxWidth:false}, state:{useMaxWidth:false}});</script>
 </body></html>

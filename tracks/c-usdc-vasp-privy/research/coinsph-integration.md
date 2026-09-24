@@ -44,18 +44,18 @@ sequenceDiagram
     participant C as Coins.ph
     participant B as Base (on-chain)
     note over U,C: One-time provisioning (C-R1)
-    Z->>C: create-customer V2 (Persona data + device context)
+    Z->>C: create-customer V2<br/>(Persona data +<br/>device context)
     C->>U: H5 verification page (MPIN)
-    C-->>Z: KYC webhook: Approved, coinsUserId
+    C-->>Z: KYC webhook:<br/>Approved, coinsUserId
     Z->>C: virtual-account/create
     note over U,B: Every deposit — two-step flow (C-D14)
-    U->>C: PHP to virtual account (InstaPay preferred)
-    C-->>Z: cash-in webhook (cleared funds)
-    Z->>U: show unconverted PHP balance
-    U->>Z: initiate conversion (FX rate shown now)
-    Z->>C: getQuote / acceptQuote (destination = user's Privy address)
-    C->>B: convert & send USDC (one bundled order)
-    C-->>Z: order status webhook (tx hash)
+    U->>C: PHP to virtual account<br/>(InstaPay preferred)
+    C-->>Z: cash-in webhook<br/>(cleared funds)
+    Z->>U: show unconverted<br/>PHP balance
+    U->>Z: initiate conversion<br/>(FX rate shown now)
+    Z->>C: getQuote / acceptQuote<br/>(destination = user's<br/>Privy address)
+    C->>B: convert & send USDC<br/>on-chain (one<br/>bundled order)
+    C-->>Z: order status webhook<br/>(tx hash)
     Z->>U: USDC in wallet
 ```
 1. One-time: `merchantCreateUser` (Persona data) → webhook → `coinsUserId`; `virtual-account/create` → user's collection number.

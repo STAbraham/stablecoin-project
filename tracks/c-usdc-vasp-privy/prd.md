@@ -26,24 +26,25 @@ Priority order (design intro, 9/23): **#1 must-have · #2 stretch · #3 out of p
 ## 2. The funds flow (settled shape)
 
 ```mermaid
-flowchart LR
-  subgraph User
-    U["User's PH bank /<br/>GCash / Maya"]
-    W["User's Privy wallet<br/>(USDC, self-custodied)"]
-    V["Privy Earn vault position<br/>(user-signed deposits)"]
-  end
-  subgraph CoinsPH["Coins.ph (BSP-licensed VASP)"]
-    VA["Per-user virtual account<br/>(collection number)"]
-    MA["Zed master account<br/>(deposits tagged per customer)"]
-    X["Exchange order<br/>(getQuote / acceptQuote)"]
-  end
-  U -->|"1 PHP transfer (InstaPay preferred)"| VA --> MA
-  MA -->|"2 user initiates conversion; FX rate shown; fiat already cleared"| X
-  X -->|"3 USDC delivered directly on-chain"| W
-  W -->|"4 opt-in, user-signed deposit"| V
-  V -->|"5 user-signed withdraw"| W
-  W -->|"6 off-ramp: USDC to Coins.ph, on-chain confirm first"| X
-  X -->|"7 PHP out via InstaPay/PESONet"| U
+flowchart TD
+  U["User's PH bank /<br/>GCash / Maya"]
+  VA["Per-user virtual account<br/>at Coins.ph (collection number)"]
+  MA["Zed master account at Coins.ph<br/>(deposits tagged per customer)"]
+  X["Coins.ph exchange order<br/>(getQuote / acceptQuote)"]
+  W["User's Privy wallet<br/>(USDC, self-custodied)"]
+  V["Privy Earn vault position<br/>(opt-in, user-signed)"]
+  U -->|"1 PHP transfer<br/>(InstaPay preferred)"| VA
+  VA --> MA
+  MA -->|"2 user initiates conversion<br/>(FX rate shown; fiat already cleared)"| X
+  X -->|"3 USDC delivered<br/>directly on-chain"| W
+  W -->|"4 opt-in, user-signed<br/>deposit"| V
+  V -->|"5 user-signed<br/>withdraw"| W
+  W -->|"6 off-ramp: USDC to Coins.ph<br/>(on-chain confirm first)"| X
+  X -->|"7 PHP out via<br/>InstaPay/PESONet"| U
+  classDef coins fill:#eef3fa,stroke:#4a6fa5
+  classDef user fill:#f2efe9,stroke:#a08c5b
+  class VA,MA,X coins
+  class U,W,V user
 ```
 
 Key structural facts (source: [the Coins.ph Slack thread, 9/14–16](https://zedfinancial.slack.com/archives/C09HS2FTGTG/p1789436387222499) + their Create-Customer V2 spec; per-fact attribution in `research/coinsph-integration.md`):

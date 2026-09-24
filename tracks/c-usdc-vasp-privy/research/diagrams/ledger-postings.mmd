@@ -1,4 +1,4 @@
-flowchart TB
+flowchart LR
   subgraph EVENTS["Events (originators)"]
     CI["Cash-in webhook<br/>posts directly to Posted"]
     CV["Conversion order<br/>Pending to Posted / Cancelled"]
@@ -14,5 +14,3 @@ flowchart TB
   CV -->|"Cr"| MA
   RF -->|"Dr"| UP
   RF -->|"Cr"| MA
-  INV(["Invariant I1: coins_master_php = sum of customer_php_unconverted"])
-  ACCOUNTS -.- INV
