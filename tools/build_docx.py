@@ -39,7 +39,7 @@ def scrubs_for(name):
     return common
 
 docs = [
- ('tracks/c-usdc-vasp-privy/prd.md', 'prd', 'USDC Dollar Wallet — PRD (v0.2)', [DGDIR+'fundsflow.png']),
+ ('tracks/c-usdc-vasp-privy/prd.md', 'prd', 'USDC Dollar Wallet — PRD', [DGDIR+'fundsflow.png']),
  ('tracks/c-usdc-vasp-privy/research/coinsph-integration.md', 'coinsph', 'Coins.ph Integration — Technical Doc', [DGDIR+'onramp-seq.png']),
  ('tracks/c-usdc-vasp-privy/research/php-ledger-design.md', 'ledger', 'PHP Ledger Design (Unconverted Balances)', [DGDIR+'ledger-postings.png', DGDIR+'order-lifecycle.png']),
  ('tracks/c-usdc-vasp-privy/research/privy-earn.md', 'privyearn', 'Privy Earn — How It Works', [DGDIR+'earn-flow.png']),
