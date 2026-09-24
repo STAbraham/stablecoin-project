@@ -1,9 +1,10 @@
 # Zed USDC Dollar Wallet — Product Requirements Document
 
-**Status:** Draft v0.3 (2026-09-24) — settled facts only; decisions marked `OPEN` are for joint resolution (none silently assumed). Written as a **standalone product proposal** (no cross-track framing, per Steve 9/23).
+**Status:** Draft v0.4 (2026-09-24) — settled facts only; decisions marked `OPEN` are for joint resolution (none silently assumed). Written as a **standalone product proposal** (no cross-track framing, per Steve 9/23).
 **Surfaces:** working copy = collaborative Claude Doc (claude.ai/code/artifact/0bd0af8e-52f1-4d22-9d88-4251da290eac); team copies = Word files in Drive under Shared drives/Product/USDC Accounts (refreshed on meaningful revisions); this repo file mirrors the working copy at checkpoints. Team copies carry no internal-workflow language.
 **IDs:** product decisions `C-D*`, requirements `C-R*`; research questions (C-Q*) and Coins.ph technical questions (OQ-*) tracked separately.
 
+**Changelog v0.4 (2026-09-24):** §5 rewritten as functional requirements (Steve feedback, 9/24): each part now states the flow to build first, then requirements as capability statements with implementation detail nested beneath; added the create-customer data-source table (what is generated vs. pulled from the backend vs. captured live vs. net-new) and the request/response shape summary to C-R1a. No requirement IDs or substance changed.
 **Changelog v0.3 (2026-09-24):** the three-part build decomposition (KYC/onboarding · account interface · yield/vault) made front and center for design and engineering: new §1.2, and the §5 requirement groups relabeled to the same part names (Steve, 9/24).
 **Changelog v0.2 (2026-09-23):** design-intro call (Granola notes → SOURCES.md) settled **C-D11 (yield = opt-in)** and **C-D14 (two-step deposit flow, FX rate shown at conversion)**; set the product priority ladder (USD acquisition must-have · yield stretch · QR payments out of pilot); InstaPay-first rail preference; TMMFs elevated to the design team's preferred yield alternative pending the SRC §8 question (now design-blocking); positioning principles added; standalone-ized (all cross-track references removed). New follow-ups: Wise deposit-flow reference screenshots; Andy design session; OQ-10.
 **Changelog v0.1 (2026-09-23):** initial draft from the Coins.ph integration thread + Create-Customer V2 spec, the Privy Earn research, the onchain-lending analysis, and Steve's direction (Coins.ph onramp → self-custodied Privy wallet → Privy vault yield; TMMFs exploratory given SRC §8).
@@ -132,35 +133,82 @@ Held open, not in MVP scope — **and elevated at the 9/23 design intro: the des
 
 ## 5. Requirements
 
-Grouped by the three build parts (§1.2), plus cross-cutting gates that span all three.
+Grouped by the three build parts (§1.2), plus cross-cutting launch gates. Each requirement states the functionality we must support first, with implementation detail nested beneath it. IDs are stable and referenced across the doc set (C-R4a/4b/7a keep their historical numbers, so numbering is not strictly sequential).
 
-**Part 1 — KYC & onboarding (provisioning)**
-- C-R1. Onboarding creates: Privy wallet (user-sole-owner config), Coins.ph user via create-customer V2 (Persona data + live-captured device context: IP/source/user-agent), per-user VA — one session where possible. The Coins H5 verification page is a designed in-app step with defined handling for MPIN timeout ("Failed") and abandonment ("Cancelled"). All five KYC webhook statuses map to product states; Rejected/Failed alert ops with a user-facing "in review" state.
-- C-R1a *(backend-verified 9/23)*. Field mapping from existing Zed data: `employment_type` enum (needs mapping table to Coins' EmploymentStatusEnum); `source_of_funds`, `industry`, `employer`→companyName, `job_function`→jobTitle, `citizenship`→nationality, `place_of_birth`→countryOfBirth (**verify format: country, not city**) — all in `user_profile_changelog`. Device context captured live from the requesting session. Net-new: `purposeOfAccount` (likely programmatic constant — confirm), enum mapping tables (OQ-9), AMLC-cert path for covered_service (rare — possible pilot exclusion).
-- C-R2. Coins.ph dedup (existing `coinsUserId` on phone+email+name+DOB match) is a first-class path.
-- C-R3. Consents recorded; yield-feature terms separate (C-D11 = opt-in).
+### Part 1 — KYC & onboarding
 
-**Part 2 — Account interface & money movement**
-- C-R4. Every on-ramp records: PHP in (cash-in webhook), order/quote refs, applied rate, USDC delivered, destination address, tx hash — reconcilable end to end.
-- C-R4a *(new v0.2)*. The two-step flow introduces a **user-visible PHP-pending state** (funds received, awaiting user-initiated conversion): displayed clearly, with the FX rate shown at conversion time and nudges for stale un-converted balances (policy → OQ-10).
-- C-R7a *(added 9/23 — consequence of C-D14 + no per-user balance API)*. **The PHP subledger is a first-class subsystem — an operational mirror, not the account of record (position: Coins.ph holds these customer funds; C-R4b):** every user-visible unconverted-PHP balance derives solely from Zed's ledger — credits from tagged cash-in webhooks, debits from conversion orders and refunds. Reconciliation anchors: Coins.ph order/transaction records and the master-account aggregate (balance/statement API availability → OQ-12). Any discrepancy between a displayed pending balance and Coins-side records is a paged break. Design: `research/php-ledger-design.md` (v0.1, follows the Shadow Ledger Redux conventions).
-- C-R4b *(position discipline — Steve, 9/23)*. **Unconverted PHP is customer money held at Coins.ph under its VASP authority; Zed is the interface to it.** Facts the product must preserve to sustain that position: (a) the user is a genuine Coins.ph customer (`coinsUserId`, Coins' own screening; the H5/MPIN step affirmatively evidences the direct relationship); (b) deposits are attributed per customer by Coins' own tagging at entry; (c) disposition happens only on the user's instruction — conversion or refund — never a Zed-initiated sweep, netting, or redirection; (d) refunds return to the funding source, never to Zed; (e) no Zed corporate funds transit the customer master account; (f) UI language presents unconverted PHP as funds "held with Coins.ph awaiting your conversion," never as a Zed balance. Coins.ph written confirmation of this custody position → OQ-12.
-- C-R5. Per-operation state machines; terminal states only completed/refunded/failed-with-ops-resolution.
-- C-R6. Unmatched/failed/stuck orders alert ops; refund-to-source default (confirm path — OQ-3).
-- C-R7. Double-entry ledger over Zed-controlled funds at the Coins.ph layer; user balances NOT ledger liabilities — on-chain is source of truth. Daily recon: ledger vs. Coins.ph orders vs. on-chain deliveries vs. Privy data.
-- C-R8. Webhooks verified/idempotent (HMAC known for create-customer; rest → OQ-6).
+**The flow to build:** an existing Zed user activates the Dollar Wallet and, in one session: (1) Zed creates their Coins.ph customer record from data we already hold — the user re-enters nothing; (2) the user completes Coins.ph's verification page (sets a mobile PIN); (3) on approval, Zed creates their per-user virtual account (their deposit destination) and their self-custodied Privy wallet. The user lands on a ready-to-deposit account.
 
-**Part 3 — Yield / vault (custody)**
-- C-R9. No Zed signer/key on user wallets; all outbound transactions user-signed (verify config per C-PR-1/2 + sandbox).
-- C-R10. Vault ops only via user-authorized Earn wallet actions; no pooling, no Zed omnibus position.
-- C-R11. Zed's Earn fee share → dedicated Zed admin wallet under Privy key-quorum manual approvals (dual control in-platform).
-- C-R12. Yield display: variable, never "interest"/guaranteed APY; loss-possible + withdrawal-timing disclosures; comparative framing per positioning principles (never yield-in-isolation).
+- **C-R1. One-session provisioning.** The app takes a user from "activate" to "ready to deposit" in a single session where possible, orchestrating three creations in order:
+  - the Coins.ph customer — one `create-customer` V2 call (data assembly: C-R1a), returning the `coinsUserId` and the verification-page URL;
+  - the verification step — Coins.ph's hosted "H5" page where the user sets a mobile PIN (MPIN), presented as a designed in-app step (webview embedding, duration, pre-fill → OQ-1), with explicit UX for its failure outcomes: MPIN not set within 10 minutes (webhook status "Failed") and user backs out ("Cancelled");
+  - on the Approved webhook: the per-user virtual account (`virtual-account/create`) and the Privy wallet (user-sole-owner configuration).
+  - All five KYC webhook statuses (Approved / Rejected / Failed / Cancelled / Pending) map to defined product states. Rejected and Failed alert ops and show the user an "in review" state — never a raw error.
+- **C-R1a. Data assembly for create-customer** *(sources backend-verified 9/23)*. The request is a single multipart POST: a JSON body (fields below) plus image parts — front-of-ID photo and selfie required (≤2 MB each), back-of-ID optional, AMLC (Anti-Money Laundering Council) certificate only for the covered-person employment case. The response returns: status, `coinsUserId`, the required H5 verification-page `redirectUrl`, and a rejection reason if any. Wire-level detail (multipart layout, HMAC signing, headers) lives in the integration doc. Where each request field comes from:
 
-**Cross-cutting — gates before external users**
-- C-R13. Philippine availability of Privy Earn confirmed in writing (C-Q6 — threshold item).
-- C-R14. Counsel: DeFi-yield-to-retail characterization (C-Q12); Coins.ph-partnership legal shape incl. whose order the exchange is (C-Q10/OQ-8); **TMMF/SRC §8 — design-blocking (9/23)**; and validation of Zed's position on unconverted PHP (C-R4b): customer funds held at Coins.ph under its VASP authority, with Zed as interface — counsel to confirm the fact pattern that sustains it and flag anything that would recharacterize it as Zed-administered stored value.
-- C-R15. Vault diligence memo on chosen venue.
-- C-R16. Runbooks: stuck order, Coins.ph outage, Privy outage, vault liquidity crunch, pilot halt with off-ramp priority.
+| Request field(s) | Source | Notes |
+|---|---|---|
+| requestId, customerId, businessScenarios | Zed backend generates | merchant-side order + user identifiers |
+| email, phone | backend — existing account | at least one required |
+| firstName, lastName, dateOfBirth | backend — Persona onboarding | |
+| street, city, state, postalCode, country | backend — Persona onboarding | |
+| nationality | backend — `citizenship` | |
+| countryOfBirth | backend — `place_of_birth` | verify format: country, not city |
+| employmentStatus | backend — `employment_type` | needs a Zed→Coins enum mapping table (their enum → OQ-9). Zed's values: Consultant, EmployeePrivateSector, EmployeeGovernment, BusinessOwner, Freelancer, Student, Unemployed, Retired |
+| industry, companyName, jobTitle | backend — `industry`, `employer`, `job_function` | required when employed |
+| sourceFunds (+ description) | backend — `source_of_funds` | required when unemployed; free-text description when "other" |
+| customerIp, customerSource, customerUserAgent | captured live from the requesting session | never from stored device rows; customerSource = WEB / IOS / ANDROID |
+| frontIdImage, facePhoto (+ MD5 hashes) | Persona verification archive | retrieval path and format to verify |
+| purposeOfAccount | net-new | `legal` \| `crypto` \| `both`; likely a programmatic constant — confirm with Coins.ph (OQ-9) |
+| amlcCertificateImage | net-new, rare | only when employment status is a covered person under the Anti-Money Laundering Act; candidate for pilot exclusion |
+
+  Net: nothing is re-collected from the user. The only potential new user-facing question is the covered-person case — and none at all if that case is excluded from the pilot.
+- **C-R2. Existing-Coins.ph-user path.** Users who already have a personal Coins.ph account (common in the Philippines) must be a designed first-class path, not an error. Coins.ph dedups on phone + email + name + date of birth and returns the existing `coinsUserId` instead of registering a new user — support flows and data mapping must handle this case explicitly.
+- **C-R3. Consent capture.** Onboarding records the user's consents (data sharing with Coins.ph; product terms). Yield-feature terms are separate and appear only at yield opt-in (C-D11), not during onboarding.
+
+### Part 2 — Account interface & money movement
+
+**The flow to build — deposit:** the user sends PHP from their own bank, GCash, or Maya to their personal collection number — an ordinary bank transfer (InstaPay preferred). When it lands, the app shows it as an **unconverted-PHP balance**, presented as funds held with Coins.ph awaiting conversion. **Purchase:** the user initiates the conversion, sees the FX rate for their amount at that moment (`getQuote`), and confirms (`acceptQuote`); Coins.ph converts and delivers USDC directly to the user's wallet as one bundled order — nothing to claim or withdraw. **Off-ramp:** USDC back to Coins.ph, on-chain confirmation first, then PHP out to the user's bank (mechanics thin → OQ-4). Screens this implies: balances (USDC + unconverted PHP), deposit instructions, conversion with rate disclosure, and per-movement activity history.
+
+- **C-R4a. The unconverted-PHP balance state** *(consequence of the two-step flow, C-D14)*. PHP that has landed but not yet been converted is a first-class, user-visible balance state:
+  - displayed clearly, with UI language presenting it as funds "held with Coins.ph awaiting your conversion" — never as a Zed balance (per C-R4b, fact f);
+  - the FX rate is shown at the moment of conversion, never locked earlier;
+  - stale unconverted balances get nudges (auto-refund vs. nudge-only policy is held open → C-D17, OQ-10).
+- **C-R4b. Custody position discipline** *(position set by Steve, 9/23)*. Unconverted PHP is customer money held at Coins.ph under its VASP authority; Zed is the interface to it. The product must preserve the six facts that sustain this position:
+  - (a) the user is a genuine Coins.ph customer — `coinsUserId`, Coins.ph's own screening; the H5/MPIN step affirmatively evidences the direct relationship;
+  - (b) deposits are attributed per customer by Coins.ph's own tagging at entry;
+  - (c) disposition happens only on the user's instruction — conversion or refund; never a Zed-initiated sweep, netting, or redirection;
+  - (d) refunds return to the funding source, never to Zed;
+  - (e) no Zed corporate funds transit the customer master account;
+  - (f) UI language per C-R4a above.
+  - Coins.ph's written confirmation of this custody position → OQ-12; counsel validation → C-R14.
+- **C-R4. End-to-end traceability.** Every on-ramp is reconcilable end to end. Each records: the PHP in (cash-in webhook), quote and order references, the applied rate, the USDC amount delivered, the destination address, and the transaction hash.
+- **C-R5. Explicit state machines.** Every money movement (cash-in, conversion order, refund, off-ramp) runs a per-operation state machine whose only terminal states are completed, refunded, or failed-with-ops-resolution — no silent limbo states.
+- **C-R6. Exception handling.** Unmatched, failed, or stuck orders alert ops. Default remediation is refund to the funding source (Coins.ph path to confirm → OQ-3, OQ-13).
+- **C-R7. Double-entry ledger and daily reconciliation.** Zed keeps a double-entry ledger over the funds at the Coins.ph layer. User USDC balances are **not** ledger liabilities — on-chain is the source of truth. Daily reconciliation: ledger vs. Coins.ph orders vs. on-chain deliveries vs. Privy data.
+- **C-R7a. The PHP subledger is a first-class subsystem.** There is no per-user balance API at Coins.ph, so every user-visible unconverted-PHP balance derives solely from Zed's ledger — credits from tagged cash-in webhooks, debits from conversion orders and refunds. It is an operational mirror, not the account of record (C-R4b).
+  - Reconciliation anchors: Coins.ph order/transaction records and the master-account aggregate (balance/statement API availability → OQ-12).
+  - Any discrepancy between a displayed balance and Coins.ph-side records is a paged break.
+  - Design: `research/php-ledger-design.md` (v0.1, Shadow Ledger Redux conventions).
+- **C-R8. Webhook integrity.** All webhooks are signature-verified and idempotent (the HMAC scheme is documented for create-customer; the rest → OQ-6).
+
+### Part 3 — Yield / vault (custody)
+
+**The flow to build:** a separate, opt-in surface. The user opts into yield under its own terms (C-D11, C-R3), deposits USDC from their wallet into the curated vault by signing the transaction themselves, watches the position (variable rate, current value), and withdraws anytime by signing again — subject to market liquidity. Zed's fee share accrues to a Zed admin wallet, never through user funds.
+
+- **C-R9. User-signed everything; no Zed keys.** No Zed signer or key material on user wallets; every outbound transaction (vault deposit, withdrawal, send) is signed by the user (configuration to verify per C-PR-1/2 + sandbox).
+- **C-R10. No pooling.** Vault operations happen only via the user's own authorized Earn wallet actions; the position (ERC-4626 vault shares) sits in the user's wallet. No Zed omnibus position.
+- **C-R11. Fee-share controls.** Zed's yield fee share flows to a dedicated Zed admin wallet under Privy key-quorum manual approvals — dual control enforced in-platform.
+- **C-R12. Honest yield display.** Yield is shown as variable — never "interest," never a guaranteed APY — with loss-possible and withdrawal-timing disclosures, and comparative framing per the §1.1 positioning principles (never yield in isolation).
+
+### Cross-cutting — gates before external users
+
+None of these block the build; all of them block exposure to external users.
+
+- **C-R13.** Philippine availability of Privy Earn confirmed **in writing** (C-Q6 — the threshold item).
+- **C-R14.** Counsel sign-offs: DeFi-yield-to-retail characterization (C-Q12); the legal shape of the Coins.ph partnership, including whose order the exchange is (C-Q10/OQ-8); **TMMF/SRC §8 — design-blocking (9/23)**; and validation of the unconverted-PHP custody position (C-R4b) — confirm the fact pattern that sustains it, and flag anything that would recharacterize it as Zed-administered stored value.
+- **C-R15.** Vault diligence memo on the chosen venue (C-D12).
+- **C-R16.** Ops runbooks: stuck order, Coins.ph outage, Privy outage, vault liquidity crunch, pilot halt with off-ramp priority.
 
 ## 6. Status board — open decisions, counterparty confirmations & next steps
 
