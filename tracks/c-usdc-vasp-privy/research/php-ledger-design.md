@@ -1,6 +1,6 @@
 # PHP Pending-Balance Ledger — design v0.1
 
-**Status:** draft for Steve's review, 2026-09-23. Implements PRD C-R7/C-R7a/C-R4b.
+**Status:** draft, updated 2026-09-30 (explicit journal-entry layouts in §3, from review). Implements PRD C-R7/C-R7a/C-R4b.
 **Lineage:** deliberately follows the conventions of Steve's card-product design ("Shadow Ledger Redux," Notion, fetched 9/23 → SOURCES.md): the `Ledger_Accounts` / `Ledger_Transactions` / `Ledger_Entries` triad, credit/debit-normal accounts, Pending→Posted lifecycle via `group_id` + `discarded_at`, cached balances recomputed under row locks, originator tables 1:1 with ledger transactions. Where this design diverges, the divergence is called out with a ❖.
 
 ## 0. Why this is the simple case
@@ -59,28 +59,68 @@ Amounts in centavos. `cust_u1` = `customer_php_unconverted:user_1`.
 ### Cash-in: user_1 deposits ₱5,000 (webhook = fiat cleared)
 
 Ledger_Transactions
+
 | id | status | transaction_type | group_id | discarded_at | effective_at |
 |---|---|---|---|---|---|
 | 1 | posted | cash_in | group_1 | null | T1 |
 
 Ledger_Entries
+
 | id | ledger_account_id | ledger_transaction_id | direction | amount | currency |
 |---|---|---|---|---|---|
 | 1 | coins_master_php | transaction_1 | debit | 500000 | PHP |
 | 2 | cust_u1 | transaction_1 | credit | 500000 | PHP |
 
-❖ Cash-in posts **directly to Posted** (no pending stage) — **aligned with Steve 9/23**: Coins has no pre-clearing visibility (the cash-in webhook is the first signal, on cleared funds; InstaPay near-instant, batch rails invisible until landing). Post-webhook recalls, if they exist at all, are handled as `adjustment` (per-rail behavior → OQ-14).
+❖ Cash-in posts **directly to Posted** (no pending stage) — Coins has no pre-clearing visibility (the cash-in webhook is the first signal, on cleared funds; InstaPay near-instant, batch rails invisible until landing). Post-webhook recalls, if they exist at all, are handled as `adjustment` (per-rail behavior → OQ-14).
 
 ### Conversion: user_1 converts ₱3,000 → USDC (C-D14 step 2)
 
-On acceptQuote (order accepted, in flight) — status Pending, group_2:
-| id | ledger_account_id | ledger_transaction_id | direction | amount |
-|---|---|---|---|---|
-| 3 | cust_u1 | transaction_2 (pending) | debit | 300000 |
-| 4 | coins_master_php | transaction_2 (pending) | credit | 300000 |
+**On acceptQuote (order accepted, conversion in flight)** — a Pending transaction earmarks the funds:
 
-On order completion webhook (USDC delivered, tx hash recorded on `coins_orders`): discard transaction_2 (`discarded_at = T3`), insert transaction_3 — identical entries, status **Posted**, same group_2.
-On order failure: discard transaction_2, insert status **Cancelled** transaction (no net effect); PHP remains in `cust_u1`; ops alerted (C-R6).
+Ledger_Transactions
+
+| id | status | transaction_type | group_id | discarded_at | effective_at |
+|---|---|---|---|---|---|
+| 2 | pending | conversion | group_2 | null | T2 |
+
+Ledger_Entries
+
+| id | ledger_account_id | ledger_transaction_id | direction | amount | currency |
+|---|---|---|---|---|---|
+| 3 | cust_u1 | transaction_2 | debit | 300000 | PHP |
+| 4 | coins_master_php | transaction_2 | credit | 300000 | PHP |
+
+**On the order-completion webhook (USDC delivered; tx hash recorded on `coins_orders`)** — in one atomic DB transaction (§5), transaction_2 is discarded and its Posted replacement is written on the same `group_id`:
+
+Ledger_Transactions — state after completion
+
+| id | status | transaction_type | group_id | discarded_at | effective_at |
+|---|---|---|---|---|---|
+| 2 | pending | conversion | group_2 | **T3** | T2 |
+| 3 | posted | conversion | group_2 | null | T3 |
+
+Ledger_Entries — new rows written for transaction_3 (rows 3–4 stay attached to the discarded transaction_2 and stop counting toward balances)
+
+| id | ledger_account_id | ledger_transaction_id | direction | amount | currency |
+|---|---|---|---|---|---|
+| 5 | cust_u1 | transaction_3 | debit | 300000 | PHP |
+| 6 | coins_master_php | transaction_3 | credit | 300000 | PHP |
+
+**On order failure (the alternative outcome)** — same replacement mechanics, but the new transaction is written as Cancelled: no effect on any balance at any status level; the ₱3,000 stays in `cust_u1`; ops alerted (C-R6):
+
+Ledger_Transactions — state after failure
+
+| id | status | transaction_type | group_id | discarded_at | effective_at |
+|---|---|---|---|---|---|
+| 2 | pending | conversion | group_2 | **T3** | T2 |
+| 3 | cancelled | conversion | group_2 | null | T3 |
+
+Ledger_Entries
+
+| id | ledger_account_id | ledger_transaction_id | direction | amount | currency |
+|---|---|---|---|---|---|
+| 5 | cust_u1 | transaction_3 | debit | 300000 | PHP |
+| 6 | coins_master_php | transaction_3 | credit | 300000 | PHP |
 
 ```mermaid
 stateDiagram-v2
