@@ -1,6 +1,6 @@
 # PHP Pending-Balance Ledger — design v0.1
 
-**Status:** draft, updated 2026-10-02 (no Pending stage for conversions in the MVP, decided 10/02 — post to Posted on the accept-quote **terminal `SUCCESS`**, refined same day from the public REST docs; **refund-out unified into `cash_out`** (one PHP-out type; `cash_out_type` = refund_to_source / user_withdrawal — Steve, 10/02), which keeps the two-step lifecycle — §§1–5, D-L8/D-L10). Implements PRD C-R7/C-R7a/C-R4b.
+**Status:** draft, updated 2026-10-02 (no Pending stage for conversions in the MVP, decided 10/02 — post to Posted on the accept-quote **terminal `SUCCESS`**, refined same day from the public REST docs; **refund-out unified into `cash_out`** (one PHP-out type; `cash_out_type` = refund_to_source / user_withdrawal — Steve, 10/02), which keeps the two-step lifecycle — §§1–5, D-L8/D-L10; **`unattributed_php` suspense account added and `customer_php_unconverted` renamed `customer_php`** — PHP is by definition unconverted (Steve, 10/02)). Implements PRD C-R7/C-R7a/C-R4b.
 **Lineage:** deliberately follows the conventions of Steve's card-product design ("Shadow Ledger Redux," Notion, fetched 9/23 → SOURCES.md): the `Ledger_Accounts` / `Ledger_Transactions` / `Ledger_Entries` triad, credit/debit-normal accounts, Pending→Posted lifecycle via `group_id` + `discarded_at`, account-level balance state maintained under row locks, an originator table behind every ledger posting. Where this design diverges, the divergence is called out with a ❖.
 
 ## 0. Why this is the simple case
@@ -14,9 +14,10 @@ Compared to the card ledger: **one currency** (PHP centavos — USDC is never le
 | Account | Normal balance | Cardinality | Meaning |
 |---|---|---|---|
 | `coins_master_php` | Debit (asset) | 1 | Aggregate customer PHP sitting in Zed's master account at Coins.ph |
-| `customer_php_unconverted:{user_id}` | Credit (liability) | per user | That user's cleared-but-unconverted PHP held at Coins (the number the app displays). Named to avoid conflation with rail-clearing 'pending' — no pre-clearing deposit state exists (OQ-14) |
+| `customer_php:{user_id}` | Credit (liability) | per user | That user's cleared PHP held at Coins (the number the app displays). PHP is by definition unconverted, so the name needs no qualifier; 'pending' stays banned — no pre-clearing deposit state exists (OQ-14) |
+| `unattributed_php` | Credit (suspense liability) | 1 | PHP physically at Coins.ph that no customer account can be credited for (unknown sender; deposit after a KYC rejection; deposit to a closed account). Target balance zero; non-zero ages and pages ops (C-R6) |
 
-**Invariant I1 (the whole balance sheet):** `coins_master_php.balance == Σ customer_php_unconverted.balance` for both `posted_balance` and `pending_balance` (§4.2).
+**Invariant I1 (the whole balance sheet):** `coins_master_php.balance == Σ customer_php.balance + unattributed_php.balance` for both `posted_balance` and `pending_balance` (§4.2).
 **Invariant I2 (per transaction):** Σ debits == Σ credits, single currency.
 **Invariant I3 (external):** `coins_master_php.posted_balance == Coins-side aggregate` (recon anchor → OQ-12); per-user balances == Coins `coinsUserId` attribution if OQ-12(b) confirms it exists.
 **Invariant I4 (counters match the journal):** each stored counter (§4.1) equals the sum of that account's journal entries in its bucket (§6.1).
@@ -30,17 +31,22 @@ flowchart LR
   end
   subgraph ACCOUNTS["Accounts — mirror of funds held at Coins.ph"]
     MA["coins_master_php<br/>debit-normal (asset)"]
-    UP["customer_php_unconverted per user<br/>credit-normal (liability)"]
+    UP["customer_php per user<br/>credit-normal (liability)"]
+    UA["unattributed_php<br/>credit-normal (suspense, target zero)"]
   end
   CI -->|"Dr"| MA
   CI -->|"Cr"| UP
+  CI -.->|"Cr (unmatched)"| UA
   CV -->|"Dr"| UP
   CV -->|"Cr"| MA
   RF -->|"Dr"| UP
+  RF -.->|"Dr (unattributed refund)"| UA
   RF -->|"Cr"| MA
 ```
 
 ❖ **No clearing/in-flight accounts.** Where in-flight state exists at all (cash-out only — conversions post synchronously, §3), it is carried by `status = Pending` transactions on a `group_id`, exactly like a card auth. Alternative considered: explicit clearing accounts — rejected for v0.1 (adds accounts without adding information; revisit if ops wants in-flight as a balance-sheet line). **← Steve to confirm (D-L1).**
+
+❖ **One suspense account IS kept (added 10/02, Steve):** `unattributed_php` is not a clearing account — it carries information the status field cannot: real money that is at Coins.ph but belongs to no customer account yet. Without it, every unmatched deposit would show as an I3 reconciliation break indistinguishable from a bug; with it, the mirror stays honest and unattributed funds are their own tracked, aging-monitored line (§3, §6).
 
 ## 2. Tables and schemas
 
@@ -61,7 +67,7 @@ erDiagram
 
 | Table | Kind | One row per |
 |---|---|---|
-| `Ledger_Accounts` | Core | Account — one `coins_master_php`, plus one per user |
+| `Ledger_Accounts` | Core | Account — one `coins_master_php`, one `unattributed_php`, plus one per user |
 | `Ledger_Groups` | Core | Lifecycle — one cash-in, order, cash-out, or adjustment |
 | `Ledger_Transactions` | Core | Accounting transaction — one or two per group (§2.4) |
 | `Ledger_Entries` | Core | Debit or credit line — two per transaction |
@@ -79,7 +85,7 @@ Redux's tables, with the changes marked ❖.
 | Field | Type | Description |
 |---|---|---|
 | `id` | UUID, primary key | |
-| `name` | String, unique | `coins_master_php` or `customer_php_unconverted:{user_id}` |
+| `name` | String, unique | `coins_master_php`, `unattributed_php`, or `customer_php:{user_id}` |
 | `normal_balance` | Enum: `debit` / `credit` | Per the chart of accounts (§1) |
 | `posted_debits` | `BIGINT` centavos, ≥ 0 | ❖ Sum of debit entries on active posted transactions (§4.1) |
 | `posted_credits` | `BIGINT` centavos, ≥ 0 | ❖ Sum of credit entries on active posted transactions |
@@ -141,7 +147,7 @@ Columns marked "Coins.ph" come from its webhooks and API responses. Their field 
 | `amount` | `BIGINT` centavos | | Coins.ph |
 | `raw_payload` | JSONB | Full webhook body, including rail and sender details needed for refund-to-source | Coins.ph |
 | `received_at` | Datetime | | Zed |
-| `group_id` | UUID, foreign key → `Ledger_Groups`, unique, nullable | Null only when the deposit cannot be matched to a user — nothing is posted and ops is alerted (C-R6) | Zed |
+| `group_id` | UUID, foreign key → `Ledger_Groups`, unique | Unmatched deposits still post — to `unattributed_php` (§3), so every processable cash-in opens a group; ops paged on any event that cannot post at all | Zed |
 
 **`coins_orders`** — one row per conversion order.
 
@@ -198,7 +204,7 @@ Constraint: at most one `initiated` order per user (partial unique index on `use
 
 | `transaction_type` | Originator row | `Ledger_Transactions` rows on the group | `Ledger_Entries` per transaction |
 |---|---|---|---|
-| `cash_in` | one `coins_cash_in_events` | One: Posted | Dr `coins_master_php` / Cr customer |
+| `cash_in` | one `coins_cash_in_events` | One: Posted | Dr `coins_master_php` / Cr customer — or Cr `unattributed_php` when unmatched (§3) |
 | `conversion` | one `coins_orders` | One: Posted, written on the accept-quote terminal `SUCCESS` (normally inline in the response). A decline or FAILED writes no ledger rows (order row marked `failed`) | Dr customer / Cr `coins_master_php` |
 | `cash_out` | one `coins_cash_outs` | Two: Pending at initiation, then Posted (confirmed) or Cancelled (failed); the Pending row gets `discarded_at` | Dr customer / Cr `coins_master_php` |
 | `adjustment` | one `ledger_adjustments` | One: Posted | Compensating entries, per case |
@@ -215,7 +221,7 @@ Counters live on the account row because the ledger is single-currency. In a sha
 
 ## 3. Posting rules (worked in the Redux illustration style)
 
-Amounts in centavos. `cust_u1` = `customer_php_unconverted:user_1`.
+Amounts in centavos. `cust_u1` = `customer_php:user_1`.
 
 ### Cash-in: user_1 deposits ₱5,000 (webhook = fiat cleared)
 
@@ -233,6 +239,24 @@ Ledger_Entries
 | 2 | cust_u1 | transaction_1 | credit | 500000 | PHP |
 
 ❖ Cash-in posts **directly to Posted** (no pending stage) — Coins has no pre-clearing visibility (the cash-in webhook is the first signal, on cleared funds; InstaPay near-instant, batch rails invisible until landing). Post-webhook recalls, if they exist at all, are handled as `adjustment` (per-rail behavior → OQ-14).
+
+### Cash-in, unmatched: ₱1,500 arrives with no customer account to credit
+
+(unknown sender; deposit after a KYC rejection; deposit to a closed account.) The deposit still posts — the mirror must show the money is at Coins.ph (I1/I3) — with the suspense account in the customer slot:
+
+Ledger_Entries (one Posted `cash_in` transaction, as above)
+
+| id | ledger_account_id | ledger_transaction_id | direction | amount | currency |
+|---|---|---|---|---|---|
+| 7 | coins_master_php | transaction_4 | debit | 150000 | PHP |
+| 8 | unattributed_php | transaction_4 | credit | 150000 | PHP |
+
+Two resolutions, both returning `unattributed_php` to zero:
+
+- **Attributed after all** (the user completes provisioning, or ops matches the sender): dual-approved `adjustment` — Dr `unattributed_php` / Cr `customer_php:{user}`.
+- **Refund-to-source** (C-R6 default): an ordinary `cash_out` typed `refund_to_source` with the suspense account in the customer slot — Pending Dr `unattributed_php` / Cr `coins_master_php` → Posted on provider confirmation.
+
+A non-zero `unattributed_php` balance pages ops; anything older than the runbook threshold escalates (C-R6).
 
 ### Conversion: user_1 converts ₱3,000 → USDC (C-D14 step 2)
 
@@ -327,6 +351,7 @@ Shorthand: PD = `posted_debits`, PC = `posted_credits`, UD = `pending_debits`, U
 - **In v0.1 the pending counters move only on cash-out** — conversions post synchronously on the 200 (§3) and cash-in posts directly (D-L2).
 - **In v0.1 customer accounts never have pending credits** (cash-in posts directly, D-L2), so `available_balance` equals `pending_balance`. If a pending cash-in stage is added, an uncleared deposit is correctly not spendable.
 - **`coins_master_php` has no spending decision:** `posted_balance` anchors external reconciliation (I3); `pending_balance` serves I1.
+- **`unattributed_php` has no spending decision either** — nothing in it is spendable by anyone; it is just another credit-normal account to the counters, with a target balance of zero (§3, §6).
 
 ## 5. Write path, concurrency and correctness
 
@@ -365,6 +390,8 @@ Centavos, following the §3 scenario.
 | Cash-out failed (Pending discarded, Cancelled written) | `pending_debits -= 200000` | `pending_credits -= 200000` |
 | Replayed webhook or repeated discard | no change | no change |
 | Adjustment (posted, compensating entries) | `posted_debits` or `posted_credits` `+=` amount, per entry | `posted_debits` or `posted_credits` `+=` amount, per entry |
+
+Unmatched cash-in and its resolutions move `unattributed_php`'s counters by exactly the same rules — it is just another credit-normal account.
 
 `cust_u1` after each step (the §3 scenario end to end — note the pending counters move only in the cash-out steps):
 
@@ -417,7 +444,8 @@ pending_credits == SUM(amount) of credit entries on pending, non-discarded trans
 
 1. **Aggregate:** `coins_master_php.posted_balance` vs Coins-side master-account figure (mechanism → OQ-12a). Until an aggregate API exists: derived check = Σ(cash-in webhooks) − Σ(completed orders) − Σ(cash-outs) vs our balance — weaker (events-only), flagged as such.
 2. **Per-order:** every `coins_orders` row vs Coins order-status API; every completed order has a tx hash whose on-chain USDC delivery to the user's Privy address is verified (ties into the C-R4 record).
-3. **Per-user (if OQ-12b):** `customer_php_unconverted:{u}` vs Coins `coinsUserId` attribution.
+3. **Per-user (if OQ-12b):** `customer_php:{u}` vs Coins `coinsUserId` attribution.
+4. **Suspense aging:** `unattributed_php` should sit at zero; any non-zero balance is listed with the age of each unresolved unmatched deposit — paged immediately, escalated past the runbook threshold (C-R6).
 
 ## 7. Open design questions (for Steve)
 

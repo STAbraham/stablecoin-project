@@ -9,13 +9,16 @@
   end
   subgraph ACCOUNTS["Accounts — mirror of funds held at Coins.ph"]
     MA["coins_master_php<br/>debit-normal (asset)"]
-    UP["customer_php_unconverted per user<br/>credit-normal (liability)"]
+    UP["customer_php per user<br/>credit-normal (liability)"]
+    UA["unattributed_php<br/>credit-normal (suspense, target zero)"]
   end
   CI -->|"Dr"| MA
   CI -->|"Cr"| UP
+  CI -.->|"Cr (unmatched)"| UA
   CV -->|"Dr"| UP
   CV -->|"Cr"| MA
   RF -->|"Dr"| UP
+  RF -.->|"Dr (unattributed refund)"| UA
   RF -->|"Cr"| MA
 </pre>
 <script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{useMaxWidth:false}, sequence:{useMaxWidth:false}, state:{useMaxWidth:false}, er:{useMaxWidth:false}});</script>
