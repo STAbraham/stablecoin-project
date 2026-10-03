@@ -1,6 +1,6 @@
 # PHP Pending-Balance Ledger — design v0.1
 
-**Status:** draft, updated 2026-10-02 (conversion orders post synchronously to Posted on the `acceptQuote` 200 — no Pending stage for conversions in the MVP, decided 10/02; refund-out keeps the two-step lifecycle — §§1–5, D-L8/D-L10). Implements PRD C-R7/C-R7a/C-R4b.
+**Status:** draft, updated 2026-10-02 (no Pending stage for conversions in the MVP, decided 10/02 — post to Posted on the accept-quote **terminal `SUCCESS`**, refined same day from the public REST docs; refund-out keeps the two-step lifecycle — §§1–5, D-L8/D-L10). Implements PRD C-R7/C-R7a/C-R4b.
 **Lineage:** deliberately follows the conventions of Steve's card-product design ("Shadow Ledger Redux," Notion, fetched 9/23 → SOURCES.md): the `Ledger_Accounts` / `Ledger_Transactions` / `Ledger_Entries` triad, credit/debit-normal accounts, Pending→Posted lifecycle via `group_id` + `discarded_at`, account-level balance state maintained under row locks, an originator table behind every ledger posting. Where this design diverges, the divergence is called out with a ❖.
 
 ## 0. Why this is the simple case
@@ -25,7 +25,7 @@ Compared to the card ledger: **one currency** (PHP centavos — USDC is never le
 flowchart LR
   subgraph EVENTS["Events (originators)"]
     CI["Cash-in webhook<br/>posts directly to Posted"]
-    CV["Conversion order<br/>posts directly to Posted<br/>(acceptQuote 200)"]
+    CV["Conversion order<br/>posts directly to Posted<br/>(accept-quote SUCCESS)"]
     RF["Refund-out<br/>Pending to Posted / Cancelled"]
   end
   subgraph ACCOUNTS["Accounts — mirror of funds held at Coins.ph"]
@@ -158,9 +158,9 @@ Columns marked "Coins.ph" come from its webhooks and API responses. Their field 
 | `destination_address` | String | The user's Privy wallet address | Zed (Privy) |
 | `chain` | Enum | Delivery chain (OQ-2) | Zed |
 | `tx_hash` | String, nullable | On-chain delivery transaction | Coins.ph order webhook |
-| `status` | Enum: `initiated` / `completed` / `failed` | `initiated` = row written before calling `acceptQuote` (the in-flight guard, §5); `completed` = 200 received, Posted written; `failed` = synchronous decline, no ledger rows (C-R5) | Zed |
+| `status` | Enum: `initiated` / `completed` / `failed` | `initiated` = row written before calling `acceptQuote`; stays `initiated` through a rare TODO/PROCESSING response (the in-flight guard, §5); `completed` = terminal SUCCESS, Posted written; `failed` = decline or terminal FAILED, no ledger rows (C-R5) | Zed |
 | `raw_payload` | JSONB | Latest order-status body | Coins.ph |
-| `group_id` | UUID, foreign key → `Ledger_Groups`, unique, nullable | Null until the 200 — set when the Posted transaction is written; stays null on `failed` orders (no ledger rows) | Zed |
+| `group_id` | UUID, foreign key → `Ledger_Groups`, unique, nullable | Null until terminal SUCCESS — set when the Posted transaction is written; stays null on `failed` orders (no ledger rows) | Zed |
 | `created_at`, `updated_at` | Datetime | | Zed |
 
 Constraint: at most one `initiated` order per user (partial unique index on `user_id` where `status = 'initiated'`) — the double-convert guard now that conversions carry no ledger hold (§5).
@@ -199,7 +199,7 @@ Constraint: at most one `initiated` order per user (partial unique index on `use
 | `transaction_type` | Originator row | `Ledger_Transactions` rows on the group | `Ledger_Entries` per transaction |
 |---|---|---|---|
 | `cash_in` | one `coins_cash_in_events` | One: Posted | Dr `coins_master_php` / Cr customer |
-| `conversion` | one `coins_orders` | One: Posted, written when `acceptQuote` returns 200. A synchronous decline writes no ledger rows (order row marked `failed`) | Dr customer / Cr `coins_master_php` |
+| `conversion` | one `coins_orders` | One: Posted, written on the accept-quote terminal `SUCCESS` (normally inline in the response). A decline or FAILED writes no ledger rows (order row marked `failed`) | Dr customer / Cr `coins_master_php` |
 | `refund_out` | one `coins_refunds` | Two: Pending at initiation, then Posted (confirmed) or Cancelled (failed); the Pending row gets `discarded_at` | Dr customer / Cr `coins_master_php` |
 | `adjustment` | one `ledger_adjustments` | One: Posted | Compensating entries, per case |
 
@@ -236,11 +236,11 @@ Ledger_Entries
 
 ### Conversion: user_1 converts ₱3,000 → USDC (C-D14 step 2)
 
-❖ **No Pending stage for conversions (decided 10/02).** `acceptQuote` fails synchronously or not at all — an asynchronous failure after a 200 has never been observed on Zed's existing production Coins.ph integration. So the MVP posts the conversion **directly to Posted on the 200**: one transaction, no discard/replace step. The assumption is to be confirmed with Coins.ph (OQ-3 → D-L10).
+❖ **No Pending stage for conversions (decided 10/02).** In Zed's experience `acceptQuote` fails synchronously or not at all, and the public docs agree on the common case ("accept the quote and receive the result instantly"). The response carries `data.status` ∈ TODO / PROCESSING / **SUCCESS** / FAILED (public REST docs, read 10/02), so the contract does allow non-terminal responses — the MVP posts the conversion **directly to Posted on terminal `SUCCESS`** (normally inline in the response): one transaction, no discard/replace step, and no ledger stage for the rare non-terminal case (below). Practical frequency of non-terminal responses → D-L10/OQ-3.
 
 **Before the call** — no ledger rows yet. Under the account lock: check `available_balance ≥ ₱3,000` and that user_1 has no open order, insert the `coins_orders` row as `initiated`, commit (§5). Then call `acceptQuote` with no locks held.
 
-**On the 200** — one Posted transaction, written in one DB transaction; the order row moves to `completed`:
+**On `SUCCESS`** (the response's `data.status`, normally inline) — one Posted transaction, written in one DB transaction; the order row moves to `completed`:
 
 Ledger_Transactions
 
@@ -257,15 +257,17 @@ Ledger_Entries
 
 The later order webhook adds the tx hash to `coins_orders` — delivery confirmation feeds reconciliation (§6.2), not ledger state.
 
-**On a synchronous decline (non-200):** no ledger rows at all; the order row is marked `failed`; the ₱3,000 never left `cust_u1`. An ordinary decline is not an ops alert (C-R6 covers anomalies, e.g. a decline after repeated retries).
+**On a synchronous decline** (quote expired, price changed, insufficient balance, liquidity — all documented): no ledger rows at all; the order row is marked `failed`; the ₱3,000 never left `cust_u1`. An ordinary decline is not an ops alert (C-R6 covers anomalies, e.g. a decline after repeated retries).
 
-**If a post-200 failure ever occurs** (assumed impossible — D-L10): the Posted transaction stands (Posted is never discarded); the correction is a dual-approved `adjustment` with compensating entries (Dr `coins_master_php` / Cr `cust_u1`), surfaced by the §6.2 tx-hash check.
+**On `TODO` / `PROCESSING`** (documented, never observed by Zed): still no ledger rows — the order simply stays `initiated`, which keeps holding the one-open-order slot, and is polled via `query-order-history` to a terminal status: `SUCCESS` posts as above, `FAILED` marks the order `failed` (reason in `errorMessage`). No Pending transaction needed at any point.
 
-The ₱3,000 becomes unavailable the moment the Posted transaction lands — at the 200, sub-seconds after the user confirms. In the pre-call window the double-convert guard is the one-open-order rule (§2.3, §5), not a ledger hold.
+**If a failure after terminal `SUCCESS` ever occurs** (not in the documented contract): the Posted transaction stands (Posted is never discarded); the correction is a dual-approved `adjustment` with compensating entries (Dr `coins_master_php` / Cr `cust_u1`), surfaced by the §6.2 tx-hash check.
+
+The ₱3,000 becomes unavailable the moment the Posted transaction lands — normally sub-seconds after the user confirms. Until then (the pre-call window, or a rare non-terminal response) the double-convert guard is the one-open-order rule (§2.3, §5), not a ledger hold.
 
 ### Refund-out: user_1 gets ₱2,000 returned to source
 
-**The only two-step type in v0.1** — a provider payout confirmation is genuinely asynchronous, so the Pending lifecycle stays here: Pending (Dr `cust_u1` / Cr `coins_master_php`) on initiation → on confirmation, discard the Pending (`discarded_at` set) and write its Posted replacement on the same `group_id` in one atomic DB transaction (§5) → or Cancelled on failure (no net effect). Identical whether executed via API (if OQ-13 confirms) or manually by ops through Coins' interface (dual-approved; postings entered via `adjustment`-style tooling but typed `refund_out`).
+**The only two-step type in v0.1** — a provider payout confirmation is genuinely asynchronous (confirmed by the public docs: `fiat/v1/cash-out` returns order IDs, not a result, and Coins.ph allows only one cash-out in progress per account — error 88010012, which also means ops must serialize refunds at the master-account level), so the Pending lifecycle stays here: Pending (Dr `cust_u1` / Cr `coins_master_php`) on initiation → on confirmation, discard the Pending (`discarded_at` set) and write its Posted replacement on the same `group_id` in one atomic DB transaction (§5) → or Cancelled on failure (no net effect). Identical whether executed via API (if OQ-13 confirms) or manually by ops through Coins' interface (dual-approved; postings entered via `adjustment`-style tooling but typed `refund_out`).
 
 ```mermaid
 stateDiagram-v2
@@ -328,7 +330,7 @@ Shorthand: PD = `posted_debits`, PC = `posted_credits`, UD = `pending_debits`, U
 
 ## 5. Write path, concurrency and correctness
 
-**The flow to build:** every ledger event (cash-in webhook, conversion posting on the `acceptQuote` 200, refund step, adjustment) runs in one database transaction:
+**The flow to build:** every ledger event (cash-in webhook, conversion posting on accept-quote `SUCCESS`, refund step, adjustment) runs in one database transaction:
 
 1. **Establish idempotency.** Insert the originator row; its unique key (§2.3) makes a replay stop here. For lifecycle events, a group that already has a Posted or Cancelled transaction (read under the step-2 lock) is not processed again.
 2. **Lock in a fixed order:** the customer account row (ascending `id` if more than one), then `coins_master_php`, then the `Ledger_Groups` row — all `SELECT … FOR UPDATE`.
@@ -356,8 +358,8 @@ Centavos, following the §3 scenario.
 | Event | Customer account | `coins_master_php` |
 |---|---|---|
 | Cash-in ₱5,000 (posts directly) | `posted_credits += 500000` | `posted_debits += 500000` |
-| Conversion ₱3,000 — `acceptQuote` 200 (Posted written) | `posted_debits += 300000` | `posted_credits += 300000` |
-| Conversion declined synchronously (no ledger rows) | no change | no change |
+| Conversion ₱3,000 — accept-quote `SUCCESS` (Posted written) | `posted_debits += 300000` | `posted_credits += 300000` |
+| Conversion declined or FAILED (no ledger rows) | no change | no change |
 | Refund-out ₱2,000 initiated (Pending written) | `pending_debits += 200000` | `pending_credits += 200000` |
 | Refund-out confirmed (Pending discarded, Posted written) | `pending_debits -= 200000`; `posted_debits += 200000` | `pending_credits -= 200000`; `posted_credits += 200000` |
 | Refund-out failed (Pending discarded, Cancelled written) | `pending_debits -= 200000` | `pending_credits -= 200000` |
@@ -366,7 +368,7 @@ Centavos, following the §3 scenario.
 
 `cust_u1` after each step (the §3 scenario end to end — note the pending counters move only in the refund steps):
 
-| | After cash-in ₱5,000 | After conversion ₱3,000 (Posted on the 200) | After refund-out ₱2,000 initiated | After refund confirmed |
+| | After cash-in ₱5,000 | After conversion ₱3,000 (Posted on SUCCESS) | After refund-out ₱2,000 initiated | After refund confirmed |
 |---|---|---|---|---|
 | `posted_credits` | 500000 | 500000 | 500000 | 500000 |
 | `posted_debits` | 0 | 300000 | 300000 | 500000 |
@@ -378,7 +380,7 @@ Centavos, following the §3 scenario.
 
 ### Amounts that differ, and partial completion
 
-- **A conversion posts the accepted quote amount at the 200.** If the eventual order webhook reports a different executed amount, that is a reconciliation break (§6.2) remedied by a dual-approved `adjustment` — a Posted transaction is never edited.
+- **A conversion posts the accepted quote amount at terminal `SUCCESS`.** If the eventual order webhook reports a different executed amount, that is a reconciliation break (§6.2) remedied by a dual-approved `adjustment` — a Posted transaction is never edited.
 - **For refund-out, the Posted amount comes from the confirmation event**, not the Pending transaction. If they differ, the pending counter drops by the Pending amount and the posted counter rises by the Posted amount.
 - **v0.1 assumes orders fill whole, exactly once.** Partial fills, multiple completions, and over- or under-payment are not modeled — whether Coins.ph orders can settle that way is open (OQ-3). For conversions these would now surface as recon breaks + adjustments rather than a remaining-hold problem. **→ D-L7.**
 
@@ -389,7 +391,7 @@ A user with ₱5,000 available sends two ₱3,000 conversion requests at once (a
 ### Standing notes
 
 - **The Postgres re-evaluation race from the Redux notes applies verbatim** (predicate re-evaluation on locked rows after concurrent commit — Postgres docs §13.2.1): same mitigation — never soft-delete-and-reinsert balance rows; the counters live on the account row, updated in place under the lock.
-- **No network calls while holding locks.** Coins.ph API calls and on-chain lookups happen outside the ledger transaction. The conversion sequence: reserve under the lock (balance check + insert the `initiated` order row), commit, call `acceptQuote` with no locks held, then on the 200 write the Posted transaction — or on a decline mark the order `failed`. The reservation is the order row, not a ledger hold; the one-open-order rule covers the window between the reserve and the 200. **(D-L8, revised for the 10/02 decision.)**
+- **No network calls while holding locks.** Coins.ph API calls and on-chain lookups happen outside the ledger transaction. The conversion sequence: reserve under the lock (balance check + insert the `initiated` order row), commit, call `acceptQuote` with no locks held, then on terminal `SUCCESS` write the Posted transaction — on a decline or FAILED mark the order `failed`; on a rare TODO/PROCESSING poll order history to terminal. The reservation is the order row, not a ledger hold; the one-open-order rule covers the whole window from reserve to terminal status. **(D-L8, revised for the 10/02 decision.)**
 - **`coins_master_php` is on every transaction,** so its row lock serializes all ledger writes. Fine at pilot volume (constant-time updates, short lock); a separate scaling question if volume grows.
 
 ## 6. Reconciliation (C-R7a, daily + on-demand)
@@ -428,7 +430,7 @@ pending_credits == SUM(amount) of credit entries on pending, non-discarded trans
 7. **D-L7:** Can Coins.ph orders partially fill or complete more than once (OQ-3)? For conversions this now surfaces in reconciliation (break + `adjustment`) rather than as a hold rule (§5); confirm that's acceptable, or revisit if Coins.ph says partial settlement is real.
 8. **D-L8 (revised 10/02):** the pre-`acceptQuote` ledger earmark is gone with the Pending stage; the reservation is the `initiated` order row plus the one-open-order-per-user rule (§2.3, §5). Confirm the UX consequence: a user cannot start a second conversion while one is in flight (a sub-second window in practice).
 9. **D-L9:** Originator rows link to a group (`group_id`), not to a single ledger transaction as in Redux — confirm (§2.3).
-10. **D-L10 (new 10/02):** conversions post straight to Posted on the `acceptQuote` 200, on the stated assumption that failures are synchronous only (never observed otherwise on Zed's existing integration). Confirm with Coins.ph (folded into OQ-3). If a post-200 failure ever occurs, the remediation is a dual-approved `adjustment` reversal (§3) — acceptable for MVP?
+10. **D-L10 (new 10/02; revised same day from the public REST docs):** conversions post straight to Posted on the accept-quote **terminal `SUCCESS`** — normally inline ("receive the result instantly"), with rare documented TODO/PROCESSING responses absorbed by polling the still-`initiated` order to terminal (§3), and failure-after-SUCCESS outside the documented contract (remediation if it ever happens: dual-approved `adjustment` reversal). Confirm with Coins.ph / test env: how often non-terminal responses occur, time-to-terminal, and that the merchant-flow endpoint matches this public contract (the public convert endpoints carry no destination-address parameters — OQ-11).
 
 ## Coins.ph API validation (Steve's question: "transfer it out of Coins")
 

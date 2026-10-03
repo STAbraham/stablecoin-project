@@ -232,7 +232,7 @@ C-D9 naming · C-D10 KYC mode (blocked on OQ-1) · C-D12 vault venue · C-D13 fe
 |---|---|---|---|
 | OQ-1 | H5 verification page: contents, duration, embeddability, timeout recovery | C-D10, onboarding UX | Open |
 | OQ-2 | USDC delivery chains — Base? | C-D16 | Open |
-| OQ-3 | Quote mechanics: validity window, over/under-payment, refund path | C-D14 detail, C-R6 | Open |
+| OQ-3 | Quote mechanics: validity window, over/under-payment, refund path; accept-quote terminal-status behavior | C-D14 detail, C-R6, ledger D-L10 | Partially answered (public REST docs, 10/02: order statuses TODO/PROCESSING/SUCCESS/FAILED + sync decline codes documented) |
 | OQ-4 | Off-ramp API detail (deposit address, attribution, rails, fees) | C-D6 | Open |
 | OQ-5 | Fees / FX spread economics; any rev-share | Unit economics | Open |
 | OQ-6 | Webhook auth, retries, idempotency; sandbox↔prod parity | C-R8 | Partially answered (HMAC scheme known for create-customer) |
@@ -242,7 +242,7 @@ C-D9 naming · C-D10 KYC mode (blocked on OQ-1) · C-D12 vault venue · C-D13 fe
 | OQ-10 | Two-step mechanics: unconverted holding period, per-deposit orders, InstaPay-first routing | C-D14, C-D17 | Open |
 | OQ-11 | Delivery model: always bundled to destination address, or convert-then-hold variant (whose balance)? | Custody posture | Open (Zed prefers bundled) |
 | OQ-12 | Recon supports: aggregate balance API/statements; coinsUserId-level attribution; **written custody confirmation** | C-R7a, C-R4b | Open |
-| OQ-13 | Fiat-out for unconverted PHP: refund-to-source and/or user withdrawal via API | C-D17, C-R6 | Open (rails exist; API access undocumented) |
+| OQ-13 | Fiat-out for unconverted PHP: refund-to-source and/or user withdrawal via API | C-D17, C-R6 | Partially answered (public REST docs, 10/02: `fiat/v1/cash-out` exists — PHP payout to a named recipient; merchant-model fit + refund-to-source semantics still open) |
 | OQ-14 | Cash-in webhook fires on cleared funds only; post-webhook recall behavior per rail | Ledger D-L2, adjustment path | Open (thread-consistent; confirming) |
 | OQ-15 | Expired IDs at create-customer: is expiry validated; rejection behavior; accepted remediation | C-R1b, onboarding UX | Open (raised 9/24) |
 | OQ-16 | Forced offboarding: can the merchant force-close a customer; process + disposition of unconverted PHP | C-R17 | Open (raised 9/24) |
