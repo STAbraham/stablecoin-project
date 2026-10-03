@@ -1,6 +1,6 @@
 stateDiagram-v2
-    [*] --> Pending: user accepts quote —<br/>funds earmarked (pending JEs)
-    Pending --> Posted: USDC delivered (tx hash) —<br/>pending JEs discarded, posted JEs written
-    Pending --> Cancelled: order fails — no net effect,<br/>PHP stays unconverted (ops alerted)
+    [*] --> Pending: refund initiated —<br/>funds earmarked (pending JEs)
+    Pending --> Posted: provider confirms payout —<br/>pending JEs discarded, posted JEs written
+    Pending --> Cancelled: refund fails — no net effect,<br/>PHP stays unconverted (ops alerted)
     Posted --> [*]
     Cancelled --> [*]

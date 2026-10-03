@@ -70,7 +70,7 @@ Per the recap: crypto confirmed on-chain first, then PHP released. Mechanics (de
 **Status tracking moved to the PRD §6.2 (Steve, 9/23) — the PRD is the canonical status board; this section keeps the full technical elaboration per question.**
 - **OQ-1** *(refined 9/23 — H5 step confirmed by the V2 spec)*: what exactly is on the H5 verification page (MPIN set? liveness? disclosures?), how long does it take, can it be embedded in Zed's webview, and can any of it be suppressed/pre-filled? What does the user see if they return later after "Failed" (10-min MPIN timeout)?
 - **OQ-2.** Which chains can USDC be delivered on (Base?), and are there per-chain fees/minimums?
-- **OQ-3.** Quote mechanics: validity window, quote-before-or-after deposit, partial/over/under-payment handling, refund path for failed orders.
+- **OQ-3.** Quote mechanics: validity window, quote-before-or-after deposit, partial/over/under-payment handling, refund path for failed orders. Added 10/02: can an accepted order (`acceptQuote` 200) subsequently fail asynchronously, or are all failures synchronous? Zed has never observed an async failure on its existing integration; the ledger design posts conversions on the 200 and relies on this (ledger doc D-L10).
 - **OQ-4.** Off-ramp API detail: how the user's USDC is received (per-user deposit address? order-first?), attribution, PHP payout rails/fees/limits, destination-account registration + name-match support.
 - **OQ-5.** Fees and FX spread: where Coins.ph takes economics on the quote, and what's negotiable at volume. Any Zed rev-share?
 - **OQ-6.** Webhook auth/signing, retry semantics, idempotency, sandbox↔prod parity.

@@ -1,12 +1,14 @@
 <!DOCTYPE html><html><head><meta charset="utf-8">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
 <style>html{overflow:hidden}body{background:#fff;margin:0;padding:16px;font-family:-apple-system,Helvetica,Arial}</style>
-</head><body><pre class="mermaid">stateDiagram-v2
-    [*] --> Pending: refund initiated —<br/>funds earmarked (pending JEs)
-    Pending --> Posted: provider confirms payout —<br/>pending JEs discarded, posted JEs written
-    Pending --> Cancelled: refund fails — no net effect,<br/>PHP stays unconverted (ops alerted)
-    Posted --> [*]
-    Cancelled --> [*]
+</head><body><pre class="mermaid">erDiagram
+  coins_cash_in_events |o--o| Ledger_Groups : opens
+  coins_orders |o--o| Ledger_Groups : opens
+  coins_refunds |o--|| Ledger_Groups : opens
+  ledger_adjustments |o--|| Ledger_Groups : opens
+  Ledger_Groups ||--|{ Ledger_Transactions : "has 1 or 2"
+  Ledger_Transactions ||--|{ Ledger_Entries : "contains 2"
+  Ledger_Accounts ||--o{ Ledger_Entries : "adjusted by"
 </pre>
 <script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{useMaxWidth:false}, sequence:{useMaxWidth:false}, state:{useMaxWidth:false}, er:{useMaxWidth:false}});</script>
 </body></html>

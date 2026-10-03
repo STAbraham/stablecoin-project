@@ -1,6 +1,6 @@
 <!DOCTYPE html><html><head><meta charset="utf-8">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
-<style>body{background:#fff;margin:0;padding:16px;font-family:-apple-system,Helvetica,Arial}</style>
+<style>html{overflow:hidden}body{background:#fff;margin:0;padding:16px;font-family:-apple-system,Helvetica,Arial}</style>
 </head><body><pre class="mermaid">sequenceDiagram
     autonumber
     participant U as User
@@ -22,5 +22,5 @@
     C-->>Z: order status webhook<br/>(tx hash)
     Z->>U: USDC in wallet
 </pre>
-<script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{useMaxWidth:false}, sequence:{useMaxWidth:false}, state:{useMaxWidth:false}});</script>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{useMaxWidth:false}, sequence:{useMaxWidth:false}, state:{useMaxWidth:false}, er:{useMaxWidth:false}});</script>
 </body></html>

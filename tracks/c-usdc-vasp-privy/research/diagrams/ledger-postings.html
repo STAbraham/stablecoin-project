@@ -1,10 +1,10 @@
 <!DOCTYPE html><html><head><meta charset="utf-8">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
-<style>body{background:#fff;margin:0;padding:16px;font-family:-apple-system,Helvetica,Arial}</style>
+<style>html{overflow:hidden}body{background:#fff;margin:0;padding:16px;font-family:-apple-system,Helvetica,Arial}</style>
 </head><body><pre class="mermaid">flowchart LR
   subgraph EVENTS["Events (originators)"]
     CI["Cash-in webhook<br/>posts directly to Posted"]
-    CV["Conversion order<br/>Pending to Posted / Cancelled"]
+    CV["Conversion order<br/>posts directly to Posted<br/>(acceptQuote 200)"]
     RF["Refund-out<br/>Pending to Posted / Cancelled"]
   end
   subgraph ACCOUNTS["Accounts — mirror of funds held at Coins.ph"]
@@ -18,5 +18,5 @@
   RF -->|"Dr"| UP
   RF -->|"Cr"| MA
 </pre>
-<script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{useMaxWidth:false}, sequence:{useMaxWidth:false}, state:{useMaxWidth:false}});</script>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{useMaxWidth:false}, sequence:{useMaxWidth:false}, state:{useMaxWidth:false}, er:{useMaxWidth:false}});</script>
 </body></html>
