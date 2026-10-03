@@ -1,7 +1,7 @@
 erDiagram
   coins_cash_in_events |o--o| Ledger_Groups : opens
   coins_orders |o--o| Ledger_Groups : opens
-  coins_refunds |o--|| Ledger_Groups : opens
+  coins_cash_outs |o--|| Ledger_Groups : opens
   ledger_adjustments |o--|| Ledger_Groups : opens
   Ledger_Groups ||--|{ Ledger_Transactions : "has 1 or 2"
   Ledger_Transactions ||--|{ Ledger_Entries : "contains 2"

@@ -1,6 +1,6 @@
 # PHP Pending-Balance Ledger — design v0.1
 
-**Status:** draft, updated 2026-10-02 (no Pending stage for conversions in the MVP, decided 10/02 — post to Posted on the accept-quote **terminal `SUCCESS`**, refined same day from the public REST docs; refund-out keeps the two-step lifecycle — §§1–5, D-L8/D-L10). Implements PRD C-R7/C-R7a/C-R4b.
+**Status:** draft, updated 2026-10-02 (no Pending stage for conversions in the MVP, decided 10/02 — post to Posted on the accept-quote **terminal `SUCCESS`**, refined same day from the public REST docs; **refund-out unified into `cash_out`** (one PHP-out type; `cash_out_type` = refund_to_source / user_withdrawal — Steve, 10/02), which keeps the two-step lifecycle — §§1–5, D-L8/D-L10). Implements PRD C-R7/C-R7a/C-R4b.
 **Lineage:** deliberately follows the conventions of Steve's card-product design ("Shadow Ledger Redux," Notion, fetched 9/23 → SOURCES.md): the `Ledger_Accounts` / `Ledger_Transactions` / `Ledger_Entries` triad, credit/debit-normal accounts, Pending→Posted lifecycle via `group_id` + `discarded_at`, account-level balance state maintained under row locks, an originator table behind every ledger posting. Where this design diverges, the divergence is called out with a ❖.
 
 ## 0. Why this is the simple case
@@ -26,7 +26,7 @@ flowchart LR
   subgraph EVENTS["Events (originators)"]
     CI["Cash-in webhook<br/>posts directly to Posted"]
     CV["Conversion order<br/>posts directly to Posted<br/>(accept-quote SUCCESS)"]
-    RF["Refund-out<br/>Pending to Posted / Cancelled"]
+    RF["Cash-out (refund-to-source /<br/>user withdrawal)<br/>Pending to Posted / Cancelled"]
   end
   subgraph ACCOUNTS["Accounts — mirror of funds held at Coins.ph"]
     MA["coins_master_php<br/>debit-normal (asset)"]
@@ -40,7 +40,7 @@ flowchart LR
   RF -->|"Cr"| MA
 ```
 
-❖ **No clearing/in-flight accounts.** Where in-flight state exists at all (refund-out only — conversions post synchronously, §3), it is carried by `status = Pending` transactions on a `group_id`, exactly like a card auth. Alternative considered: explicit clearing accounts — rejected for v0.1 (adds accounts without adding information; revisit if ops wants in-flight as a balance-sheet line). **← Steve to confirm (D-L1).**
+❖ **No clearing/in-flight accounts.** Where in-flight state exists at all (cash-out only — conversions post synchronously, §3), it is carried by `status = Pending` transactions on a `group_id`, exactly like a card auth. Alternative considered: explicit clearing accounts — rejected for v0.1 (adds accounts without adding information; revisit if ops wants in-flight as a balance-sheet line). **← Steve to confirm (D-L1).**
 
 ## 2. Tables and schemas
 
@@ -50,7 +50,7 @@ flowchart LR
 erDiagram
   coins_cash_in_events |o--o| Ledger_Groups : opens
   coins_orders |o--o| Ledger_Groups : opens
-  coins_refunds |o--|| Ledger_Groups : opens
+  coins_cash_outs |o--|| Ledger_Groups : opens
   ledger_adjustments |o--|| Ledger_Groups : opens
   Ledger_Groups ||--|{ Ledger_Transactions : "has 1 or 2"
   Ledger_Transactions ||--|{ Ledger_Entries : "contains 2"
@@ -62,12 +62,12 @@ erDiagram
 | Table | Kind | One row per |
 |---|---|---|
 | `Ledger_Accounts` | Core | Account — one `coins_master_php`, plus one per user |
-| `Ledger_Groups` | Core | Lifecycle — one cash-in, order, refund, or adjustment |
+| `Ledger_Groups` | Core | Lifecycle — one cash-in, order, cash-out, or adjustment |
 | `Ledger_Transactions` | Core | Accounting transaction — one or two per group (§2.4) |
 | `Ledger_Entries` | Core | Debit or credit line — two per transaction |
 | `coins_cash_in_events` | Originator | Cash-in webhook received |
 | `coins_orders` | Originator | Conversion order |
-| `coins_refunds` | Originator | Refund-out |
+| `coins_cash_outs` | Originator | Cash-out (refund-to-source or user withdrawal) |
 | `ledger_adjustments` | Originator | Dual-approved manual correction |
 
 ### 2.2 Core ledger tables
@@ -95,7 +95,7 @@ Redux's tables, with the changes marked ❖.
 | Field | Type | Description |
 |---|---|---|
 | `id` | UUID, primary key | The `group_id` that ties a Pending transaction to its replacement |
-| `group_type` | Enum: `cash_in` / `conversion` / `refund_out` / `adjustment` | Redux's values are Charge / Payment |
+| `group_type` | Enum: `cash_in` / `conversion` / `cash_out` / `adjustment` | Redux's values are Charge / Payment |
 | `created_at` | Datetime | |
 
 **`Ledger_Transactions`**
@@ -105,7 +105,7 @@ Redux's tables, with the changes marked ❖.
 | `id` | UUID, primary key | |
 | `group_id` | UUID, foreign key → `Ledger_Groups` | Every transaction belongs to a group |
 | `status` | Enum: `pending` / `posted` / `cancelled` | Written once at insert, never updated |
-| `transaction_type` | Enum: `cash_in` / `conversion` / `refund_out` / `adjustment` | Same value as the group's `group_type` |
+| `transaction_type` | Enum: `cash_in` / `conversion` / `cash_out` / `adjustment` | Same value as the group's `group_type` |
 | `effective_at` | Datetime | When the event took effect at Coins.ph |
 | `discarded_at` | Datetime, nullable | Set once, when a Pending transaction is replaced — the only field updated after insert |
 | `created_at` | Datetime | |
@@ -126,7 +126,7 @@ Constraint: at most one non-discarded transaction per group (partial unique inde
 
 ### 2.3 Originator tables
 
-Each originator row opens one group and points at it with `group_id`. ❖ Redux's originators (Network_Messages, Payments) point at a single `ledger_transaction_id`; here a refund writes two transactions on one group, so the link is to the group (conversions write one since the 10/02 decision, but keep the same shape). **← Steve to confirm (D-L9).**
+Each originator row opens one group and points at it with `group_id`. ❖ Redux's originators (Network_Messages, Payments) point at a single `ledger_transaction_id`; here a cash-out writes two transactions on one group, so the link is to the group (conversions write one since the 10/02 decision, but keep the same shape). **← Steve to confirm (D-L9).**
 
 Columns marked "Coins.ph" come from its webhooks and API responses. Their field names are not confirmed yet (OQ-6) and get mapped when test-environment payloads are captured.
 
@@ -165,13 +165,13 @@ Columns marked "Coins.ph" come from its webhooks and API responses. Their field 
 
 Constraint: at most one `initiated` order per user (partial unique index on `user_id` where `status = 'initiated'`) — the double-convert guard now that conversions carry no ledger hold (§5).
 
-**`coins_refunds`** — one row per refund-out.
+**`coins_cash_outs`** — one row per cash-out (PHP out, via `fiat/v1/cash-out` or ops). One mechanical type covers both intents — same endpoint, postings, and lifecycle; `cash_out_type` carries the distinction and its rules: `refund_to_source` pays the deposit's original funding source (sender details from the cash-in `raw_payload`; never a Zed account — C-R4b(d)) and is maker-checker approved when ops-initiated; `user_withdrawal` is user-instructed, to the user's own account.
 
 | Field | Type | Description | Source |
 |---|---|---|---|
 | `id` | UUID, primary key | | Zed |
 | `user_id` | UUID, foreign key | | Zed |
-| `refund_type` | Enum: `refund_to_source` / `user_withdrawal` | C-R6 remedy, or user-requested PHP withdrawal | Zed |
+| `cash_out_type` | Enum: `refund_to_source` / `user_withdrawal` | C-R6 remedy, or user-requested PHP withdrawal | Zed |
 | `mechanism` | Enum: `api` / `manual` | API if Coins.ph supports it (OQ-13); otherwise ops through Coins.ph's interface | Zed |
 | `amount` | `BIGINT` centavos | | Zed |
 | `destination` | JSONB | Bank or e-wallet account the PHP returns to | Cash-in payload, or user input |
@@ -200,7 +200,7 @@ Constraint: at most one `initiated` order per user (partial unique index on `use
 |---|---|---|---|
 | `cash_in` | one `coins_cash_in_events` | One: Posted | Dr `coins_master_php` / Cr customer |
 | `conversion` | one `coins_orders` | One: Posted, written on the accept-quote terminal `SUCCESS` (normally inline in the response). A decline or FAILED writes no ledger rows (order row marked `failed`) | Dr customer / Cr `coins_master_php` |
-| `refund_out` | one `coins_refunds` | Two: Pending at initiation, then Posted (confirmed) or Cancelled (failed); the Pending row gets `discarded_at` | Dr customer / Cr `coins_master_php` |
+| `cash_out` | one `coins_cash_outs` | Two: Pending at initiation, then Posted (confirmed) or Cancelled (failed); the Pending row gets `discarded_at` | Dr customer / Cr `coins_master_php` |
 | `adjustment` | one `ledger_adjustments` | One: Posted | Compensating entries, per case |
 
 §3 walks through these rows for each type.
@@ -265,22 +265,22 @@ The later order webhook adds the tx hash to `coins_orders` — delivery confirma
 
 The ₱3,000 becomes unavailable the moment the Posted transaction lands — normally sub-seconds after the user confirms. Until then (the pre-call window, or a rare non-terminal response) the double-convert guard is the one-open-order rule (§2.3, §5), not a ledger hold.
 
-### Refund-out: user_1 gets ₱2,000 returned to source
+### Cash-out: user_1 gets ₱2,000 paid out (refund-to-source shown; a user withdrawal is mechanically identical)
 
-**The only two-step type in v0.1** — a provider payout confirmation is genuinely asynchronous (confirmed by the public docs: `fiat/v1/cash-out` returns order IDs, not a result, and Coins.ph allows only one cash-out in progress per account — error 88010012, which also means ops must serialize refunds at the master-account level), so the Pending lifecycle stays here: Pending (Dr `cust_u1` / Cr `coins_master_php`) on initiation → on confirmation, discard the Pending (`discarded_at` set) and write its Posted replacement on the same `group_id` in one atomic DB transaction (§5) → or Cancelled on failure (no net effect). Identical whether executed via API (if OQ-13 confirms) or manually by ops through Coins' interface (dual-approved; postings entered via `adjustment`-style tooling but typed `refund_out`).
+**The only two-step type in v0.1** — a provider payout confirmation is genuinely asynchronous (confirmed by the public docs: `fiat/v1/cash-out` returns order IDs, not a result, and Coins.ph allows only one cash-out in progress per account — error 88010012, which also means ops must serialize cash-outs at the master-account level), so the Pending lifecycle stays here: Pending (Dr `cust_u1` / Cr `coins_master_php`) on initiation → on confirmation, discard the Pending (`discarded_at` set) and write its Posted replacement on the same `group_id` in one atomic DB transaction (§5) → or Cancelled on failure (no net effect). Identical whether executed via API (if OQ-13 confirms) or manually by ops through Coins' interface (dual-approved; postings entered via `adjustment`-style tooling but typed `cash_out`).
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Pending: refund initiated —<br/>funds earmarked (pending JEs)
+    [*] --> Pending: cash-out initiated —<br/>funds earmarked (pending JEs)
     Pending --> Posted: provider confirms payout —<br/>pending JEs discarded, posted JEs written
-    Pending --> Cancelled: refund fails — no net effect,<br/>PHP stays unconverted (ops alerted)
+    Pending --> Cancelled: cash-out fails — no net effect,<br/>PHP stays unconverted (ops alerted)
     Posted --> [*]
     Cancelled --> [*]
 ```
 
-The ₱2,000 is unavailable from the moment the refund is initiated: **`available_balance`** (§4.2) counts pending decreases.
+The ₱2,000 is unavailable from the moment the cash-out is initiated: **`available_balance`** (§4.2) counts pending decreases.
 
-❖ **Not the Redux `current_balance`,** as the first version of this doc called it. That formula counts pending increases and ignores pending decreases, so it would leave the ₱2,000 spendable while the refund is in flight. Behavior is unchanged; the name and formula are corrected (§4.2). **← Steve to confirm (D-L6).**
+❖ **Not the Redux `current_balance`,** as the first version of this doc called it. That formula counts pending increases and ignores pending decreases, so it would leave the ₱2,000 spendable while the cash-out is in flight. Behavior is unchanged; the name and formula are corrected (§4.2). **← Steve to confirm (D-L6).**
 
 ## 4. Balance model
 
@@ -323,18 +323,18 @@ Shorthand: PD = `posted_debits`, PC = `posted_credits`, UD = `pending_debits`, U
 
 - **Computed on read** (query, view, getter, or generated column); writers only move the four counters.
 - **`pending_balance` keeps its Redux meaning** — it is not the net of pending-only entries (`UC - UD`).
-- **`available_balance` is what the app displays** and what every conversion and refund-out request is checked against (§5).
-- **In v0.1 the pending counters move only on refund-out** — conversions post synchronously on the 200 (§3) and cash-in posts directly (D-L2).
+- **`available_balance` is what the app displays** and what every conversion and cash-out request is checked against (§5).
+- **In v0.1 the pending counters move only on cash-out** — conversions post synchronously on the 200 (§3) and cash-in posts directly (D-L2).
 - **In v0.1 customer accounts never have pending credits** (cash-in posts directly, D-L2), so `available_balance` equals `pending_balance`. If a pending cash-in stage is added, an uncleared deposit is correctly not spendable.
 - **`coins_master_php` has no spending decision:** `posted_balance` anchors external reconciliation (I3); `pending_balance` serves I1.
 
 ## 5. Write path, concurrency and correctness
 
-**The flow to build:** every ledger event (cash-in webhook, conversion posting on accept-quote `SUCCESS`, refund step, adjustment) runs in one database transaction:
+**The flow to build:** every ledger event (cash-in webhook, conversion posting on accept-quote `SUCCESS`, cash-out step, adjustment) runs in one database transaction:
 
 1. **Establish idempotency.** Insert the originator row; its unique key (§2.3) makes a replay stop here. For lifecycle events, a group that already has a Posted or Cancelled transaction (read under the step-2 lock) is not processed again.
 2. **Lock in a fixed order:** the customer account row (ascending `id` if more than one), then `coins_master_php`, then the `Ledger_Groups` row — all `SELECT … FOR UPDATE`.
-3. **Decide under the locks.** Approve a conversion or refund-out only if `available_balance ≥ amount` — and a conversion only if the user has no `initiated` order (the §2.3 partial unique index backstops this); otherwise decline and write nothing.
+3. **Decide under the locks.** Approve a conversion or cash-out only if `available_balance ≥ amount` — and a conversion only if the user has no `initiated` order (the §2.3 partial unique index backstops this); otherwise decline and write nothing.
 4. **Validate.** Entries balance (I2); only an active Pending transaction can be replaced — Posted and Cancelled are terminal.
 5. **Write the journal.** Insert the new transaction and entries. To replace a Pending transaction: `UPDATE … SET discarded_at = now() WHERE group_id = … AND status = 'pending' AND discarded_at IS NULL RETURNING …` — only returned rows count as removed, so a repeated discard subtracts nothing.
 6. **Apply counter deltas** to every account the entries touch — the customer account and `coins_master_php`.
@@ -360,15 +360,15 @@ Centavos, following the §3 scenario.
 | Cash-in ₱5,000 (posts directly) | `posted_credits += 500000` | `posted_debits += 500000` |
 | Conversion ₱3,000 — accept-quote `SUCCESS` (Posted written) | `posted_debits += 300000` | `posted_credits += 300000` |
 | Conversion declined or FAILED (no ledger rows) | no change | no change |
-| Refund-out ₱2,000 initiated (Pending written) | `pending_debits += 200000` | `pending_credits += 200000` |
-| Refund-out confirmed (Pending discarded, Posted written) | `pending_debits -= 200000`; `posted_debits += 200000` | `pending_credits -= 200000`; `posted_credits += 200000` |
-| Refund-out failed (Pending discarded, Cancelled written) | `pending_debits -= 200000` | `pending_credits -= 200000` |
+| Cash-out ₱2,000 initiated (Pending written) | `pending_debits += 200000` | `pending_credits += 200000` |
+| Cash-out confirmed (Pending discarded, Posted written) | `pending_debits -= 200000`; `posted_debits += 200000` | `pending_credits -= 200000`; `posted_credits += 200000` |
+| Cash-out failed (Pending discarded, Cancelled written) | `pending_debits -= 200000` | `pending_credits -= 200000` |
 | Replayed webhook or repeated discard | no change | no change |
 | Adjustment (posted, compensating entries) | `posted_debits` or `posted_credits` `+=` amount, per entry | `posted_debits` or `posted_credits` `+=` amount, per entry |
 
-`cust_u1` after each step (the §3 scenario end to end — note the pending counters move only in the refund steps):
+`cust_u1` after each step (the §3 scenario end to end — note the pending counters move only in the cash-out steps):
 
-| | After cash-in ₱5,000 | After conversion ₱3,000 (Posted on SUCCESS) | After refund-out ₱2,000 initiated | After refund confirmed |
+| | After cash-in ₱5,000 | After conversion ₱3,000 (Posted on SUCCESS) | After cash-out ₱2,000 initiated | After cash-out confirmed |
 |---|---|---|---|---|
 | `posted_credits` | 500000 | 500000 | 500000 | 500000 |
 | `posted_debits` | 0 | 300000 | 300000 | 500000 |
@@ -381,7 +381,7 @@ Centavos, following the §3 scenario.
 ### Amounts that differ, and partial completion
 
 - **A conversion posts the accepted quote amount at terminal `SUCCESS`.** If the eventual order webhook reports a different executed amount, that is a reconciliation break (§6.2) remedied by a dual-approved `adjustment` — a Posted transaction is never edited.
-- **For refund-out, the Posted amount comes from the confirmation event**, not the Pending transaction. If they differ, the pending counter drops by the Pending amount and the posted counter rises by the Posted amount.
+- **For cash-out, the Posted amount comes from the confirmation event**, not the Pending transaction. If they differ, the pending counter drops by the Pending amount and the posted counter rises by the Posted amount.
 - **v0.1 assumes orders fill whole, exactly once.** Partial fills, multiple completions, and over- or under-payment are not modeled — whether Coins.ph orders can settle that way is open (OQ-3). For conversions these would now surface as recon breaks + adjustments rather than a remaining-hold problem. **→ D-L7.**
 
 ### Why the lock matters
@@ -415,17 +415,17 @@ pending_credits == SUM(amount) of credit entries on pending, non-discarded trans
 
 ### 6.2 External: ledger vs. Coins.ph and the chain
 
-1. **Aggregate:** `coins_master_php.posted_balance` vs Coins-side master-account figure (mechanism → OQ-12a). Until an aggregate API exists: derived check = Σ(cash-in webhooks) − Σ(completed orders) − Σ(refunds) vs our balance — weaker (events-only), flagged as such.
+1. **Aggregate:** `coins_master_php.posted_balance` vs Coins-side master-account figure (mechanism → OQ-12a). Until an aggregate API exists: derived check = Σ(cash-in webhooks) − Σ(completed orders) − Σ(cash-outs) vs our balance — weaker (events-only), flagged as such.
 2. **Per-order:** every `coins_orders` row vs Coins order-status API; every completed order has a tx hash whose on-chain USDC delivery to the user's Privy address is verified (ties into the C-R4 record).
 3. **Per-user (if OQ-12b):** `customer_php_unconverted:{u}` vs Coins `coinsUserId` attribution.
 
 ## 7. Open design questions (for Steve)
 
-1. **D-L1:** Lean model (no clearing accounts; refund-out in-flight carried as Pending-status transactions) — confirm, or explicit in-flight accounts?
+1. **D-L1:** Lean model (no clearing accounts; cash-out in-flight carried as Pending-status transactions) — confirm, or explicit in-flight accounts?
 2. **D-L2:** Cash-in posts straight to Posted — confirm, or model a pending stage for rail-recall risk?
 3. **D-L3:** Integer centavos everywhere — confirm the Decimal→BIGINT standardization?
 4. **D-L4:** Build as the first implementation of generic Redux core tables (shared later with cards) vs. wallet-local tables? Also decides where the counters live (account row vs. per-currency balance table, §4.1).
-5. **D-L5 (product):** promoted to PRD decision **C-D17 (HELD, Steve 9/23)** — stale unconverted-PHP policy: auto-refund-to-source after N days vs. nudge-only. The ledger supports either (refund_out postings exist regardless).
+5. **D-L5 (product):** promoted to PRD decision **C-D17 (HELD, Steve 9/23)** — stale unconverted-PHP policy: auto-refund-to-source after N days vs. nudge-only. The ledger supports either (cash_out postings exist regardless).
 6. **D-L6:** `available_balance` (`PC - (PD + UD)`), not Redux's `current_balance`, as the customer account's spending measure — confirm name and formula (§4.2).
 7. **D-L7:** Can Coins.ph orders partially fill or complete more than once (OQ-3)? For conversions this now surfaces in reconciliation (break + `adjustment`) rather than as a hold rule (§5); confirm that's acceptable, or revisit if Coins.ph says partial settlement is real.
 8. **D-L8 (revised 10/02):** the pre-`acceptQuote` ledger earmark is gone with the Pending stage; the reservation is the `initiated` order row plus the one-open-order-per-user rule (§2.3, §5). Confirm the UX consequence: a user cannot start a second conversion while one is in flight (a sub-second window in practice).
@@ -434,4 +434,4 @@ pending_credits == SUM(amount) of credit entries on pending, non-discarded trans
 
 ## Coins.ph API validation (Steve's question: "transfer it out of Coins")
 
-Two distinct "outs" exist conceptually: (a) **refund of un-converted PHP back to the funding source** — our C-R6 default remedy; (b) **user-elected PHP withdrawal** to their bank. The 9/14 recap confirms Coins runs PHP-outbound rails (InstaPay/PESONet) for the crypto off-ramp, so the capability exists on their side; whether the **merchant API exposes fiat-out for pending PHP** (either flavor) is not visible in their public docs (a "Transfers" module exists; no documented fiat cash-out of un-converted deposits found). → **OQ-13** to their tech contacts. The ledger supports both outcomes: if API-supported, `refund_out` is automated; if not, it's an ops runbook with identical postings.
+Two distinct "outs" exist conceptually: (a) **refund of un-converted PHP back to the funding source** — our C-R6 default remedy; (b) **user-elected PHP withdrawal** to their bank. The 9/14 recap confirms Coins runs PHP-outbound rails (InstaPay/PESONet) for the crypto off-ramp, so the capability exists on their side; whether the **merchant API exposes fiat-out for pending PHP** (either flavor) is not visible in their public docs (a "Transfers" module exists; no documented fiat cash-out of un-converted deposits found). → **OQ-13** to their tech contacts. The ledger supports both outcomes: if API-supported, `cash_out` is automated; if not, it's an ops runbook with identical postings.

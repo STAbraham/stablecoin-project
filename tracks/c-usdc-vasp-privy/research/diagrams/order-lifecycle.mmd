@@ -1,6 +1,6 @@
 stateDiagram-v2
-    [*] --> Pending: refund initiated —<br/>funds earmarked (pending JEs)
+    [*] --> Pending: cash-out initiated —<br/>funds earmarked (pending JEs)
     Pending --> Posted: provider confirms payout —<br/>pending JEs discarded, posted JEs written
-    Pending --> Cancelled: refund fails — no net effect,<br/>PHP stays unconverted (ops alerted)
+    Pending --> Cancelled: cash-out fails — no net effect,<br/>PHP stays unconverted (ops alerted)
     Posted --> [*]
     Cancelled --> [*]

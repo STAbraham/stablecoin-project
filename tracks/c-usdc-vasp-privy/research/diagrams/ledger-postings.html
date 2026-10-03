@@ -5,7 +5,7 @@
   subgraph EVENTS["Events (originators)"]
     CI["Cash-in webhook<br/>posts directly to Posted"]
     CV["Conversion order<br/>posts directly to Posted<br/>(accept-quote SUCCESS)"]
-    RF["Refund-out<br/>Pending to Posted / Cancelled"]
+    RF["Cash-out (refund-to-source /<br/>user withdrawal)<br/>Pending to Posted / Cancelled"]
   end
   subgraph ACCOUNTS["Accounts — mirror of funds held at Coins.ph"]
     MA["coins_master_php<br/>debit-normal (asset)"]
