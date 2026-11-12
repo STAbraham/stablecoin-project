@@ -18,6 +18,17 @@ def scrubs_for(name):
           (re.compile(r'`\.\./TRACKS\.md` \(internal\)'), 'project repo (internal)'),
           (re.compile(r' \(no cross-track framing, per Steve 9/23\)'), ''),
         ]
+    if name == 'mprd':
+        return [
+          (re.compile(r'\*\*Surfaces:\*\*.*?\n'), '*Team copy, published from the working draft. Comment here or ping Steve; canonical status lives in the working draft.*\n'),
+          (re.compile(r'Repo: `tracks/d-wallet-first/prd\.md` · team copy: Drive → Shared drives/Product/USDC Accounts'), 'This folder (team copy) · engineering mirror in the project repo'),
+          (re.compile(r'`\.\./c-usdc-vasp-privy/research/([a-z-]+\.md)`(, `([a-z-]+\.md)`)?'), r'"\1" — this folder / project repo'),
+          (re.compile(r'`\.\./c-usdc-vasp-privy/prd\.md`'), 'the superseded USDC Dollar Wallet PRD — this folder'),
+          (re.compile(r'`tracks/d-wallet-first/prd\.md`'), 'this document'),
+          (re.compile(r'`tracks/c-usdc-vasp-privy/prd\.md`'), 'the superseded USDC Dollar Wallet PRD — this folder'),
+          (re.compile(r'`\.\./\.\./([A-Za-z.-]+\.md)`'), r'"\1" (project repo)'),
+          (re.compile(r'Claude Doc \(shared separately\)'), 'shared separately'),
+        ]
     if name == 'coinsph':
         return [
           (re.compile(r'now in `inbox/processed/`'), 'archived'),
@@ -39,9 +50,10 @@ def scrubs_for(name):
     return common
 
 docs = [
+ ('tracks/d-wallet-first/prd.md', 'mprd', 'Zed Dollar Wallet — Modular PRD', [DGDIR+'module-map.png']),
  ('tracks/c-usdc-vasp-privy/prd.md', 'prd', 'USDC Dollar Wallet — PRD', [DGDIR+'fundsflow.png']),
  ('tracks/c-usdc-vasp-privy/research/coinsph-integration.md', 'coinsph', 'Coins.ph Integration — Technical Doc', [DGDIR+'onramp-seq.png']),
- ('tracks/c-usdc-vasp-privy/research/php-ledger-design.md', 'ledger', 'PHP Ledger Design (Unconverted Balances)', [DGDIR+'ledger-postings.png', DGDIR+'order-lifecycle.png']),
+ ('tracks/c-usdc-vasp-privy/research/php-ledger-design.md', 'ledger', 'PHP Ledger Design (Unconverted Balances)', [DGDIR+'ledger-postings.png', DGDIR+'schema-er.png', DGDIR+'order-lifecycle.png']),
  ('tracks/c-usdc-vasp-privy/research/privy-earn.md', 'privyearn', 'Privy Earn — How It Works', [DGDIR+'earn-flow.png']),
  ('tracks/c-usdc-vasp-privy/research/privy-tech-docs.md', 'privytech', 'Privy Platform — Technical Digest', []),
  ('counterparty-counsel-tracker.md', 'tracker', 'Counterparty & Counsel Tracker', []),

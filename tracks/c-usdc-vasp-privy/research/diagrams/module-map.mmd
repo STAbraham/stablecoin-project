@@ -1,0 +1,10 @@
+flowchart TD
+  M2["M2 — Merchant payments<br/>(QR Ph spend off the balance)"]
+  M3["M3 — Yield<br/>(TMMF-first via Privy; DeFi vaults as alternative)"]
+  M4["M4 — Native on-ramp<br/>(PDAX as candidate VASP partner)"]
+  M1["M1 — Wallet core (foundation)<br/>embedded self-custodied Privy wallet:<br/>receive · hold · send USDC"]
+  M2 --> M1
+  M3 --> M1
+  M4 --> M1
+  classDef core fill:#eef3fa,stroke:#4a6fa5
+  class M1 core

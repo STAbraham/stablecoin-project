@@ -1,4 +1,4 @@
-import os, re, subprocess, glob, math
+import os, re, subprocess, glob, math, sys
 from PIL import Image
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -7,13 +7,14 @@ PAD = 16
 
 HARNESS = """<!DOCTYPE html><html><head><meta charset="utf-8">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
-<style>body{{background:#fff;margin:0;padding:{pad}px;font-family:-apple-system,Helvetica,Arial}}</style>
+<style>html{{overflow:hidden}}body{{background:#fff;margin:0;padding:{pad}px;font-family:-apple-system,Helvetica,Arial}}</style>
 </head><body><pre class="mermaid">{src}</pre>
-<script>mermaid.initialize({{startOnLoad:true, theme:'neutral', flowchart:{{useMaxWidth:false}}, sequence:{{useMaxWidth:false}}, state:{{useMaxWidth:false}}}});</script>
+<script>mermaid.initialize({{startOnLoad:true, theme:'neutral', flowchart:{{useMaxWidth:false}}, sequence:{{useMaxWidth:false}}, state:{{useMaxWidth:false}}, er:{{useMaxWidth:false}}}});</script>
 </body></html>"""
 
 for mmd in sorted(glob.glob(f"{DG}/*.mmd")):
     name = os.path.splitext(os.path.basename(mmd))[0]
+    if sys.argv[1:] and name not in sys.argv[1:]: continue  # optional: render only the named diagrams
     html = f"{DG}/{name}.html"
     open(html, "w").write(HARNESS.format(pad=PAD, src=open(mmd).read()))
 
