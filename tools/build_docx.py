@@ -28,6 +28,7 @@ def scrubs_for(name):
           (re.compile(r'`tracks/c-usdc-vasp-privy/prd\.md`'), 'the superseded USDC Dollar Wallet PRD — this folder'),
           (re.compile(r'`\.\./\.\./([A-Za-z.-]+\.md)`'), r'"\1" (project repo)'),
           (re.compile(r'Claude Doc \(shared separately\)'), 'shared separately'),
+          (re.compile(r'`research/([a-z0-9-]+\.md)`'), r'"\1" — project repo'),
         ]
     if name == 'coinsph':
         return [

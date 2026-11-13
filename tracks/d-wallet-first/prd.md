@@ -1,9 +1,10 @@
 # Zed Dollar Wallet — Modular PRD (wallet-first)
 
-**Status:** Draft v0.1 (2026-11-12) — settled facts only; decisions marked `OPEN` are for joint resolution (none silently assumed). Standalone product proposal.
+**Status:** Draft v0.2 (2026-11-12) — settled facts only; decisions marked `OPEN` are for joint resolution (none silently assumed). Standalone product proposal.
 **Surfaces:** repo canonical: this file; collaborative working copy: Claude Doc; team copies: Word files in Drive under Shared drives/Product/USDC Accounts (refreshed on meaningful revisions). Team copies carry no internal-workflow language.
 **IDs:** decisions `W-D*`, requirements `W-R*`, open questions `W-Q*`. Items carried from the USDC Dollar Wallet PRD (v0.3, now superseded) cite their old `C-D*`/`C-R*` IDs for provenance; Privy confirmations keep their shared `C-PR*`/`C-Q*` IDs (canonical in the counterparty tracker).
 
+**Changelog v0.2 (2026-11-12):** processed the USDC/USDT Philippine regulatory research handoff (11/12, `research/usdc-usdt-ph-regulatory-handoff.md`) into §5.0 as the working regulatory frame — **context only, not definitive** (it is a research handoff, not a legal opinion; the W-Q3/W-Q4 counsel gates stay authoritative). Enriched W-Q3/W-Q4; adopted the handoff's §6 diligence checklist as the counsel fact package; logged two instruments new to this project: BSP M-2026-023 (per-token listing diligence) and the BSP M-2026-003 question over steering users to external on-ramps under W-D6.
 **Changelog v0.1 (2026-11-12):** initial draft. Trigger: the BSP's partial suspension of Coins.ph (Monetary Board Resolution No. 839, 2026-09-29 — inbound InstaPay/PESONet blocked for DCPay; still in force; license risk reported; details in the project bibliography). Direction (Steve, 11/12): invert the architecture — build the embedded self-custodied wallet first with bring-your-own funding, then bolt on independent modules (merchant payments via QR Ph; yield, tokenized-money-market-fund-first; an on-ramp via a different VASP partner, PDAX as the candidate). Supersedes the USDC Dollar Wallet PRD (Track C); carried components mapped in §2.
 
 ---
@@ -107,7 +108,7 @@ Each module: the flow to build first, then requirements as capability statements
 
 **The flow to build:** a separate, opt-in surface under its own terms (carried C-D11/C-R3 pattern): the user moves USDC from their wallet into the yield instrument by signing themselves, watches the position, withdraws anytime by signing again. **Instrument order: TMMF first** (W-D5), reachable through the same Privy integration; DeFi lending vaults (Aave-family) as the fallback if the TMMF gate fails.
 
-- **W-R11. The SRC §8 gate comes before design** (carried, now critical path): a tokenized money market fund offered to Philippine retail plausibly requires securities registration under the Securities Regulation Code §8 — counsel opinion **before** the yield flow is designed. If it fails: the DeFi-vault alternative proceeds under the old C-Q12 characterization question instead; the lending explainer + venue-decision doc carries.
+- **W-R11. The SRC §8 gate comes before design** (carried, now critical path): a tokenized money market fund offered to Philippine retail plausibly requires securities registration under the Securities Regulation Code §8 — counsel opinion **before** the yield flow is designed. Working frame (§5.0, non-definitive): the complete customer arrangement is what gets classified — neither the partner intermediation nor self-custody resolves it on its own. If it fails: the DeFi-vault alternative proceeds under the old C-Q12 characterization question instead; the lending explainer + venue-decision doc carries.
 - **W-R12–15. Custody + display invariants** (carried C-R9–C-R12 whole): user-signed instrument entry/exit, positions self-custodied where the instrument allows, no Zed pooling or omnibus position; Zed's fee share to the dedicated admin wallet under key-quorum dual control; yield shown as variable, never "interest," loss-possible and liquidity disclosures, never yield in isolation.
 - **W-R16. Gates before external users:** Philippine availability of the chosen Privy instrument **in writing** (C-Q6 pattern — now asked per instrument, TMMF availability/eligibility first); instrument diligence memo (carried C-R15).
 
@@ -120,14 +121,27 @@ Each module: the flow to build first, then requirements as capability statements
 
 ## 5. Status board
 
+### 5.0 Regulatory working frame — context, not conclusions
+
+From the 11/12 research handoff (`research/usdc-usdt-ph-regulatory-handoff.md`; primary sources cited there). **Nothing in this subsection is treated as definitive** — it is not a legal opinion; it frames what counsel must answer under W-Q3/W-Q4. The load-bearing points:
+
+- **Three separate analyses, never one:** the token itself; the complete customer-facing arrangement; and each provider's regulated activities. A non-security conclusion on plain USDC decides nothing about a yield feature built on it.
+- **M1's posture is the strongest case:** plain holding and transfer with no promised return carries the strongest non-security argument (the instrument "is not a security in the first place," per the investment-contract test in *Power Homes v. SEC*) — but it still requires an operating-model review (which entity performs exchange, transfer, or safekeeping under BSP Circular 1108), and no published SEC determination blanket-resolves USDC or USDT as non-securities.
+- **Yield changes the question — and neither partnering nor self-custody changes the answer:** committing tokens to a return-generating arrangement may create a separate regulated instrument; "moving the promise to a third-party partner" does not resolve classification, and the handoff's scenario matrix flags exactly M3's shape ("self-custody wallet with integrated access to an offshore yield service") as leaving promotion, intermediation, and investment-rights questions open.
+- **Bring-your-own funding (W-D6) has its own wrinkle:** BSP M-2026-003 states PH-resident retail may not directly access unregistered offshore VASPs (it is addressed to BSP-supervised institutions — the handoff cautions against reading it as making token ownership unlawful). If Zed's UX steers users toward specific external on-ramps, that Zed-linked arrangement needs explicit review → folded into W-Q3.
+- **Per-token diligence is its own obligation:** BSP M-2026-023 (June 2026) requires token- and network-level listing diligence (reserves, redemption, liquidity, legal rights) with ongoing monitoring and delisting triggers — the diligence pattern partners and counsel will expect even where Zed itself is not a VASP (feeds W-D3/W-D10).
+- **Standing regardless of classification:** the VASP-license moratorium continues (BSP M-2025-031 — constrains any own-license path and frames partner scarcity for M4); the Financial Products and Services Consumer Protection Act (RA 11765) disclosure duties align with the W-R12–15 display rules (never imply an insured deposit; distinguish token value from investment return; substantiate any guarantee claim).
+
+The handoff's diligence checklist — customer entitlement, asset control, return source and calculation, operating roles, customer journey, funds flow — is adopted as **the fact package to assemble for counsel** under W-Q3/W-Q4.
+
 ### 5.1 Open questions
 
 | ID | Question | Blocks | Status |
 |---|---|---|---|
 | W-Q1 | M2 settlement partner: who can do USDC→PHP + QR Ph person-to-merchant payout for an embedded wallet, under what license posture | M2 | Open — scan not started |
 | W-Q2 | PDAX capability + appetite scan (re-ask the Track C OQ set) | M4 | Open — needs relationship intro |
-| W-Q3 | Counsel: characterization of M1 — self-custody wallet software provided by a PH-facing app: any VASP/EMI/money-transmission trigger? Screening obligations on open-loop receive/send? Travel-rule exposure on sends? | M1 external launch | Open — new question, not in the Track C set |
-| W-Q4 | Counsel: TMMF / SRC §8 (carried C-Q14) | M3 design start | Open — **critical path now** |
+| W-Q3 | Counsel: characterization of M1 — self-custody wallet software provided by a PH-facing app: any VASP/EMI/money-transmission trigger? Screening obligations on open-loop receive/send? Travel-rule exposure on sends? Plus (§5.0): does UX that steers users to specific external on-ramps create a reviewable Zed-linked arrangement under BSP M-2026-003? Fact package = the §5.0 diligence checklist | M1 external launch | Open — new question, not in the Track C set |
+| W-Q4 | Counsel: TMMF / SRC §8 (carried C-Q14). Frame per §5.0: the complete arrangement is what gets classified — neither Privy’s intermediation nor self-custody resolves it | M3 design start | Open — **critical path now** |
 | W-Q5 | Privy: TMMF instrument availability + PH eligibility in writing (C-Q6 pattern, per instrument) | M3 | Open |
 | W-Q6 | Coins.ph relationship: suspension status, reinstatement timeline, their account of the cause — keeps M4 optionality honest | M4 optionality | Open — relationship-level, not API-level |
 
