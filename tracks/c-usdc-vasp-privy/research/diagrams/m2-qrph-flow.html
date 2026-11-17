@@ -7,10 +7,10 @@
   CV["Conversion leg — STRUCTURE OPEN (W-Q7)<br/>the user's USDC is sold for pesos;<br/>who stands in the middle is undecided"]
   F["Zed corporate PHP account at Netbank<br/>('the float' — Zed's own pesos, funded in advance)"]
   MB["Merchant's bank or e-wallet account"]
-  M -->|"1 scan — decoded via Netbank:<br/>merchant name, amount, disburse_id"| U
-  U -->|"2 app shows PHP amount + USDC quote;<br/>user signs the USDC debit"| CV
-  CV -.->|"3 pesos replenish the float<br/>(per-payment vs. batch — open)"| F
-  F -->|"4 Netbank QR-PH disbursement pays the merchant<br/>(Pending → ForSettlement → Settled)"| MB
+  M -->|"1. User scans — the app decodes via Netbank:<br/>merchant name, amount, disburse_id"| U
+  U -->|"2. App shows the PHP amount and the USDC quote;<br/>the user signs the USDC debit"| CV
+  CV -.->|"3. Pesos replenish the float<br/>(per-payment vs. batch — open)"| F
+  F -->|"4. Netbank QR-PH disbursement pays the merchant<br/>(Pending → ForSettlement → Settled)"| MB
   classDef user fill:#f2efe9,stroke:#a08c5b
   classDef bank fill:#eef3fa,stroke:#4a6fa5
   classDef open fill:#fdf0ef,stroke:#c0392b,stroke-dasharray: 5 5
