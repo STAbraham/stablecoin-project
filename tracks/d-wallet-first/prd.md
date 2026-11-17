@@ -1,6 +1,6 @@
 # Zed Dollar Wallet — Modular PRD (wallet-first)
 
-**Status:** Draft v0.2 (2026-11-12) — settled facts only; decisions marked `OPEN` are for joint resolution (none silently assumed). Standalone product proposal.
+**Status:** Draft v0.3 (2026-11-17) — settled facts only; decisions marked `OPEN` are for joint resolution (none silently assumed). Standalone product proposal.
 **Surfaces:** repo canonical: this file; collaborative working copy: Claude Doc; team copies: Word files in Drive under Shared drives/Product/USDC Accounts (refreshed on meaningful revisions). Team copies carry no internal-workflow language.
 **IDs:** decisions `W-D*`, requirements `W-R*`, open questions `W-Q*`; Privy confirmations use the shared `C-PR*`/`C-Q*` IDs (canonical in the counterparty tracker).
 
@@ -30,7 +30,7 @@ flowchart TD
 | Module | One-line product | Stands alone as | Needs a licensed money-movement partner? |
 |---|---|---|---|
 | **M1 — Wallet core** | An embedded, self-custodied USDC wallet: your own address to receive, hold, send | A dollar store-of-value for anyone who can already acquire USDC | **No** — pure wallet software; funding is bring-your-own on-ramp |
-| **M2 — Merchant payments** | Pay any QR Ph merchant from the USDC balance | "Spend dollars anywhere QR Ph works" | Yes — a conversion + settlement partner (the module's defining open question, W-Q1) |
+| **M2 — Merchant payments** | Pay any QR Ph merchant from the USDC balance | "Spend dollars anywhere QR Ph works" | Yes — **Netbank** settles the PHP leg via its QR-PH disbursement API (decided 11/17); the USDC→PHP conversion leg is the open question (W-Q7) |
 | **M3 — Yield** | Opt-in yield on held USDC — tokenized money market funds (TMMFs) first, decentralized-finance (DeFi) lending vaults as the alternative | A dollar savings product | No money-movement partner; instrument/venue gates instead (SRC §8 for TMMFs — design-blocking) |
 | **M4 — Native on-ramp** | PHP in → USDC lands in the user's wallet | The convenience layer that completes the loop | Yes — a VASP partner; **PDAX** (Philippine Digital Asset Exchange) is the candidate; a complete partner-integration + ledger design template exists in the project archive |
 
@@ -47,17 +47,17 @@ flowchart TD
 | W-D1 | Strategy | **Wallet-first, modular** (Steve, 11/12): M1 ships with bring-your-own funding; M2/M3/M4 are isolated bolt-ons, each viable alone | BSP suspension of Coins.ph inbound rails demonstrated the single-partner failure mode |
 | W-D2 | Custody | User-owned, self-custodied Privy wallet; no Zed signer or keys; open-loop; all outbound user-signed | No-unilateral-Zed-signing posture; Privy configuration confirmations C-PR-1..5 apply |
 | W-D3 | Stablecoin | USDC | Privy Earn USDC vaults are live self-serve; Circle issuer posture |
-| W-D4 | Surface | Tab in the existing Zed app, loading a mobile-responsive web app (POC validation; React Native/Flutter fallback) | Settled at the 9/24 design session (App Store review timelines; POC validates feel; session tokens carry over) |
+| W-D4 | Surface | **Standalone app (decided 11/17)** — shipped as a mobile progressive web app (PWA) for the pilot; native packaging later if warranted | 11/17 meeting — reverses the earlier in-app-tab lean: the product targets a cohort up to 10× the cardholder base and stands on its own brand; a PWA keeps iteration outside app-store review |
 | W-D5 | M3 instrument order | **TMMF first**, DeFi lending vaults (Aave-family via Privy) as the alternative | Steve, 11/12; easier regulator story, countercyclical, Treasury-backed; subject to the SRC §8 gate |
 | W-D6 | M1 funding model | **Bring-your-own on-ramp**: the user funds their own address from any external source; Zed builds no deposit rail into M1 | Steve, 11/12 — the de-risking core of the strategy |
+| W-D7 | M2 PHP settlement partner | **Netbank (decided 11/17)**: QR Ph decode + disbursement from a prefunded Zed corporate account, via its QR-PH API (`research/netbank-qrph.md`) | 11/17 meeting; existing relationship from the incumbent architecture (tracker C-NB items). Covers the payout leg only — the conversion leg is W-Q7 |
 
 ### 2.2 OPEN
 
 | # | Decision | The question | Preliminary note |
 |---|---|---|---|
-| W-D7 | M2 settlement partner | Who converts USDC→PHP and settles QR Ph merchant payments (see W-Q1) | Partner scan not started |
 | W-D8 | Module sequencing + pilot scope per module | Current lean M2 → M3 → M4; cohort + caps per module undecided | Prior working reference for M1: ~50 invite-only existing cardholders, conservative caps |
-| W-D9 | Naming / brand | Working name stays "Dollar Wallet" | Steve's call + a compliance floor on USDC/Circle disclosure prominence |
+| W-D9 | Naming / brand | Current working name: **"Zed Cash"** (11/16); final naming open | Steve's call + a compliance floor on USDC/Circle disclosure prominence |
 | W-D10 | Chain | Lean: Base (Privy Earn USDC vaults live there) — but now gated on M3 instrument availability and M2/M4 partner rails | Chain follows the instruments and the partner rails |
 | W-D11 | M1 receive guardrails | How open is "open-loop receive": any sender vs. screening/limits; multi-chain receive vs. single-chain with guidance | Interacts with W-Q3 (counsel) |
 
@@ -77,14 +77,14 @@ Each module: the flow to build first, then requirements as capability statements
 - **W-R6. Compliance posture** (→ W-Q3): Zed provides self-custody wallet software; it is not custodian, exchange, or transmitter. Product must preserve that: no pooling, no Zed-controlled flow of user funds, terminology discipline. Sanctions/screening posture on receive and send per counsel.
 - **W-R7. Runbooks.** Privy outage, chain congestion, compromised-device support flow, pilot halt (which, with no partner, is just feature-flagging the tab).
 
-### M2 — Merchant payments (QR Ph)
+### M2 — Merchant payments (QR Ph, settled via Netbank)
 
-**The flow to build:** the user scans any QR Ph code (the Philippines' national QR payment standard); the app shows the merchant and the PHP amount, quotes the USDC debit at that moment's rate (rate disclosed at the moment of confirmation), the user confirms with their signature, and the merchant is paid PHP over QR Ph rails while the USDC leaves the user's wallet.
+**The flow to build:** the user scans any QR Ph code (the Philippines' national QR payment standard); the app decodes it through Netbank (`GET /v1/qrph/decode` — merchant name and city, PHP amount for dynamic codes, person-to-merchant vs person-to-person type, and a `disburse_id`); the app shows the merchant and PHP amount and quotes the USDC debit (rate disclosed at the moment of confirmation); the user confirms with their signature; the PHP leg settles via Netbank's QR-PH disbursement (`POST /v1/qrph/transactions`), which debits a prefunded Zed corporate account at Netbank and pays the beneficiary, tracked Pending → ForSettlement → Settled. API detail: `research/netbank-qrph.md`.
 
-- **W-R8. The settlement leg is a partner capability** (→ W-Q1, the module's defining question): a licensed counterparty performs USDC→PHP conversion and QR Ph (InstaPay person-to-merchant) payout. Zed remains interface, never holder — the interface-not-holder position discipline restates against whoever this partner is.
-- **W-R9. Rate + total-cost disclosure** at confirmation; no spread opacity.
-- **W-R10. Per-payment traceability.** QR payload, quote, rate, USDC debit tx hash, PHP settlement reference — reconcilable end to end.
-- Kept deliberately thin until W-Q1 has candidates; note Coins.ph's *outbound* rails were never suspended — but building the spend leg on a partner under active BSP remediation is not the plan (W-Q1 scan includes PDAX, EMIs/acquirers, and stablecoin-settlement providers).
+- **W-R8. Two legs, separately owned.** The **PHP settlement leg is Netbank's** (W-D7): decode + disbursement from the prefunded corporate float; integration scoping → W-Q8. The **conversion leg — how the user's USDC becomes PHP in that float — is the module's remaining design and counsel question (W-Q7)**: structured naively (user USDC → Zed; Zed PHP → merchant), Zed performs a crypto-fiat exchange — squarely the VASP-activity perimeter the §4.0 posture avoids. Candidate structures to evaluate with counsel before build: a licensed conversion counterparty standing as principal in the middle; the user's USDC sold through a VASP/exchange with PHP delivered to the Netbank float; per-transaction conversion vs. treasury-batch rebalancing (which changes who bears rate risk and what Zed's float legally is.)
+- **W-R9. Rate + total-cost disclosure** at confirmation; no spread opacity. Static QR codes carry no amount — the user enters it before quoting.
+- **W-R10. Per-payment traceability.** Decode payload, our `reference_id`, Netbank `transaction_id` + status trail, quote, rate, USDC debit tx hash — reconcilable end to end.
+- **W-R18. Point-of-sale latency is a requirement, not a hope:** the decode→sign→disburse→Settled path must be fast enough for a checkout counter; Netbank's maker-checker approval states must not sit in the per-transaction path (configuration → W-Q8). Pilot may restrict to person-to-merchant codes only.
 
 ### M3 — Yield
 
@@ -130,7 +130,9 @@ The handoff's diligence checklist — customer entitlement, asset control, retur
 
 | ID | Question | Blocks | Status |
 |---|---|---|---|
-| W-Q1 | M2 settlement partner: who can do USDC→PHP + QR Ph person-to-merchant payout for an embedded wallet, under what license posture | M2 | Open — scan not started |
+| W-Q1 | M2 settlement partner for the PHP payout leg | M2 | **Closed 11/17: Netbank** (QR-PH decode + disbursement; prior relationship). The conversion leg continues as W-Q7 |
+| W-Q7 | M2 conversion leg: how user USDC becomes PHP in the Netbank float **without Zed performing the exchange** — structure (licensed conversion counterparty as principal? user-side sale via a VASP with PHP settled to Netbank?) + counsel characterization | M2 build | Open — M2's defining question |
+| W-Q8 | Netbank QR-PH integration scoping: auth scheme, webhook coverage vs polling, settlement timing per rail, fees/limits, P2M coverage, corporate-account setup, maker-checker configuration off the per-transaction path, sandbox | M2 | Open — route via the existing Netbank relationship (tracker C-NB contacts) |
 | W-Q2 | PDAX capability + appetite scan (re-ask the archived partner-integration question set) | M4 | Open — needs relationship intro |
 | W-Q3 | Counsel: characterization of M1 — self-custody wallet software provided by a PH-facing app: any VASP/EMI/money-transmission trigger? Screening obligations on open-loop receive/send? Travel-rule exposure on sends? Plus (§4.0): does UX that steers users to specific external on-ramps create a reviewable Zed-linked arrangement under BSP M-2026-003? Fact package = the §4.0 diligence checklist | M1 external launch | Open |
 | W-Q4 | Counsel: TMMF / SRC §8 (C-Q14). Frame per §4.0: the complete arrangement is what gets classified — neither Privy’s intermediation nor self-custody resolves it | M3 design start | Open — **critical path now** |
@@ -146,7 +148,7 @@ C-PR-1..5 (user-sole-owner config, no Zed signer, export/recovery, open-loop sen
 1. M1 build kickoff: Privy sandbox verification of C-PR-1..5 under Zed's config; wallet-core tech design (bounded module per W-R17); continue the Andy mobile-web POC.
 2. Counsel asks, in parallel: W-Q3 (M1 characterization — needed before external users) and W-Q4 (SRC §8 — needed before M3 design).
 3. Privy: TMMF availability + PH eligibility in writing (W-Q5).
-4. W-Q1 partner scan for the QR Ph settlement leg.
+4. Netbank: kick off QR-PH integration scoping (W-Q8) through the existing relationship; in parallel, design + counsel the conversion-leg structure (W-Q7) before any M2 build.
 5. PDAX introduction (W-Q2); hold W-Q6 (Coins.ph status) warm.
 6. Pilot definition for M1-only (W-D8): cohort, caps, success metrics for a bring-your-own-funding wallet.
 
