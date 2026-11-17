@@ -1,0 +1,22 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<style>html{overflow:hidden}body{background:#fff;margin:0;padding:16px;font-family:-apple-system,Helvetica,Arial}</style>
+</head><body><pre class="mermaid">flowchart TD
+  M["Merchant's QR Ph code at the till<br/>(any participating bank or e-wallet)"]
+  U["User's Zed Cash wallet<br/>(USDC, self-custodied)"]
+  CV["Conversion leg — STRUCTURE OPEN (W-Q7)<br/>the user's USDC is sold for pesos;<br/>who stands in the middle is undecided"]
+  F["Zed corporate PHP account at Netbank<br/>('the float' — Zed's own pesos, funded in advance)"]
+  MB["Merchant's bank or e-wallet account"]
+  M -->|"1 scan — decoded via Netbank:<br/>merchant name, amount, disburse_id"| U
+  U -->|"2 app shows PHP amount + USDC quote;<br/>user signs the USDC debit"| CV
+  CV -.->|"3 pesos replenish the float<br/>(per-payment vs. batch — open)"| F
+  F -->|"4 Netbank QR-PH disbursement pays the merchant<br/>(Pending → ForSettlement → Settled)"| MB
+  classDef user fill:#f2efe9,stroke:#a08c5b
+  classDef bank fill:#eef3fa,stroke:#4a6fa5
+  classDef open fill:#fdf0ef,stroke:#c0392b,stroke-dasharray: 5 5
+  class U user
+  class F,MB bank
+  class CV open
+</pre>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{useMaxWidth:false}, sequence:{useMaxWidth:false}, state:{useMaxWidth:false}, er:{useMaxWidth:false}});</script>
+</body></html>

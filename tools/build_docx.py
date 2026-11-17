@@ -51,7 +51,7 @@ def scrubs_for(name):
     return common
 
 docs = [
- ('tracks/d-wallet-first/prd.md', 'mprd', 'Zed Dollar Wallet — Modular PRD', [DGDIR+'module-map.png']),
+ ('tracks/d-wallet-first/prd.md', 'mprd', 'Zed Dollar Wallet — Modular PRD', [DGDIR+'module-map.png', DGDIR+'m2-qrph-flow.png']),
  ('tracks/c-usdc-vasp-privy/prd.md', 'prd', 'USDC Dollar Wallet — PRD', [DGDIR+'fundsflow.png']),
  ('tracks/c-usdc-vasp-privy/research/coinsph-integration.md', 'coinsph', 'Coins.ph Integration — Technical Doc', [DGDIR+'onramp-seq.png']),
  ('tracks/c-usdc-vasp-privy/research/php-ledger-design.md', 'ledger', 'PHP Ledger Design (Unconverted Balances)', [DGDIR+'ledger-postings.png', DGDIR+'schema-er.png', DGDIR+'order-lifecycle.png']),

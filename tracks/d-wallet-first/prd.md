@@ -79,12 +79,33 @@ Each module: the flow to build first, then requirements as capability statements
 
 ### M2 — Merchant payments (QR Ph, settled via Netbank)
 
+**The idea in plain terms:** the user pays from a dollar balance; the merchant receives ordinary pesos over the QR Ph rails they already accept, and never needs to know crypto was involved. Making that work means every payment has two legs: a **conversion leg** (the user's USDC becomes pesos) and a **settlement leg** (pesos reach the merchant's bank). Netbank owns the settlement leg. Who owns the conversion leg is the module's open question (W-Q7).
+
 **The flow to build:** the user scans any QR Ph code (the Philippines' national QR payment standard); the app decodes it through Netbank (`GET /v1/qrph/decode` — merchant name and city, PHP amount for dynamic codes, person-to-merchant vs person-to-person type, and a `disburse_id`); the app shows the merchant and PHP amount and quotes the USDC debit (rate disclosed at the moment of confirmation); the user confirms with their signature; the PHP leg settles via Netbank's QR-PH disbursement (`POST /v1/qrph/transactions`), which debits a prefunded Zed corporate account at Netbank and pays the beneficiary, tracked Pending → ForSettlement → Settled. API detail: `research/netbank-qrph.md`.
 
-- **W-R8. Two legs, separately owned.** The **PHP settlement leg is Netbank's** (W-D7): decode + disbursement from the prefunded corporate float; integration scoping → W-Q8. The **conversion leg — how the user's USDC becomes PHP in that float — is the module's remaining design and counsel question (W-Q7)**: structured naively (user USDC → Zed; Zed PHP → merchant), Zed performs a crypto-fiat exchange — squarely the VASP-activity perimeter the §4.0 posture avoids. Candidate structures to evaluate with counsel before build: a licensed conversion counterparty standing as principal in the middle; the user's USDC sold through a VASP/exchange with PHP delivered to the Netbank float; per-transaction conversion vs. treasury-batch rebalancing (which changes who bears rate risk and what Zed's float legally is.)
+```mermaid
+flowchart TD
+  M["Merchant's QR Ph code at the till<br/>(any participating bank or e-wallet)"]
+  U["User's Zed Cash wallet<br/>(USDC, self-custodied)"]
+  CV["Conversion leg — STRUCTURE OPEN (W-Q7)<br/>the user's USDC is sold for pesos;<br/>who stands in the middle is undecided"]
+  F["Zed corporate PHP account at Netbank<br/>('the float' — Zed's own pesos, funded in advance)"]
+  MB["Merchant's bank or e-wallet account"]
+  M -->|"1 scan — decoded via Netbank:<br/>merchant name, amount, disburse_id"| U
+  U -->|"2 app shows PHP amount + USDC quote;<br/>user signs the USDC debit"| CV
+  CV -.->|"3 pesos replenish the float<br/>(per-payment vs. batch — open)"| F
+  F -->|"4 Netbank QR-PH disbursement pays the merchant<br/>(Pending → ForSettlement → Settled)"| MB
+  classDef user fill:#f2efe9,stroke:#a08c5b
+  classDef bank fill:#eef3fa,stroke:#4a6fa5
+  classDef open fill:#fdf0ef,stroke:#c0392b,stroke-dasharray: 5 5
+  class U user
+  class F,MB bank
+  class CV open
+```
+
+- **W-R8. Two legs, separately owned.** The **settlement leg is Netbank's** (W-D7): Zed keeps a pool of its own pesos at Netbank, funded in advance (the "float"), and each merchant payment is disbursed from it. The **conversion leg — how the user's USDC turns into pesos that replenish that float — is the module's remaining design and counsel question (W-Q7)**. The trap to avoid: if the user's USDC simply flows to Zed while Zed's pesos pay the merchant, then Zed itself has exchanged crypto for fiat — a licensed activity (the VASP perimeter) that Zed deliberately does not perform (§4.0). Structures to evaluate with counsel before building: a licensed conversion partner standing between the user and the float as principal; selling the user's USDC through a VASP with the peso proceeds delivered to the float; and per-payment conversion versus periodic treasury rebalancing — a choice that also decides who bears exchange-rate risk and what the float legally is.
 - **W-R9. Rate + total-cost disclosure** at confirmation; no spread opacity. Static QR codes carry no amount — the user enters it before quoting.
 - **W-R10. Per-payment traceability.** Decode payload, our `reference_id`, Netbank `transaction_id` + status trail, quote, rate, USDC debit tx hash — reconcilable end to end.
-- **W-R18. Point-of-sale latency is a requirement, not a hope:** the decode→sign→disburse→Settled path must be fast enough for a checkout counter; Netbank's maker-checker approval states must not sit in the per-transaction path (configuration → W-Q8). Pilot may restrict to person-to-merchant codes only.
+- **W-R18. The payment must finish while the customer is standing at the counter.** A QR Ph payment happens in person: the merchant watches their screen for the confirmation before handing over the goods. So the whole chain — decode, quote, the user's signature, Netbank's disbursement, the merchant's confirmation — has to complete reliably in a few seconds, like a card tap; "usually fast" is a failed checkout. Two concrete consequences: Netbank's API supports an approval step designed for back-office payouts (a second employee approving each disbursement — "maker-checker"); that must be configured OFF the per-payment path, or every purchase would stall at the till (→ W-Q8). And the pilot may restrict to merchant codes (person-to-merchant) only, leaving person-to-person QR transfers out of scope.
 
 ### M3 — Yield
 
