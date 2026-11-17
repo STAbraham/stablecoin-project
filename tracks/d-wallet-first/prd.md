@@ -79,7 +79,7 @@ Each module: the flow to build first, then requirements as capability statements
 
 ### M2 — Merchant payments (QR Ph, settled via Netbank)
 
-**The idea in plain terms:** the user pays from a dollar balance; the merchant receives ordinary pesos over the QR Ph rails they already accept, and never needs to know crypto was involved. Making that work means every payment has two legs: a **conversion leg** (the user's USDC becomes pesos) and a **settlement leg** (pesos reach the merchant's bank). Netbank owns the settlement leg. Who owns the conversion leg is the module's open question (W-Q7).
+The user pays from a dollar balance; the merchant receives ordinary pesos over the QR Ph rails they already accept, and never needs to know crypto was involved. Making that work means every payment has two legs: a **conversion leg** (the user's USDC becomes pesos) and a **settlement leg** (pesos reach the merchant's bank). Netbank owns the settlement leg. Who owns the conversion leg is the module's open question (W-Q7).
 
 **The flow to build:** the user scans any QR Ph code (the Philippines' national QR payment standard); the app decodes it through Netbank (`GET /v1/qrph/decode` — merchant name and city, PHP amount for dynamic codes, person-to-merchant vs person-to-person type, and a `disburse_id`); the app shows the merchant and PHP amount and quotes the USDC debit (rate disclosed at the moment of confirmation); the user confirms with their signature; the PHP leg settles via Netbank's QR-PH disbursement (`POST /v1/qrph/transactions`), which debits a prefunded Zed corporate account at Netbank and pays the beneficiary, tracked Pending → ForSettlement → Settled. API detail: `research/netbank-qrph.md`.
 
