@@ -28,7 +28,16 @@ def scrubs_for(name):
           (re.compile(r'`tracks/c-usdc-vasp-privy/prd\.md`'), 'the superseded USDC Dollar Wallet PRD — this folder'),
           (re.compile(r'`\.\./\.\./([A-Za-z.-]+\.md)`'), r'"\1" (project repo)'),
           (re.compile(r'Claude Doc \(shared separately\)'), 'shared separately'),
+          (re.compile(r'`research/netbank-qrph\.md`'), '"Netbank QR-PH — API Digest" (this folder)'),
+          (re.compile(r'`research/usdc-usdt-ph-regulatory-handoff\.md`'), '"USDC-USDT PH Regulatory Research Handoff" (this folder)'),
+          (re.compile(r'`research/bsp-vasp-defi-pooling\.md`'), '"BSP-VASP DeFi Pooling Note" (this folder)'),
           (re.compile(r'`research/([a-z0-9-]+\.md)`'), r'"\1" — project repo'),
+        ]
+    if name == 'netbank':
+        return [
+          (re.compile(r'\(tracker C-NB items[^)]*\)'), '(Counterparty & Counsel Tracker — this folder)'),
+          (re.compile(r'\(PRD W-Q7\)'), '(W-Q7 in the Zed Dollar Wallet — Modular PRD, this folder)'),
+          (re.compile(r'\(→ PRD W-Q8\)|\(tracker C-NB contacts\)'), '(Counterparty & Counsel Tracker — this folder)'),
         ]
     if name == 'coinsph':
         return [
@@ -52,6 +61,9 @@ def scrubs_for(name):
 
 docs = [
  ('tracks/d-wallet-first/prd.md', 'mprd', 'Zed Dollar Wallet — Modular PRD', [DGDIR+'module-map.png', DGDIR+'m2-qrph-flow.png']),
+ ('tracks/d-wallet-first/research/netbank-qrph.md', 'netbank', 'Netbank QR-PH — API Digest', []),
+ ('tracks/d-wallet-first/research/usdc-usdt-ph-regulatory-handoff.md', 'reghandoff', 'USDC-USDT PH Regulatory Research Handoff', []),
+ ('tracks/d-wallet-first/research/bsp-vasp-defi-pooling.md', 'defipool', 'BSP-VASP DeFi Pooling Note', []),
  ('tracks/c-usdc-vasp-privy/prd.md', 'prd', 'USDC Dollar Wallet — PRD', [DGDIR+'fundsflow.png']),
  ('tracks/c-usdc-vasp-privy/research/coinsph-integration.md', 'coinsph', 'Coins.ph Integration — Technical Doc', [DGDIR+'onramp-seq.png']),
  ('tracks/c-usdc-vasp-privy/research/php-ledger-design.md', 'ledger', 'PHP Ledger Design (Unconverted Balances)', [DGDIR+'ledger-postings.png', DGDIR+'schema-er.png', DGDIR+'order-lifecycle.png']),
