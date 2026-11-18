@@ -1,0 +1,14 @@
+flowchart LR
+  subgraph CL ["Crypto leg"]
+    direction TB
+    U["User's wallet<br/>(USDC, self-custodied)"] -->|"1. User signs USDC<br/>over to the VASP"| V["Licensed VASP"]
+  end
+  subgraph PL ["Peso leg — entirely the user's own account"]
+    direction TB
+    UA["User's OWN deposit account<br/>at Netbank (Account-as-a-Service;<br/>bank-KYC'd)"] -->|"3. User instructs payment from<br/>their own account; the Zed app is the<br/>interface, Netbank executes over QR Ph"| MB["Merchant's bank or<br/>e-wallet account"]
+  end
+  CL -->|"2. Peso proceeds settle into<br/>the user's own account"| PL
+  classDef user fill:#f2efe9,stroke:#a08c5b
+  classDef bank fill:#eef3fa,stroke:#4a6fa5
+  class U,UA user
+  class V,MB bank

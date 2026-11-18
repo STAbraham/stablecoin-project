@@ -1,0 +1,20 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<style>html{overflow:hidden}body{background:#fff;margin:0;padding:16px;font-family:-apple-system,Helvetica,Arial}</style>
+</head><body><pre class="mermaid">flowchart LR
+  subgraph CL ["Crypto leg"]
+    direction TB
+    U["User's wallet<br/>(USDC, self-custodied)"] -->|"2. User signs USDC<br/>over to the VASP"| V["Licensed VASP"]
+  end
+  subgraph PL ["Peso leg — Zed pays its OWN debt"]
+    direction TB
+    Z["Zed's corporate account<br/>at Netbank (Zed's pesos — 'the float')"] -->|"1. Zed pays the merchant,<br/>discharging its OWN obligation:<br/>Zed financed the purchase and books<br/>a receivable against the user"| MB["Merchant's bank or<br/>e-wallet account"]
+  end
+  CL -->|"3. Peso proceeds repay<br/>Zed's receivable"| PL
+  classDef user fill:#f2efe9,stroke:#a08c5b
+  classDef bank fill:#eef3fa,stroke:#4a6fa5
+  class U user
+  class Z,MB,V bank
+</pre>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral', flowchart:{useMaxWidth:false}, sequence:{useMaxWidth:false}, state:{useMaxWidth:false}, er:{useMaxWidth:false}});</script>
+</body></html>
