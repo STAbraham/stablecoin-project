@@ -2,7 +2,7 @@
 
 > **NOTES FOR STEVE — do not paste this block.**
 > 1. **Entity structure now runs through every answer:** Zed Financial, Inc. (the entity under review) is drafted as the parent/holding company; the credit-card business sits with the PH subsidiary. Confirm and fill in: the subsidiary's exact registered name (drafted as "Zed Financial PH, Inc. — confirm"), the parent's incorporation jurisdiction, and the ownership percentage.
-> 2. **Decision needed on Q2 (operating activity):** Bridge wants evidence *the entity under review* is a real operating business. Two paths are drafted — use A if the parent has any direct money movement of its own (intercompany invoices, funding wires to the sub, investor proceeds); use B (group-level evidence via the sub, with the ownership link stated) if the parent is a pure holding company. A+B together is strongest.
+> 2. **Q2 (operating activity) — settled:** parent-level evidence = the intercompany agreement (attach it); group-level evidence = Steve's statements (drop in `inbox/` for redaction before attaching).
 > 3. **Decision needed on Q4 (account use):** Option A (recommended) describes stablecoin issuance/redemption + corporate treasury for the dollar-wallet product generically — accurate through the USDC pivot. Option B is treasury-only if you want a narrower review scope. Also confirm **which entity will operate the Zed Cash product** (contract with the wallet provider, run the app) — the draft says the parent; if it's the sub, Q3 and Q4 need the operator swapped.
 > 4. **Insert before sending:** every `[...]` placeholder; the Q2 artifacts; the Q3 certificates (these are the *subsidiary's* — label them as such).
 > 5. The licensure/exemption answer deliberately describes each activity by its established name and says nothing beyond what's asked — if they follow up by phone, ask them to put questions in writing.
@@ -13,7 +13,7 @@
 
 Zed Financial, Inc. is the parent holding company of the Zed group. It does not itself conduct consumer-facing operations; it holds the group's subsidiaries and intellectual property, raises and deploys capital, and directs group strategy.
 
-The group's operating business is conducted through its [wholly owned] Philippine subsidiary, [Zed Financial PH, Inc. — confirm exact registered name] ("Zed PH"). Zed PH is a consumer credit card issuer: it issues the Zed Card, a [Visa/Mastercard] credit card, to individual retail customers in the Philippines, who apply through our mobile app and are onboarded with full identity verification (KYC performed via Persona) and credit underwriting. The group currently serves approximately 11,000 cardholders. Revenue comes from interest on revolving balances and installment plans, interchange, and card fees. Our customers are exclusively individual consumers in the Philippines; we do not serve businesses, and we do not serve customers outside the Philippines.
+The group's operating business is conducted through its wholly owned Philippine subsidiary, Zed Financial PH, Inc. ("Zed PH"). Zed PH is a consumer credit card issuer: it issues the Zed Card, a Mastercard credit card, to individual retail customers in the Philippines, who apply through our mobile app and are onboarded with full identity verification (KYC performed via Persona) and credit underwriting. The group currently serves approximately 20,000 cardholders. Revenue comes from interest on revolving balances and installment plans, interchange, and card fees. Our customers are exclusively individual consumers in the Philippines; we do not serve businesses, and we do not serve customers outside the Philippines.
 
 The group is also developing a dollar-denominated account product ("Zed Cash," working name) that will let the same consumer base hold and use US-dollar stablecoins in self-custodied wallets. Zed Financial, Inc. (the parent, the entity onboarding here) will hold the Bridge relationship for this product line (see item 4).
 
@@ -23,17 +23,16 @@ Zed Financial, Inc. is a holding company; the group's customer-facing revenue is
 
 **Parent-level activity (Zed Financial, Inc.):**
 
-1. **[ATTACH — if available]** [Recent intercompany invoice / services agreement billing between Zed Financial, Inc. and Zed PH, with the matching settlement shown on Zed Financial, Inc.'s bank statement]; and/or
-2. **[ATTACH — if available]** [Recent capital contribution / funding wire from Zed Financial, Inc. to Zed PH, shown on Zed Financial, Inc.'s bank statement].
+1. **[ATTACH]** The intercompany agreement between Zed Financial, Inc. and Zed Financial PH, Inc., documenting the ongoing commercial relationship between the parent and the operating subsidiary.
 
 **Group operating activity (Zed PH — the consumer credit business):**
 
 As a business-to-consumer credit card issuer, the group's equivalent of a "customer invoice" is the monthly cardholder billing statement. Attached:
 
-3. **[ATTACH]** A recent monthly billing statement issued by Zed PH to a cardholder (customer personal details redacted beyond name and statement date), showing the amount billed; and
-4. **[ATTACH]** The matching payment evidence: the corresponding repayment credit received into Zed PH's collection account, as shown on its bank statement / payment-rail confirmation (InstaPay/PESONet reference included).
+2. **[ATTACH]** A recent monthly billing statement issued by Zed PH to a cardholder (customer personal details redacted beyond name and statement date), showing the amount billed; and
+3. **[ATTACH]** The matching payment evidence: the corresponding repayment credit received into Zed PH's collection account, as shown on its bank statement / payment-rail confirmation (InstaPay/PESONet reference included).
 
-We are happy to provide additional months, additional statement/payment pairs, processor settlement reports, or the intercompany agreements themselves if useful.
+We are happy to provide additional months, additional statement/payment pairs, or processor settlement reports if useful.
 
 ## 3. Proof of licensure / explanation of exemption
 
@@ -76,4 +75,4 @@ Zed Financial, Inc. is incorporated in [Delaware, USA — confirm]. It operates 
 
 ---
 
-> **Send-checklist (don't paste):** fill every `[...]`; confirm the sub's exact registered name and swap "Zed PH" definitions accordingly; pick A/B evidence path(s) in Q2 and delete the unused lines; attach Q2 artifacts + Q3 certificates (+ structure chart if you have one); delete Option A or B in Q4 and resolve the operator bracket; confirm the jurisdiction lines in Q3/Q5 (Customer ID 9619036d-89d4-4e5e-8df2-118d9aeee9fd, steve@zed.co).
+> **Send-checklist (don't paste):** fill every `[...]`; confirm the sub's exact registered name and swap "Zed PH" definitions accordingly; attach the interco agreement + redacted statements for Q2, and the Q3 certificates (+ structure chart if you have one); delete Option A or B in Q4 and resolve the operator bracket; confirm the jurisdiction lines in Q3/Q5 (Customer ID 9619036d-89d4-4e5e-8df2-118d9aeee9fd, steve@zed.co).
