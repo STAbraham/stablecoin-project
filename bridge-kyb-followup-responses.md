@@ -1,67 +1,79 @@
 # Bridge KYB follow-up — draft responses (2026-11-23)
 
 > **NOTES FOR STEVE — do not paste this block.**
-> 1. **Decision needed on Q4 (account use):** the KYB started under the OUSD architecture. Two framings are drafted — pick one. Option A (recommended) describes the use generically and accurately (stablecoin issuance/redemption + corporate treasury for a dollar wallet product) without naming a token, which stays true through the USDC pivot. Option B is the narrower treasury-only framing if you want to minimize scope of review.
-> 2. **Insert before sending:** entity registration numbers (marked `[...]`), card network name, incorporation jurisdiction, and the two operating-activity artifacts.
-> 3. **Artifacts to gather for Q2:** one recent cardholder billing statement (redact PII except name/date/amount) + the matching repayment credit shown on Zed's bank/collection account statement. If easier, a settlement report from the processor works as secondary evidence.
-> 4. The licensure/exemption answer deliberately describes each activity by its established name and says nothing beyond what's asked — don't expand it verbally if they follow up by phone; ask them to put questions in writing.
+> 1. **Entity structure now runs through every answer:** Zed Financial, Inc. (the entity under review) is drafted as the parent/holding company; the credit-card business sits with the PH subsidiary. Confirm and fill in: the subsidiary's exact registered name (drafted as "Zed Financial PH, Inc. — confirm"), the parent's incorporation jurisdiction, and the ownership percentage.
+> 2. **Decision needed on Q2 (operating activity):** Bridge wants evidence *the entity under review* is a real operating business. Two paths are drafted — use A if the parent has any direct money movement of its own (intercompany invoices, funding wires to the sub, investor proceeds); use B (group-level evidence via the sub, with the ownership link stated) if the parent is a pure holding company. A+B together is strongest.
+> 3. **Decision needed on Q4 (account use):** Option A (recommended) describes stablecoin issuance/redemption + corporate treasury for the dollar-wallet product generically — accurate through the USDC pivot. Option B is treasury-only if you want a narrower review scope. Also confirm **which entity will operate the Zed Cash product** (contract with the wallet provider, run the app) — the draft says the parent; if it's the sub, Q3 and Q4 need the operator swapped.
+> 4. **Insert before sending:** every `[...]` placeholder; the Q2 artifacts; the Q3 certificates (these are the *subsidiary's* — label them as such).
+> 5. The licensure/exemption answer deliberately describes each activity by its established name and says nothing beyond what's asked — if they follow up by phone, ask them to put questions in writing.
 
 ---
 
 ## 1. Nature of business — what does the business sell or provide, and to whom?
 
-Zed Financial, Inc. ("Zed") is a consumer credit card issuer serving residents of the Philippines. Zed issues the Zed Card, a [Visa/Mastercard] credit card, to individual retail customers who apply through our mobile app and are onboarded with full identity verification (KYC performed via Persona) and credit underwriting. We currently serve approximately 11,000 cardholders.
+Zed Financial, Inc. is the parent holding company of the Zed group. It does not itself conduct consumer-facing operations; it holds the group's subsidiaries and intellectual property, raises and deploys capital, and directs group strategy.
 
-Our revenue comes from interest on revolving balances and installment plans, interchange, and card fees. Our customers are exclusively individual consumers in the Philippines; we do not serve businesses, and we do not serve customers outside the Philippines.
+The group's operating business is conducted through its [wholly owned] Philippine subsidiary, [Zed Financial PH, Inc. — confirm exact registered name] ("Zed PH"). Zed PH is a consumer credit card issuer: it issues the Zed Card, a [Visa/Mastercard] credit card, to individual retail customers in the Philippines, who apply through our mobile app and are onboarded with full identity verification (KYC performed via Persona) and credit underwriting. The group currently serves approximately 11,000 cardholders. Revenue comes from interest on revolving balances and installment plans, interchange, and card fees. Our customers are exclusively individual consumers in the Philippines; we do not serve businesses, and we do not serve customers outside the Philippines.
 
-Zed is also developing a dollar-denominated account product ("Zed Cash," working name) that will let the same consumer base hold and use US-dollar stablecoins in self-custodied wallets. This is the product line for which we are onboarding with Bridge (see item 4).
+The group is also developing a dollar-denominated account product ("Zed Cash," working name) that will let the same consumer base hold and use US-dollar stablecoins in self-custodied wallets. Zed Financial, Inc. (the parent, the entity onboarding here) will hold the Bridge relationship for this product line (see item 4).
 
 ## 2. Proof of operating activity
 
-As a business-to-consumer credit card issuer, our equivalent of a "customer invoice" is the monthly cardholder billing statement. Attached:
+Zed Financial, Inc. is a holding company; the group's customer-facing revenue is generated by its Philippine operating subsidiary, Zed PH. We are providing evidence at both levels:
 
-1. **[ATTACH]** A recent monthly billing statement issued to a cardholder (customer personal details redacted beyond name and statement date), showing the amount billed; and
-2. **[ATTACH]** The matching payment evidence: the corresponding repayment credit received into Zed's collection account, as shown on our bank statement / payment-rail confirmation (InstaPay/PESONet reference included).
+**Parent-level activity (Zed Financial, Inc.):**
 
-We are happy to provide additional months, additional statement/payment pairs, or processor settlement reports if useful.
+1. **[ATTACH — if available]** [Recent intercompany invoice / services agreement billing between Zed Financial, Inc. and Zed PH, with the matching settlement shown on Zed Financial, Inc.'s bank statement]; and/or
+2. **[ATTACH — if available]** [Recent capital contribution / funding wire from Zed Financial, Inc. to Zed PH, shown on Zed Financial, Inc.'s bank statement].
+
+**Group operating activity (Zed PH — the consumer credit business):**
+
+As a business-to-consumer credit card issuer, the group's equivalent of a "customer invoice" is the monthly cardholder billing statement. Attached:
+
+3. **[ATTACH]** A recent monthly billing statement issued by Zed PH to a cardholder (customer personal details redacted beyond name and statement date), showing the amount billed; and
+4. **[ATTACH]** The matching payment evidence: the corresponding repayment credit received into Zed PH's collection account, as shown on its bank statement / payment-rail confirmation (InstaPay/PESONet reference included).
+
+We are happy to provide additional months, additional statement/payment pairs, processor settlement reports, or the intercompany agreements themselves if useful.
 
 ## 3. Proof of licensure / explanation of exemption
 
-**For our current operating activity (consumer credit card issuance):**
+**Zed Financial, Inc. (the entity under review):** as a holding company, Zed Financial, Inc. does not itself conduct any activity requiring a financial license in [jurisdiction of incorporation] or the Philippines. Licensed activity within the group sits with the operating subsidiary, as follows.
 
-Zed Financial, Inc. is registered with the Philippine Securities and Exchange Commission [SEC Registration No. ___] and holds a Certificate of Authority to operate as a financing company under Republic Act No. 8556 (the Financing Company Act) [Certificate No. ___]. Our credit card issuing business is conducted under Republic Act No. 10870 (the Philippine Credit Card Industry Regulation Law) [and is registered with the Bangko Sentral ng Pilipinas accordingly — Ref. No. ___]. **[ATTACH: SEC Certificate of Registration; Certificate of Authority; any BSP registration/acknowledgment.]**
+**Zed PH (operating subsidiary — consumer credit card issuance):**
+
+Zed PH is registered with the Philippine Securities and Exchange Commission [SEC Registration No. ___] and holds a Certificate of Authority to operate as a financing company under Republic Act No. 8556 (the Financing Company Act) [Certificate No. ___]. Its credit card issuing business is conducted under Republic Act No. 10870 (the Philippine Credit Card Industry Regulation Law) [and is registered with the Bangko Sentral ng Pilipinas accordingly — Ref. No. ___]. **[ATTACH: Zed PH's SEC Certificate of Registration; Certificate of Authority; any BSP registration/acknowledgment. Optionally: a group structure chart showing Zed Financial, Inc.'s ownership of Zed PH.]**
 
 **For the planned stablecoin-related activity (the subject of this Bridge account) — explanation of why no additional license is required:**
 
 Zed's role in the planned product is confined to activities that do not require a virtual-asset license under Philippine regulation, because each regulated function in the product sits with a party licensed to perform it:
 
-- **Custody:** customer wallets are self-custodied. Wallet key material is generated and held under the customer's sole control through our wallet infrastructure provider; Zed holds no keys, cannot transact on a customer's behalf, and never takes possession of customer assets. Zed therefore does not perform safekeeping or administration of virtual assets for others.
-- **Issuance and redemption:** stablecoin issuance and redemption are performed by Bridge as the licensed issuer/money-services provider, settling directly with customers' self-custodied wallets or with Zed's own corporate account.
-- **Exchange:** Zed does not offer exchange between virtual assets and fiat as a service to others. Any conversion activity on Zed's own corporate funds is own-account treasury activity executed through licensed counterparties.
-- Under BSP Circular No. 1108 (Series of 2021), virtual asset service provider licensing attaches to entities providing exchange, transfer, or custody of virtual assets **as services to others**. Zed performs none of these functions; it provides the customer application and interface, while licensed counterparties perform the regulated legs. Zed's existing consumer-credit activities remain licensed as described above and are unaffected.
+- **Custody:** customer wallets are self-custodied. Wallet key material is generated and held under the customer's sole control through our wallet infrastructure provider; no Zed entity holds keys, can transact on a customer's behalf, or takes possession of customer assets. Zed therefore does not perform safekeeping or administration of virtual assets for others.
+- **Issuance and redemption:** stablecoin issuance and redemption are performed by Bridge as the licensed issuer/money-services provider, settling directly with customers' self-custodied wallets or with Zed Financial, Inc.'s own corporate account.
+- **Exchange:** no Zed entity offers exchange between virtual assets and fiat as a service to others. Any conversion activity on Zed Financial, Inc.'s own corporate funds is own-account treasury activity executed through licensed counterparties.
+- Under BSP Circular No. 1108 (Series of 2021), virtual asset service provider licensing attaches to entities providing exchange, transfer, or custody of virtual assets **as services to others**. No Zed entity performs these functions; the group provides the customer application and interface, while licensed counterparties perform the regulated legs. Zed PH's existing consumer-credit activities remain licensed as described above and are unaffected.
 
-Zed monitors this analysis against regulatory developments and would seek the appropriate authorization before undertaking any activity that requires one.
+We monitor this analysis against regulatory developments and would seek the appropriate authorization before undertaking any activity that requires one.
 
 ## 4. How the entity will use its account with Bridge
 
 **Option A (recommended — accurate through the current product direction):**
 
-Zed will use its Bridge account in connection with its dollar-denominated consumer wallet product:
+Zed Financial, Inc. will use its Bridge account in connection with the group's dollar-denominated consumer wallet product:
 
-1. **Issuance/redemption orchestration:** facilitating the minting of stablecoins against USD and redemption of stablecoins to USD, with customer-destined stablecoins delivered directly to customers' self-custodied wallets (Zed never holds customer assets);
-2. **Corporate treasury:** funding, holding, and converting between USD and stablecoins on Zed's own account to support product operations (e.g., operational float, fees); and
-3. **Operational payments** related to the above.
+1. **Issuance/redemption orchestration:** facilitating the minting of stablecoins against USD and redemption of stablecoins to USD, with customer-destined stablecoins delivered directly to customers' self-custodied wallets (no Zed entity holds customer assets);
+2. **Corporate treasury:** funding, holding, and converting between USD and stablecoins on Zed Financial, Inc.'s own account to support product operations (e.g., operational float, fees); and
+3. **Operational payments** related to the above, including [intercompany funding flows with Zed PH, as applicable].
 
-All customer-facing activity involves Philippine-resident retail customers who have passed Zed's KYC; all Bridge-account activity is initiated by Zed on its own corporate behalf.
+All customer-facing activity involves Philippine-resident retail customers who have passed the group's KYC; all Bridge-account activity is initiated by Zed Financial, Inc. on its own corporate behalf. [The customer-facing application is operated by Zed Financial, Inc. / Zed PH — confirm which entity will operate Zed Cash.]
 
 **Option B (narrower, if you prefer treasury-only scope):**
 
-Zed will use its Bridge account for corporate treasury purposes on its own behalf: converting between USD and stablecoins, holding stablecoin balances, and funding operational flows for its dollar-denominated consumer product. Customer assets are self-custodied and do not transit Zed's Bridge account.
+Zed Financial, Inc. will use its Bridge account for corporate treasury purposes on its own behalf: converting between USD and stablecoins, holding stablecoin balances, and funding operational flows for the group's dollar-denominated consumer product. Customer assets are self-custodied and do not transit the Bridge account.
 
 ## 5. Primary countries of operation
 
-Zed Financial, Inc. is incorporated in [Delaware, USA / the Philippines — confirm entity jurisdiction]. All of our operations, employees, and customers are in the **Philippines**; it is the only market we serve. [If a US parent/sub structure exists: operations are conducted in the Philippines through [entity]; the Bridge account will be held by [entity].]
+Zed Financial, Inc. is incorporated in [Delaware, USA — confirm]. It operates as the holding company of the group; the group's operations, employees, and customers are in the **Philippines**, conducted through its subsidiary Zed PH. The Philippines is the only market we serve. The Bridge account will be held and operated by Zed Financial, Inc. [from the United States / confirm where treasury functions are performed].
 
 ---
 
-> **Send-checklist (don't paste):** fill every `[...]`; attach the two Q2 artifacts + the Q3 certificates; delete Option A or B in Q4; confirm the jurisdiction line in Q5 matches the entity under review (Customer ID 9619036d-89d4-4e5e-8df2-118d9aeee9fd, steve@zed.co).
+> **Send-checklist (don't paste):** fill every `[...]`; confirm the sub's exact registered name and swap "Zed PH" definitions accordingly; pick A/B evidence path(s) in Q2 and delete the unused lines; attach Q2 artifacts + Q3 certificates (+ structure chart if you have one); delete Option A or B in Q4 and resolve the operator bracket; confirm the jurisdiction lines in Q3/Q5 (Customer ID 9619036d-89d4-4e5e-8df2-118d9aeee9fd, steve@zed.co).
