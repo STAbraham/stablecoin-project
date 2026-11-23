@@ -5,7 +5,7 @@
 > 2. **Q2 (operating activity) — settled:** parent-level evidence = the intercompany agreement (attach it); group-level evidence = Steve's statements (drop in `inbox/` for redaction before attaching).
 > 3. **Decision needed on Q4 (account use):** Option A (recommended) describes stablecoin issuance/redemption + corporate treasury for the dollar-wallet product generically — accurate through the USDC pivot. Option B is treasury-only if you want a narrower review scope. Also confirm **which entity will operate the Zed Cash product** (contract with the wallet provider, run the app) — the draft says the parent; if it's the sub, Q3 and Q4 need the operator swapped.
 > 4. **Insert before sending:** every `[...]` placeholder; the Q2 artifacts; the Q3 certificates (these are the *subsidiary's* — label them as such).
-> 5. The licensure/exemption answer deliberately describes each activity by its established name and says nothing beyond what's asked — if they follow up by phone, ask them to put questions in writing.
+> 5. The exemption answer runs entirely on **Zed's own activities** (software provider + own-account principal) — it never leans on Bridge's licenses, never asserts anyone is licensed in the PH, and never claims issuance itself is unlicensed (Zed simply doesn't issue). It describes each activity by its established name and says nothing beyond what's asked — if they follow up by phone, ask them to put questions in writing.
 
 ---
 
@@ -42,16 +42,19 @@ We are happy to provide additional months, additional statement/payment pairs, o
 
 Zed PH is registered with the Philippine Securities and Exchange Commission [SEC Registration No. ___] and holds a Certificate of Authority to operate as a financing company under Republic Act No. 8556 (the Financing Company Act) [Certificate No. ___]. Its credit card issuing business is conducted under Republic Act No. 10870 (the Philippine Credit Card Industry Regulation Law) [and is registered with the Bangko Sentral ng Pilipinas accordingly — Ref. No. ___]. **[ATTACH: Zed PH's SEC Certificate of Registration; Certificate of Authority; any BSP registration/acknowledgment. Optionally: a group structure chart showing Zed Financial, Inc.'s ownership of Zed PH.]**
 
-**For the planned stablecoin-related activity (the subject of this Bridge account) — explanation of why no additional license is required:**
+**For the planned stablecoin-related activity (the subject of this Bridge account) — explanation of why no license is required:**
 
-Zed's role in the planned product is confined to activities that do not require a virtual-asset license under Philippine regulation, because each regulated function in the product sits with a party licensed to perform it:
+No Zed entity requires a license for its role in the planned product, because no Zed entity performs a licensed activity. The roles the Zed entities perform are:
 
-- **Custody:** customer wallets are self-custodied. Wallet key material is generated and held under the customer's sole control through our wallet infrastructure provider; no Zed entity holds keys, can transact on a customer's behalf, or takes possession of customer assets. Zed therefore does not perform safekeeping or administration of virtual assets for others.
-- **Issuance and redemption:** stablecoin issuance and redemption are performed by Bridge as the licensed issuer/money-services provider, settling directly with customers' self-custodied wallets or with Zed Financial, Inc.'s own corporate account.
-- **Exchange:** no Zed entity offers exchange between virtual assets and fiat as a service to others. Any conversion activity on Zed Financial, Inc.'s own corporate funds is own-account treasury activity executed through licensed counterparties.
-- Under BSP Circular No. 1108 (Series of 2021), virtual asset service provider licensing attaches to entities providing exchange, transfer, or custody of virtual assets **as services to others**. No Zed entity performs these functions; the group provides the customer application and interface, while licensed counterparties perform the regulated legs. Zed PH's existing consumer-credit activities remain licensed as described above and are unaffected.
+- **Software provider.** Zed provides the consumer application through which customers hold and use stablecoins in wallets the customer alone controls. Wallet keys are generated and held under the customer's sole control; no Zed entity holds keys, can move customer assets, or takes possession of them at any point. Providing software through which a person manages assets they custody themselves is not a licensed activity in the United States or the Philippines.
+- **Principal on its own account.** Zed Financial, Inc. acquires, holds, converts, and redeems stablecoins solely for its own corporate treasury. It does not issue or redeem any stablecoin, and does not hold, exchange, transfer, or transmit funds or virtual assets on behalf of any other person.
 
-We monitor this analysis against regulatory developments and would seek the appropriate authorization before undertaking any activity that requires one.
+Applied to the licensing frameworks of the jurisdictions in which we operate:
+
+- **United States [confirm jurisdiction]:** money-services licensing attaches to transmitting or exchanging value *for others*. Zed Financial, Inc.'s account activity is conducted as a principal for its own corporate account, which is not money transmission.
+- **Philippines:** Zed PH's consumer-credit activities are licensed as described above. For the stablecoin product, the relevant licensing categories attach to functions no Zed entity performs: virtual asset service provider registration covers exchange, transfer, and safekeeping of virtual assets conducted as a service for the account of others; e-money issuance covers holding redeemable customer fiat value; payment-system operator registration covers processing payments on behalf of others. Zed performs none of these functions — customers transact from wallets they control, and Zed's own holdings are proprietary.
+
+We monitor this analysis against regulatory developments in both jurisdictions and would obtain the appropriate authorization before undertaking any activity that requires one.
 
 ## 4. How the entity will use its account with Bridge
 
