@@ -1,6 +1,6 @@
 # Zed Dollar Wallet — Modular PRD (wallet-first)
 
-**Status:** Draft v0.3 (2026-11-17) — settled facts only; decisions marked `OPEN` are for joint resolution (none silently assumed). Standalone product proposal.
+**Status:** Draft v0.4 (2026-11-27) — settled facts only; decisions marked `OPEN` are for joint resolution (none silently assumed). Standalone product proposal.
 **Surfaces:** repo canonical: this file; collaborative working copy: Claude Doc; team copies: Word files in Drive under Shared drives/Product/USDC Accounts (refreshed on meaningful revisions). Team copies carry no internal-workflow language.
 **IDs:** decisions `W-D*`, requirements `W-R*`, open questions `W-Q*`; Privy confirmations use the shared `C-PR*`/`C-Q*` IDs (canonical in the counterparty tracker).
 
@@ -57,9 +57,10 @@ flowchart TD
 | # | Decision | The question | Preliminary note |
 |---|---|---|---|
 | W-D8 | Module sequencing + pilot scope per module | Current lean M2 → M3 → M4; cohort + caps per module undecided | Prior working reference for M1: ~50 invite-only existing cardholders, conservative caps |
-| W-D9 | Naming / brand | Current working name: **"Zed Cash"** (11/16); final naming open | Steve's call + a compliance floor on USDC/Circle disclosure prominence |
+| W-D9 | Naming / brand | Current working name: **"Zed Cash"** (11/16); final naming open. Active debate (11/25): "Dollar" disfavored — limiting if other currency-backed coins follow; candidates Wallet / Cash / Stash; marketing lean "Zed Wallet"; nothing final | Steve's call + a compliance floor on USDC/Circle disclosure prominence |
 | W-D10 | Chain | Lean: Base (Privy Earn USDC vaults live there) — but now gated on M3 instrument availability and M2/M4 partner rails | Chain follows the instruments and the partner rails |
 | W-D11 | M1 receive guardrails | How open is "open-loop receive": any sender vs. screening/limits; multi-chain receive vs. single-chain with guidance | Interacts with W-Q3 (counsel) |
+| W-D12 | KYC fields beyond the floor | Collect **source of funds**? **TIN**? Both raised 11/25 — source of funds argued internally as the one field regulators care most about (money-laundering lens); TIN as a strong is-a-real-person signal | The W-R20 floor ships regardless; adding a field later is cheap, walking one back is not |
 
 ## 3. Module requirements
 
@@ -67,15 +68,18 @@ Each module: the flow to build first, then requirements as capability statements
 
 ### M1 — Wallet core (the foundation)
 
-**The flow to build:** an existing Zed cardholder activates the Dollar Wallet tab; their self-custodied Privy wallet is created (user-sole-owner, keyed to Zed's existing auth via JSON Web Token / OpenID Connect bring-your-own-auth — no re-registration); they see their **receive address** with clear chain guidance and can share/copy it; funds they send from an exchange or another wallet appear as their USDC balance; they can **send** USDC to any address by signing the transaction themselves; everything keeps working regardless of their card-account state.
+**The flow to build:** a user comes off the waitlist and creates an account in the standalone app (W-D4, W-R19); their self-custodied Privy wallet is created (user-sole-owner, keyed to the app's own auth service via JSON Web Token bring-your-own-auth); they see their **receive address** with clear chain guidance and can share/copy it; funds they send from an exchange or another wallet appear as their USDC balance; they can **send** USDC to any address by signing the transaction themselves; everything keeps working regardless of their card-account state.
 
-- **W-R1. Wallet creation.** User-sole-owner Privy wallet; no Zed key material; export/recovery usable independently of Zed (C-PR-3); creation idempotent and invisible-fast inside the tab.
+- **W-R1. Wallet creation.** User-sole-owner Privy wallet; no Zed key material; export/recovery usable independently of Zed (C-PR-3); creation idempotent and invisible-fast inside the app.
 - **W-R2. Receive.** The address is first-class UX: copy/share/QR render, explicit chain labeling ("send only USDC on {chain}"), deposit detection with confirmation states, and a designed answer for wrong-asset/wrong-chain sends (recovery guidance, not silence). Chain scope per W-D10/W-D11.
-- **W-R3. Send.** User-signed, open-loop to any address; fee (gas) handling defined (sponsored vs. user-paid → gas strategy from the Privy tech digest); address-book and safety affordances (test-send nudge, allowlist option).
+- **W-R3. Send.** User-signed, open-loop to any address; fee (gas) handling defined (sponsored vs. user-paid → gas strategy from the Privy tech digest; the internal MVP sponsors gas as of 11/25 — the lasting strategy is still the open choice); address-book and safety affordances (test-send nudge, allowlist option).
 - **W-R4. Balance truth.** The chain is the source of truth; no Zed ledger of user balances. Display = on-chain balance + pending in/outbound states.
 - **W-R5. Card-account-state independence.** Delinquency locks the card tab, never the wallet; closed card accounts retain wallet access (empty/marketing-state pattern); forced-offboarding path designed without a partner to force it through.
 - **W-R6. Compliance posture** (→ W-Q3): Zed provides self-custody wallet software; it is not custodian, exchange, or transmitter. Product must preserve that: no pooling, no Zed-controlled flow of user funds, terminology discipline. Sanctions/screening posture on receive and send per counsel.
 - **W-R7. Runbooks.** Privy outage, chain congestion, compromised-device support flow, pilot halt (which, with no partner, is just feature-flagging the tab).
+- **W-R19. Waitlist + account creation (standalone app).** The waitlist exists to measure demand, so friction stays minimal (decided 11/25): the marketing site drives to an **email-only** capture with a share incentive — no account creation, no app install, no access codes at signup. Invites go out by email; the invited user then creates an account (email + password, email verification, terms acceptance) and lands in the wallet with two entry actions: **Add funds** (the W-R2 receive flow) and **Unlock pay** (the W-R20 identity flow). Password rules are stricter than the card app's — the balance is uninsured and instantly movable. Onboarding forms are redesigned from scratch: the card app's components can't be reused (different stack) and its form UX is explicitly not the bar (Robinhood-grade speed is). Address entry drops the field-per-component pattern: reuse the existing region/city/barangay backend corpus and evaluate Google Address Autocomplete for Philippine coverage.
+- **W-R20. Identity verification (voluntary KYC — gates pay, never the wallet).** No regulation mandates KYC for the self-custody wallet itself (§4.0); Zed collects identity proactively so the product has an identity story to show regulators and a handle for fraud management. It gates "pay"-type features only — receive, hold, and send never require it. The floor (set 11/25): **full legal name, residential address, phone number**, plus **government ID capture and a selfie match**; the ID is OCR'd to pre-fill the detail fields. Fields beyond the floor (source of funds, TIN) → W-D12. Benchmark in progress: what Coins.ph collects from Zed for travel-rule compliance, as the closest proxy for regulator expectations (feeds the W-Q3 fact package).
+- **W-R21. Signing authority must be user-held — login can never move money.** Because the app's own auth service issues the JSON Web Tokens that Privy trusts (bring-your-own-auth), Zed could technically mint a valid token for any account. App login must therefore never be sufficient to sign a transaction — otherwise Zed is custodial in substance regardless of configuration (settled 11/25). Transaction signing requires a factor only the user holds — passkey, or multi-factor where passkeys are unavailable — enforced at the wallet layer; a device that can't support one can't open an account. This is the concrete mitigation for the known bring-your-own-auth residual (C-PR-2) and is what keeps W-D2's no-unilateral-Zed-signing posture true in fact, not just in settings.
 
 ### M2 — Merchant payments (QR Ph, settled via Netbank)
 
@@ -228,7 +232,7 @@ Residuals, named plainly: Circular 1049 carries a Monetary Board catch-all, and 
 | W-Q3 | Counsel: characterization of M1 — self-custody wallet software provided by a PH-facing app: any VASP/EMI/money-transmission trigger? Screening obligations on open-loop receive/send? Travel-rule exposure on sends? Plus (§4.0): does UX that steers users to specific external on-ramps create a reviewable Zed-linked arrangement under BSP M-2026-003? Fact package = the §4.0 diligence checklist | M1 external launch | Open |
 | W-Q4 | Counsel: TMMF / SRC §8 (C-Q14). Frame per §4.0: the complete arrangement is what gets classified — neither Privy’s intermediation nor self-custody resolves it | M3 design start | Open — **critical path now** |
 | W-Q5 | Privy: TMMF instrument availability + PH eligibility in writing (C-Q6 pattern, per instrument) | M3 | Open |
-| W-Q6 | Coins.ph relationship: suspension status, reinstatement timeline, their account of the cause — keeps M4 optionality honest | M4 optionality | Open — relationship-level, not API-level |
+| W-Q6 | Coins.ph relationship: suspension status, reinstatement timeline, their account of the cause — keeps M4 optionality honest | M4 optionality | Open — relationship-level, not API-level. Engineering signal (11/18): Coins' support for third parties like Zed is narrowing — treat the option as weakening |
 
 ### 4.2 Partner items (canonical in the shared counterparty tracker)
 
@@ -236,7 +240,7 @@ C-PR-1..5 (user-sole-owner config, no Zed signer, export/recovery, open-loop sen
 
 ### 4.3 Next steps
 
-1. M1 build kickoff: Privy sandbox verification of C-PR-1..5 under Zed's config; wallet-core tech design (bounded module per W-R17); continue the Andy mobile-web POC.
+1. M1 build: internal MVP is live as a progressive web app (account creation, receive, send, wallet history; gas sponsored as of 11/25). Next: waitlist + onboarding per W-R19, identity flow per W-R20, the W-R21 user-held signing factor; formal verification of C-PR-1..5 under Zed's config.
 2. Counsel asks, in parallel: W-Q3 (M1 characterization — needed before external users) and W-Q4 (SRC §8 — needed before M3 design).
 3. Privy: TMMF availability + PH eligibility in writing (W-Q5).
 4. Netbank: kick off QR-PH integration scoping (W-Q8) through the existing relationship; in parallel, design + counsel the conversion-leg structure (W-Q7) before any M2 build.
