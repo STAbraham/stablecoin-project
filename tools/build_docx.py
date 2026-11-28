@@ -61,6 +61,7 @@ def scrubs_for(name):
 
 docs = [
  ('tracks/d-wallet-first/prd.md', 'mprd', 'Zed Dollar Wallet — Modular PRD', [DGDIR+'module-map.png', DGDIR+'m2-qrph-flow.png', DGDIR+'ops-financing-flow.png', DGDIR+'ops-aaas-flow.png']),
+ ('tracks/d-wallet-first/m2-financing-policy-memo.md', 'policymemo', 'Zed_M2_Purchase_Financing_Policy_Memo', []),
  ('tracks/d-wallet-first/research/netbank-qrph.md', 'netbank', 'Netbank QR-PH — API Digest', []),
  ('tracks/d-wallet-first/research/usdc-usdt-ph-regulatory-handoff.md', 'reghandoff', 'USDC-USDT PH Regulatory Research Handoff', []),
  ('tracks/d-wallet-first/research/bsp-vasp-defi-pooling.md', 'defipool', 'BSP-VASP DeFi Pooling Note', []),
