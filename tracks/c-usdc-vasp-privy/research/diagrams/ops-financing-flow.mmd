@@ -1,13 +1,13 @@
 flowchart LR
-  subgraph CL ["Crypto leg"]
+  subgraph CL ["Crypto leg — Zed PH's own treasury"]
     direction TB
-    U["User's wallet<br/>(USDC, self-custodied)"] -->|"2. User signs USDC<br/>over to the VASP"| V["Licensed VASP"]
+    U["User's wallet<br/>(USDC, self-custodied)"] -->|"2. User settles the drawdown:<br/>USDC conveyed to Zed PH<br/>(dación en pago — Zed PH's<br/>property on receipt)"| V["Zed PH liquidates its own USDC<br/>through a licensed VASP,<br/>as a principal customer (W-Q10/11)"]
   end
-  subgraph PL ["Peso leg — Zed pays its OWN debt"]
+  subgraph PL ["Peso leg — Zed PH pays its OWN debt"]
     direction TB
-    Z["Zed's corporate account<br/>at Netbank (Zed's pesos — 'the float')"] -->|"1. Zed pays the merchant,<br/>discharging its OWN obligation:<br/>Zed financed the purchase and books<br/>a receivable against the user"| MB["Merchant's bank or<br/>e-wallet account"]
+    Z["Zed PH's corporate account<br/>at Netbank (Zed PH's pesos — 'the float')"] -->|"1. Zed PH pays the merchant,<br/>discharging its OWN obligation:<br/>the drawdown financed the purchase and<br/>booked a receivable against the user"| MB["Merchant's bank or<br/>e-wallet account"]
   end
-  CL -->|"3. Peso proceeds repay<br/>Zed's receivable"| PL
+  CL -->|"3. Liquidation proceeds<br/>replenish the float"| PL
   classDef user fill:#f2efe9,stroke:#a08c5b
   classDef bank fill:#eef3fa,stroke:#4a6fa5
   class U user
